@@ -1,25 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_menu_gris"
+    android:id="@+id/activity_sepia_menu"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.emmaveillat.photoship.MenuGris">
-
-    <ImageView
-        android:id="@+id/picture"
-        android:layout_width="fill_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:layout_above="@+id/gris"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="37dp">
-    </ImageView>
+    tools:context="com.example.emmaveillat.finalproject.SepiaMenu">
 
     <Button
         android:text="Annuler les modifications"
@@ -40,12 +29,29 @@
         android:layout_alignParentStart="true" />
 
     <Button
-        android:text="Changer mon image en noir et blanc !"
+        android:text="Filtre sepia"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/gris"
+        android:id="@+id/sepia"
         android:layout_above="@+id/save"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/sepia"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+        <ImageView
+            android:id="@+id/picture"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_above="@+id/sepia"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
+        </ImageView>
+    </ScrollView>
 
 </RelativeLayout>

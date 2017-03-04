@@ -1,4 +1,4 @@
-package com.example.emmaveillat.photoship;
+package com.example.emmaveillat.finalproject;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.example.emmaveillat.photoship", appContext.getPackageName());
+        assertEquals("com.example.emmaveillat.finalproject", appContext.getPackageName());
     }
 }

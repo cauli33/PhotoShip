@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.emmaveillat.photoship">
+    package="com.example.emmaveillat.finalproject">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -13,23 +13,23 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Accueil">
+        <activity android:name=".Homepage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChargementPhoto" />
-        <activity android:name=".Menu" />
-        <activity android:name=".MenuGris" />
-        <activity android:name=".MenuCouleur" />
-        <activity android:name=".MenuFiltre" />
-        <activity android:name=".MenuZoom" />
-        <activity android:name=".MenuPinchZoom" />
-        <activity android:name=".MenuHE" />
-        <activity android:name=".MenuChoixTeinte" />
-        <activity android:name=".MenuSepia"></activity>
+        <activity android:name=".PhotoLoading" />
+        <activity android:name=".GeneralMenu" />
+        <activity android:name=".GrayMenu" />
+        <activity android:name=".ChoiceMenu" />
+        <activity android:name=".ColorMenu" />
+        <activity android:name=".FilterMenu" />
+        <activity android:name=".ExtensionDynamic" />
+        <activity android:name=".PinchZoomMenu" />
+        <activity android:name=".SepiaMenu" />
+        <activity android:name=".ZoomMenu"></activity>
     </application>
 
 </manifest>

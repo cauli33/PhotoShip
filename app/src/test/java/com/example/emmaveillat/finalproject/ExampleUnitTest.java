@@ -1,4 +1,4 @@
-package com.example.emmaveillat.photoship;
+package com.example.emmaveillat.finalproject;
 
 import org.junit.Test;
 
