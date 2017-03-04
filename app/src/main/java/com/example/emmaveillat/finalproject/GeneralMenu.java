@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 public class GeneralMenu extends AppCompatActivity {
 
-    Button ppv, pinch, gris, couleur, filtre, HE, teinte, sepia;
+    Button ppv, pinch, gris, couleur, filtre, ED, teinte, sepia, HE;
 
     ImageButton aide_ppv, aide_pinch, aide_gris, aide_couleur, aide_filtre;
 
@@ -37,6 +37,9 @@ public class GeneralMenu extends AppCompatActivity {
 
         filtre = (Button) findViewById(R.id.filtre);
         filtre.setOnClickListener(blistener);
+
+        ED = (Button) findViewById(R.id.ED);
+        ED.setOnClickListener(blistener);
 
         HE = (Button) findViewById(R.id.HE);
         HE.setOnClickListener(blistener);
@@ -115,7 +118,7 @@ public class GeneralMenu extends AppCompatActivity {
                     startActivity(sixth);
                     break;
 
-                case R.id.HE:
+                case R.id.ED:
                     Intent seven = new Intent(GeneralMenu.this, ExtensionDynamic.class);
                     startActivity(seven);
                     break;
@@ -129,6 +132,11 @@ public class GeneralMenu extends AppCompatActivity {
                 case R.id.sepia:
                     Intent nine = new Intent(GeneralMenu.this, SepiaMenu.class);
                     startActivity(nine);
+                    break;
+
+                case R.id.HE:
+                    Intent ten = new Intent(GeneralMenu.this, EgalizationHistogramm.class);
+                    startActivity(ten);
                     break;
 
                 default:

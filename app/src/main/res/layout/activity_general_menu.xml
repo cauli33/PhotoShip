@@ -85,19 +85,10 @@
         android:layout_alignParentStart="true" />
 
     <Button
-        android:text="Choix teinte"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/teinte"
-        android:layout_above="@+id/HE"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <Button
-        android:text="Égalisation d'histogramme"
+        android:text="Extension linéaire de dynamiques"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/HE"
+        android:id="@+id/ED"
         android:layout_above="@+id/aide_filtre"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -132,5 +123,23 @@
         android:layout_alignBottom="@+id/aide_gris"
         android:layout_toLeftOf="@+id/aide_couleur"
         android:layout_toStartOf="@+id/aide_couleur" />
+
+    <Button
+        android:text="Choix teinte"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/teinte"
+        android:layout_below="@+id/HE"
+        android:layout_alignRight="@+id/gris"
+        android:layout_alignEnd="@+id/gris" />
+
+    <Button
+        android:text="Égalisation d'histogramme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/HE"
+        android:layout_below="@+id/aide_couleur"
+        android:layout_toRightOf="@+id/teinte"
+        android:layout_toEndOf="@+id/teinte" />
 
 </RelativeLayout>

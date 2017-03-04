@@ -29,7 +29,8 @@
         <activity android:name=".ExtensionDynamic" />
         <activity android:name=".PinchZoomMenu" />
         <activity android:name=".SepiaMenu" />
-        <activity android:name=".ZoomMenu"></activity>
+        <activity android:name=".ZoomMenu" />
+        <activity android:name=".EgalizationHistogramm"></activity>
     </application>
 
 </manifest>
