@@ -12,19 +12,21 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+/**
+ * This class is used to change hue, saturation and luminosity of the loaded image with three seekbars
+ * @author emmaveillat
+ */
 public class ColorMenu extends AppCompatActivity {
 
     Float hue, satur, value;
 
-    Button save;
+    Button save, reset;
 
     ImageView imageResult;
 
     SeekBar hueBar, satBar, valBar;
 
     TextView hueText, satText, valText;
-
-    Button reset;
 
     Bitmap picture, pictureToUse;
 
@@ -152,7 +154,6 @@ public class ColorMenu extends AppCompatActivity {
         return Bitmap.createBitmap(mapDestColor, w, h, Bitmap.Config.ARGB_8888);
 
     }
-
 
     private View.OnClickListener blistener = new View.OnClickListener(){
         public void onClick(View v){
