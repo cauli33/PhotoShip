@@ -20,6 +20,7 @@ public class GeneralMenu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_general_menu);
 
+        //Sets buttons
         pinch = (Button) findViewById(R.id.pinch);
         pinch.setOnClickListener(blistener);
 
@@ -50,6 +51,7 @@ public class GeneralMenu extends AppCompatActivity {
         conv = (Button) findViewById(R.id.conv);
         conv.setOnClickListener(blistener);
 
+        //Sets help toasts
         aide_couleur = (ImageButton)findViewById(R.id.aide_couleur);
         aide_couleur.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -95,6 +97,7 @@ public class GeneralMenu extends AppCompatActivity {
     private View.OnClickListener blistener = new View.OnClickListener(){
         public void onClick(View v){
             switch (v.getId()) {
+                //Gets to chosen activity when clicking a button
 
                 case R.id.gris:
                     Intent second = new Intent(GeneralMenu.this, GrayMenu.class);

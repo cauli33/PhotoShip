@@ -23,6 +23,8 @@ public class EgalizationHistogramm extends AppCompatActivity {
 
     Button save, HE, reset;
 
+    ImageView img;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +34,7 @@ public class EgalizationHistogramm extends AppCompatActivity {
 
         picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
 
-        ImageView img = (ImageView) findViewById(R.id.picture);
+        img = (ImageView) findViewById(R.id.picture);
         img.setImageBitmap(picture);
 
         save = (Button) findViewById(R.id.save);
@@ -46,11 +48,13 @@ public class EgalizationHistogramm extends AppCompatActivity {
 
     }
 
+    //We need a gray level picture for histogram egalization algorithm
     public void toGray(Bitmap bmp) {
         for (int i = 0; i < bmp.getWidth(); i++) {
             for (int j = 0; j < bmp.getHeight(); j++) {
                 int pixel = bmp.getPixel(i, j);
 
+                //Gets RGB values from the pixel and sets average value in gray level
                 int red = Color.red(pixel);
                 int blue = Color.blue(pixel);
                 int green = Color.green(pixel);
@@ -98,23 +102,24 @@ public class EgalizationHistogramm extends AppCompatActivity {
         public void onClick(View v){
             switch (v.getId()) {
 
+                //Undoes changes by getting the original picture back
                 case R.id.reset:
                     picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
-                    ImageView img2 = (ImageView) findViewById(R.id.picture);
-                    img2.setImageBitmap(picture);
+                    img.setImageBitmap(picture);
                     break;
 
+                //Saves image in the gallery
                 case R.id.save:
                     MediaStore.Images.Media.insertImage(getContentResolver(), picture, PhotoLoading.imgDecodableString + "_histogramm_egalization" , "");
                     Intent second = new Intent(EgalizationHistogramm.this, PhotoLoading.class);
                     startActivity(second);
                     break;
 
+                //Applicates histogram extension algorithm on picture
                 case R.id.HE:
                     pictureFinal = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
                     toGray(pictureFinal);
                     egalization(pictureToUse);
-                    ImageView img = (ImageView) findViewById(R.id.picture);
                     img.setImageBitmap(pictureFinal);
                     break;
 

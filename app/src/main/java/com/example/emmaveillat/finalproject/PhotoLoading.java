@@ -40,6 +40,7 @@ public class PhotoLoading extends Activity {
         choice = (Button) findViewById(R.id.choice);
         choice.setOnClickListener(blistener);
 
+        //Starts camera
         Button photoButton = (Button) this.findViewById(R.id.button1);
         photoButton.setOnClickListener(new View.OnClickListener() {
 
@@ -104,6 +105,7 @@ public class PhotoLoading extends Activity {
     private View.OnClickListener blistener = new View.OnClickListener(){
         public void onClick(View v){
             switch (v.getId()) {
+                // If a picture has been chosen in the gallery, opens general menu
                 case R.id.choice :
                     if (pictureToUse != null){
                         Intent second = new Intent(PhotoLoading.this, GeneralMenu.class);

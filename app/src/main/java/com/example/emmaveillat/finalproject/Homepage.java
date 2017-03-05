@@ -24,6 +24,7 @@ public class Homepage extends AppCompatActivity {
         public void onClick(View v){
             switch (v.getId()) {
 
+                //Button to start and go to Photoloading
                 case R.id.go:
                     Intent second = new Intent(Homepage.this, PhotoLoading.class);
                     startActivity(second);

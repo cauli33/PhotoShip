@@ -28,9 +28,11 @@ public class ConvolutionMenu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_convolution_menu);
 
+        // Creates textzone to choose matrix length for moyenne
         facteurLongueur = (EditText) findViewById(R.id.newLength);
         facteurLongueur.setHint("Notez ici la taille de la matrice");
 
+        // Gets picture Bitmap chosen in the gallery
         pictureToUse = PhotoLoading.scaleImage();
 
         picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
@@ -61,32 +63,38 @@ public class ConvolutionMenu extends AppCompatActivity {
         public void onClick(View v) {
             switch (v.getId()) {
 
+                //Undoes changes by getting the original picture back
                 case R.id.reset:
                     picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
                     imgView.setImageBitmap(picture);
                     break;
 
+                //Applicates 'moyenne' filter
                 case R.id.moy:
                     length = Integer.valueOf(facteurLongueur.getText().toString());
                     moyenne(picture, length);
                     imgView.setImageBitmap(picture);
                     break;
 
+                //Applicates Gaussian blur
                 case R.id.gauss:
                     gauss(picture);
                     imgView.setImageBitmap(picture);
                     break;
 
+                //Applicates Sobel filter
                 case R.id.sobel:
                     sobel(picture);
                     imgView.setImageBitmap(picture);
                     break;
 
+                //Applicates Laplacien filter
                 case R.id.lapla:
                     laplacien(picture);
                     imgView.setImageBitmap(picture);
                     break;
 
+                //Saves image in the gallery
                 case R.id.save:
                     try {
                         MediaStore.Images.Media.insertImage(getContentResolver(), picture, PhotoLoading.imgDecodableString + "_convolution", "");
@@ -104,6 +112,7 @@ public class ConvolutionMenu extends AppCompatActivity {
     };
 
     public void moyenne(Bitmap bmp, int n) {
+        //Creates a matrix full of ones and applicates convolution (and divides by the number of pixels used)
         int[][] mask = new int[n][n];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -114,6 +123,7 @@ public class ConvolutionMenu extends AppCompatActivity {
     }
 
     public void gauss(Bitmap bmp){
+        //Creates gaussian matrix and applicates convolution
         int[][] mask ={{1,2,3,2,1},{2,6,8,6,2},{3,8,10,8,3},{2,6,8,6,2},{1,2,3,2,1}};
         convolution(bmp, mask, 98);
     }
@@ -121,6 +131,7 @@ public class ConvolutionMenu extends AppCompatActivity {
     public void sobel(Bitmap bmp){
         int width = bmp.getWidth();
         int height = bmp.getHeight();
+        //applicates convolution with hx et hy matrix
         int[][] hx = {{-1,0,1},{-2,0,2},{-1,0,1}};
         Bitmap Gx = bmp;
         convolution(Gx,hx,1);
@@ -131,6 +142,7 @@ public class ConvolutionMenu extends AppCompatActivity {
         int[] pixY = new int[height*width];
         Gx.getPixels(pixX, 0, width, 0, 0, width, height);
         Gy.getPixels(pixY, 0, width, 0, 0, width, height);
+        //On every pixels, calculates sqrt(x^2 + y^2) from gx and gy
         for (int i=0; i<height*width; i++){
             pixX[i] = (int) Math.sqrt(Math.pow(pixX[i],2)+Math.pow(pixY[i],2));
         }
@@ -138,6 +150,7 @@ public class ConvolutionMenu extends AppCompatActivity {
     }
 
     public void laplacien(Bitmap bmp){
+        //Applicates convolution with Laplacien matrix
         int[][] mask = {{1,1,1},{1,-8,1},{1,1,1}};
         convolution(bmp, mask, 1);
     }
@@ -149,9 +162,11 @@ public class ConvolutionMenu extends AppCompatActivity {
             int height = bmp.getHeight();
             int[] pixels = new int[height * width];
             int[] pixelsConv = new int[height * width];
+            //Gets array of every pixels from the Bitmap
             bmp.getPixels(pixels, 0, width, 0, 0, width, height);
             int A, R, G, B;
             int sumR, sumG, sumB;
+            //Keeps original values for the borders
             for (int y = 0; y < n; y++) {
                 for (int x = 0; x < width; x++) {
                     pixelsConv[y * width + x] = pixels[y * width + x];
@@ -172,6 +187,7 @@ public class ConvolutionMenu extends AppCompatActivity {
                     pixelsConv[y * width + x] = pixels[y * width + x];
                 }
             }
+            //Convolution avoiding borders
             for (int y = n; y < height - n; y++) {
                 for (int x = n; x < width - n; x++) {
                     sumR = 0;
@@ -182,11 +198,15 @@ public class ConvolutionMenu extends AppCompatActivity {
                         for (int i = -n; i <= n; i++) {
                             float coef_mask = mask[j + n][i + n];
                             int pixel = pixels[(y + j) * width + x + i];
+                            //For every RGB componants, multiplies by convolution matrix coefficient
                             sumR += coef_mask * Color.red(pixel);
                             sumG += coef_mask * Color.green(pixel);
                             sumB += coef_mask * Color.blue(pixel);
                         }
                     }
+
+                    //If value is too low, sets to 0, if too up, sets to 255
+
                     R = sumR/factor;
                     if(R < 0) { R = 0; }
                     else if(R > 255) { R = 255; }

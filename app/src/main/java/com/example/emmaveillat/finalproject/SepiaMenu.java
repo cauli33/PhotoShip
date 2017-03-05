@@ -22,17 +22,20 @@ public class SepiaMenu extends AppCompatActivity {
 
     Button save, sepia, reset;
 
+    ImageView img;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sepia_menu);
 
+        //Gets picture Bitmap chosen in the gallery
         pictureToUse = PhotoLoading.scaleImage();
 
         picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
         newPic = picture.copy(Bitmap.Config.ARGB_8888, true);
 
-        ImageView img = (ImageView) findViewById(R.id.picture);
+        img = (ImageView) findViewById(R.id.picture);
         img.setImageBitmap(picture);
 
         save = (Button) findViewById(R.id.save);
@@ -45,8 +48,8 @@ public class SepiaMenu extends AppCompatActivity {
         reset.setOnClickListener(blistener);
     }
 
-    public void toSephia(Bitmap bmpOriginal) {
-        int width, height, r,g, b, c, gry;
+    public void toSepia(Bitmap bmpOriginal) {
+        int width, height, r, g, b, c, gry;
         height = bmpOriginal.getHeight();
         width = bmpOriginal.getWidth();
         int depth = 20;
@@ -87,21 +90,22 @@ public class SepiaMenu extends AppCompatActivity {
         public void onClick(View v){
             switch (v.getId()) {
 
+                //Undoes changes by getting the original picture back
                 case R.id.reset:
                     picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
-                    ImageView img2 = (ImageView) findViewById(R.id.picture);
-                    img2.setImageBitmap(picture);
+                    img.setImageBitmap(picture);
                     break;
 
+                //Saves image in the gallery
                 case R.id.save:
                     MediaStore.Images.Media.insertImage(getContentResolver(), newPic, PhotoLoading.imgDecodableString + "_sepia" , "");
                     Intent second = new Intent(SepiaMenu.this, PhotoLoading.class);
                     startActivity(second);
                     break;
 
+                //Applicates sepia filter
                 case R.id.sepia:
-                    toSephia(picture);
-                    ImageView img = (ImageView) findViewById(R.id.picture);
+                    toSepia(picture);
                     img.setImageBitmap(newPic);
                     break;
 

@@ -19,16 +19,19 @@ public class ExtensionDynamic extends AppCompatActivity {
 
     Button save, ED, reset;
 
+    ImageView img;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_extension_dynamic);
 
+        //Gets picture Bitmap chosen in the gallery
         pictureToUse = PhotoLoading.scaleImage();
 
         picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
 
-        ImageView img = (ImageView) findViewById(R.id.picture);
+        img = (ImageView) findViewById(R.id.picture);
         img.setImageBitmap(picture);
 
         save = (Button) findViewById(R.id.save);
@@ -42,11 +45,13 @@ public class ExtensionDynamic extends AppCompatActivity {
 
     }
 
+    //We need a gray level picture for dynamic extension algorithm
     public void toGray(Bitmap bmp) {
         for (int i = 0; i < bmp.getWidth(); i++) {
             for (int j = 0; j < bmp.getHeight(); j++) {
                 int pixel = bmp.getPixel(i, j);
 
+                //Gets RGB values from the pixel and sets average value in gray level
                 int red = Color.red(pixel);
                 int blue = Color.blue(pixel);
                 int green = Color.green(pixel);
@@ -111,23 +116,25 @@ public class ExtensionDynamic extends AppCompatActivity {
         public void onClick(View v){
             switch (v.getId()) {
 
+                //Undoes changes by getting the original picture back
                 case R.id.reset:
                     picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
                     ImageView img2 = (ImageView) findViewById(R.id.picture);
                     img2.setImageBitmap(picture);
                     break;
 
+                //Saves image in the gallery
                 case R.id.save:
                     MediaStore.Images.Media.insertImage(getContentResolver(), picture, PhotoLoading.imgDecodableString + "_dynamic_extension" , "");
                     Intent second = new Intent(ExtensionDynamic.this, PhotoLoading.class);
                     startActivity(second);
                     break;
 
+                //Applicates dynamic extension algorithm on picture
                 case R.id.ED:
                     pictureFinal = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
                     toGray(pictureFinal);
                     extension(pictureToUse);
-                    ImageView img = (ImageView) findViewById(R.id.picture);
                     img.setImageBitmap(pictureFinal);
                     break;
 

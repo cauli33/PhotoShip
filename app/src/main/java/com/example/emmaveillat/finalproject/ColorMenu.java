@@ -36,6 +36,7 @@ public class ColorMenu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_color_menu);
 
+        //Gets picture Bitmap chosen in the gallery
         pictureToUse = PhotoLoading.scaleImage();
 
         picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
@@ -61,6 +62,7 @@ public class ColorMenu extends AppCompatActivity {
         reset.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View arg0) {
+                //Initializes seekbars to 256 (middle)
                 hueBar.setProgress(256);
                 satBar.setProgress(256);
                 valBar.setProgress(256);
@@ -84,7 +86,7 @@ public class ColorMenu extends AppCompatActivity {
 
     private void loadBitmapHSV() {
         if (picture != null) {
-
+            //Gets seekbar values and updates text and image
             int progressHue = hueBar.getProgress() - 256;
             int progressSat = satBar.getProgress() - 256;
             int progressVal = valBar.getProgress() - 256;
@@ -104,7 +106,7 @@ public class ColorMenu extends AppCompatActivity {
 
 
     private Bitmap updateHSV(Bitmap src, float settingHue, float settingSat, float settingVal) {
-
+        //Changes pixels hsv values depending on seekbars
         hue = settingHue;
         satur = settingSat;
         value = settingVal;
@@ -121,7 +123,7 @@ public class ColorMenu extends AppCompatActivity {
         int index = 0;
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
-
+                //If values are too low or too up, changes to min or max
                 Color.colorToHSV(mapSrcColor[index], pixelHSV);
 
                 pixelHSV[0] = pixelHSV[0] + settingHue;
@@ -158,7 +160,7 @@ public class ColorMenu extends AppCompatActivity {
     private View.OnClickListener blistener = new View.OnClickListener(){
         public void onClick(View v){
             switch (v.getId()) {
-
+                //Saves image in the gallery
                 case R.id.save:
                     Bitmap pictureFinal = (updateHSV(picture, hue, satur, value)).copy(Bitmap.Config.ARGB_8888, true);
                     MediaStore.Images.Media.insertImage(getContentResolver(), pictureFinal, PhotoLoading.imgDecodableString + "_couleur" , "");

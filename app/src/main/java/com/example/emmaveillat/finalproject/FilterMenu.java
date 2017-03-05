@@ -26,6 +26,7 @@ public class FilterMenu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filter_menu);
 
+        //Gets picture Bitmap chosen in the gallery
         pictureToUse = PhotoLoading.scaleImage();
 
         picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
@@ -44,8 +45,8 @@ public class FilterMenu extends AppCompatActivity {
     }
 
 
-    public void colorize(Bitmap bmp) {
-
+    public void colorize(Bitmap bmp) { //needs changes to get/setPixelS
+        //Replaces hue value from every pixel to the same random hue value
         float [] hsv = new float[3];
 
         float hue = 0F + new Random().nextFloat() * (359F - 0F);
@@ -64,19 +65,21 @@ public class FilterMenu extends AppCompatActivity {
     private View.OnClickListener blistener = new View.OnClickListener(){
         public void onClick(View v){
             switch (v.getId()) {
-
+                //Undoes changes by getting the original picture back
                 case R.id.reset:
                     picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
                     ImageView img2 = (ImageView) findViewById(R.id.picture);
                     img2.setImageBitmap(picture);
                     break;
 
+                //Saves image in the gallery
                 case R.id.save:
                     MediaStore.Images.Media.insertImage(getContentResolver(), picture, PhotoLoading.imgDecodableString + "_filtre" , "");
                     Intent second = new Intent(FilterMenu.this, PhotoLoading.class);
                     startActivity(second);
                     break;
 
+                //Applicates random color filter
                 case R.id.couleur:
                     colorize(picture);
                     ImageView img = (ImageView) findViewById(R.id.picture);

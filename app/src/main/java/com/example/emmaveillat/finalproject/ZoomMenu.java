@@ -20,22 +20,26 @@ public class ZoomMenu extends AppCompatActivity {
 
     Button save, zoom, reset;
 
+    ImageView img;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_zoom_menu);
 
+        // Creates textzones to choose dimension changes factor for height and width
         facteurLongueur = (EditText) findViewById(R.id.newWidth);
         facteurLongueur.setHint("Notez ici le facteur pour la longueur");
 
         facteurHauteur = (EditText) findViewById(R.id.newHeigh);
         facteurHauteur.setHint("Notez ici le facteur pour la hauteur");
 
+        // Gets picture Bitmap chosen in the gallery
         pictureToUse = PhotoLoading.scaleImage();
 
         picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
 
-        ImageView img = (ImageView) findViewById(R.id.pictureZoom);
+        img = (ImageView) findViewById(R.id.pictureZoom);
         img.setImageBitmap(picture);
 
         reset = (Button) findViewById(R.id.reset);
@@ -55,12 +59,14 @@ public class ZoomMenu extends AppCompatActivity {
             float oldHeight = (float) bmp.getHeight();
             float oldWidth = (float) bmp.getWidth();
 
+            //Calculates new dimensions depending on factors from the textzones
             int newHeight = Math.round(oldHeight * facteurDecimalY);
             int newWidth = Math.round(oldWidth * facteurDecimalX);
 
             pictureZoom = Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888);
             for (int i = 0; i < newWidth; i++) {
                 for (int j = 0; j < newHeight; j++) {
+                    //Gets closest neighbor pixel value
                     pictureZoom.setPixel(i, j, bmp.getPixel(Math.round(i / facteurDecimalX), Math.round(j / facteurDecimalY)));
                 }
             }
@@ -75,24 +81,23 @@ public class ZoomMenu extends AppCompatActivity {
     private View.OnClickListener blistener = new View.OnClickListener() {
         public void onClick(View v) {
             switch (v.getId()) {
-
+                //Undoes changes by getting the original picture back
                 case R.id.reset:
                     pictureZoom = null;
-                    ImageView img2 = (ImageView) findViewById(R.id.pictureZoom);
-                    img2.setImageBitmap(pictureZoom);
                     picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
-                    img2.setImageBitmap(picture);
+                    img.setImageBitmap(picture);
                     break;
 
+                //Gets values of factors from textzones
                 case R.id.ppv:
                     facteurDecimalX = Float.valueOf(facteurLongueur.getText().toString());
                     facteurDecimalY = Float.valueOf(facteurHauteur.getText().toString());
 
                     algoPPV(picture);
-                    ImageView img = (ImageView) findViewById(R.id.pictureZoom);
                     img.setImageBitmap(pictureZoom);
                     break;
 
+                //Saves image in the gallery
                 case R.id.save:
                     try {
                         MediaStore.Images.Media.insertImage(getContentResolver(), pictureZoom, PhotoLoading.imgDecodableString + "_deforme", "");

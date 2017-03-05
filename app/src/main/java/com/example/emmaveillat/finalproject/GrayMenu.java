@@ -22,7 +22,7 @@ public class GrayMenu extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gray_menu);
-
+        // Gets picture Bitmap chosen in the gallery
         pictureToUse = PhotoLoading.scaleImage();
 
         picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
@@ -46,7 +46,7 @@ public class GrayMenu extends AppCompatActivity {
         for (int i = 0; i < bmp.getWidth(); i++) {
             for (int j = 0; j < bmp.getHeight(); j++) {
                 int pixel = bmp.getPixel(i, j);
-
+                //Gets RGB values from the pixel and sets average value in gray level
                 int red = Color.red(pixel);
                 int blue = Color.blue(pixel);
                 int green = Color.green(pixel);
@@ -62,18 +62,21 @@ public class GrayMenu extends AppCompatActivity {
         public void onClick(View v){
             switch (v.getId()) {
 
+                //Undoes changes by getting the original picture back
                 case R.id.reset:
                     picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
                     ImageView img2 = (ImageView) findViewById(R.id.picture);
                     img2.setImageBitmap(picture);
                     break;
 
+                //Saves image in the gallery
                 case R.id.save:
                     MediaStore.Images.Media.insertImage(getContentResolver(), picture, PhotoLoading.imgDecodableString + "_gris" , "");
                     Intent second = new Intent(GrayMenu.this, PhotoLoading.class);
                     startActivity(second);
                     break;
 
+                //Changes the image to gray levels
                 case R.id.gris:
                     toGray(picture);
                     ImageView img = (ImageView) findViewById(R.id.picture);
