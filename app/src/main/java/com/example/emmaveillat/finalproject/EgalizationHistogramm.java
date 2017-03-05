@@ -11,6 +11,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+/**
+ * This class is used to adjust contrast of the loaded image
+ * @author emmaveillat
+ */
 public class EgalizationHistogramm extends AppCompatActivity {
 
     Bitmap picture;
