@@ -40,16 +40,15 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/ED"
+        android:layout_above="@+id/HE"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="12dp">
+        android:layout_alignParentStart="true">
         <ImageView
             android:id="@+id/picture"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:layout_above="@+id/gris"
+            android:layout_above="@+id/grey"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_marginBottom="37dp">

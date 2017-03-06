@@ -21,18 +21,6 @@
         android:layout_alignParentStart="true" />
 
     <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="from camera"
-        android:layout_above="@+id/choice"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="12dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <Button
         android:id="@+id/buttonLoadPicture"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -40,7 +28,7 @@
         android:layout_weight="0"
         android:onClick="chargementImage"
         android:text="Chercher une image"
-        android:layout_above="@+id/button1"
+        android:layout_above="@+id/camera"
         android:layout_marginBottom="12dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -62,6 +50,13 @@
              android:layout_alignParentStart="true">
          </ImageView>
     </ScrollView>
+
+    <Button
+        android:id="@+id/camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Prendre une photo"
+        android:layout_above="@+id/choice" />
 
 </RelativeLayout>
 

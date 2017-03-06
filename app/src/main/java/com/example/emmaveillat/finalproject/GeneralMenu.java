@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 public class GeneralMenu extends AppCompatActivity {
 
@@ -30,10 +29,10 @@ public class GeneralMenu extends AppCompatActivity {
         ppv = (Button) findViewById(R.id.ppv);
         ppv.setOnClickListener(blistener);
 
-        gris = (Button) findViewById(R.id.gris);
+        gris = (Button) findViewById(R.id.grey);
         gris.setOnClickListener(blistener);
 
-        couleur = (Button) findViewById(R.id.couleur);
+        couleur = (Button) findViewById(R.id.color);
         couleur.setOnClickListener(blistener);
 
         filtre = (Button) findViewById(R.id.filtre);
@@ -52,7 +51,7 @@ public class GeneralMenu extends AppCompatActivity {
         conv.setOnClickListener(blistener);
 
         //Sets help toasts
-        aide_couleur = (ImageButton)findViewById(R.id.aide_couleur);
+        /*aide_couleur = (ImageButton)findViewById(R.id.aide_couleur);
         aide_couleur.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View arg0) {
@@ -90,7 +89,7 @@ public class GeneralMenu extends AppCompatActivity {
             public void onClick(View arg0) {
                 Toast toastAuSiropDErable = Toast.makeText(getApplicationContext(), "Ce menu permet de déformer l'image grâce à des facteurs multiplicateurs à choisir. Veiller à ne pas utiliser de facteur tropgrand ou trop petit (pas plus de 10 ou pas moins de 0,001).", Toast.LENGTH_LONG);
                 toastAuSiropDErable.show();
-            }});
+            }});*/
     }
 
 
@@ -99,12 +98,12 @@ public class GeneralMenu extends AppCompatActivity {
             switch (v.getId()) {
                 //Gets to chosen activity when clicking a button
 
-                case R.id.gris:
+                case R.id.grey:
                     Intent second = new Intent(GeneralMenu.this, GrayMenu.class);
                     startActivity(second);
                     break;
 
-                case R.id.couleur:
+                case R.id.color:
                     Intent third = new Intent(GeneralMenu.this, ColorMenu.class);
                     startActivity(third);
                     break;

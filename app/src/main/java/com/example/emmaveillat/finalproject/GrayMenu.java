@@ -33,7 +33,7 @@ public class GrayMenu extends AppCompatActivity {
         save = (Button) findViewById(R.id.save);
         save.setOnClickListener(blistener);
 
-        gris = (Button) findViewById(R.id.gris);
+        gris = (Button) findViewById(R.id.grey);
         gris.setOnClickListener(blistener);
 
         reset = (Button) findViewById(R.id.reset);
@@ -77,7 +77,7 @@ public class GrayMenu extends AppCompatActivity {
                     break;
 
                 //Changes the image to gray levels
-                case R.id.gris:
+                case R.id.grey:
                     toGray(picture);
                     ImageView img = (ImageView) findViewById(R.id.picture);
                     img.setImageBitmap(picture);

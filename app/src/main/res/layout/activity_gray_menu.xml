@@ -32,7 +32,7 @@
         android:text="Changer mon image en noir et blanc !"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/gris"
+        android:id="@+id/grey"
         android:layout_above="@+id/save"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -40,7 +40,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/gris"
+        android:layout_above="@+id/grey"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginBottom="16dp">
@@ -49,7 +49,7 @@
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:layout_above="@+id/gris"
+            android:layout_above="@+id/grey"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_marginBottom="37dp">

@@ -36,7 +36,7 @@ public class FilterMenu extends AppCompatActivity {
         save = (Button) findViewById(R.id.save);
         save.setOnClickListener(blistener);
 
-        couleur = (Button) findViewById(R.id.couleur);
+        couleur = (Button) findViewById(R.id.color);
         couleur.setOnClickListener(blistener);
 
         reset = (Button) findViewById(R.id.reset);
@@ -80,7 +80,7 @@ public class FilterMenu extends AppCompatActivity {
                     break;
 
                 //Applicates random color filter
-                case R.id.couleur:
+                case R.id.color:
                     colorize(picture);
                     ImageView img = (ImageView) findViewById(R.id.picture);
                     img.setImageBitmap(picture);

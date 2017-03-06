@@ -41,7 +41,7 @@ public class PhotoLoading extends Activity {
         choice.setOnClickListener(blistener);
 
         //Starts camera
-        Button photoButton = (Button) this.findViewById(R.id.button1);
+        Button photoButton = (Button) this.findViewById(R.id.camera);
         photoButton.setOnClickListener(new View.OnClickListener() {
 
             @Override

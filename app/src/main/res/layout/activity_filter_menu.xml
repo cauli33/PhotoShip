@@ -23,7 +23,7 @@
         android:text="Changer mon image de couleur !"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/couleur"
+        android:id="@+id/color"
         android:layout_above="@+id/save"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -40,7 +40,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/couleur"
+        android:layout_above="@+id/color"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginBottom="19dp">
@@ -49,7 +49,7 @@
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:layout_above="@+id/couleur"
+            android:layout_above="@+id/color"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_marginBottom="37dp">
