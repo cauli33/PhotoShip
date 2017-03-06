@@ -22,23 +22,36 @@ import android.widget.TextView;
  */
  public class ChoiceMenu extends AppCompatActivity {
 
+    /**
+     * The interval and the hue choosen by the user
+     */
     Float hue, gap;
 
+    /**
+     * Buttons to save the image in the galery and to reset the image
+     */
     Button save, reset;
 
+    /**
+     * The image displayed in the menu
+     */
     ImageView imageResult;
 
+    /**
+     * The seekbars to select the hue and the interval of values
+     */
     SeekBar hueBar, gapBar;
 
+    /**
+     * Texts displayed
+     */
     TextView hueText, gapText;
 
+    /**
+     * Bitmaps used to be transformed
+     */
     Bitmap picture, pictureToUse;
 
-
-    /**
-     * @param savedInstanceState
-     *  This Bundle is used to save the state of the instance
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,8 +60,10 @@ import android.widget.TextView;
         // Gets picture Bitmap chosen in the gallery
         pictureToUse = PhotoLoading.scaleImage();
 
+        //copies the picture to make it mutable
         picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
 
+        //Objects displayed in the activity
         imageResult = (ImageView) findViewById(R.id.result);
         imageResult.setImageBitmap(picture);
 
@@ -77,38 +92,33 @@ import android.widget.TextView;
             }});
     }
 
-
+    /**
+     * Listener that modifies seekbars if they are tracking or not
+     */
     OnSeekBarChangeListener seekBarChangeListener = new OnSeekBarChangeListener() {
-        /**
-         * @param seekBar
-         * @param progress
-         * @param fromUser
-         */
+
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { loadBitmapHSV(); }
 
-        /**
-         * @param seekBar
-         */
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) { loadBitmapHSV(); }
 
-        /**
-         * @param seekBar
-         */
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             loadBitmapHSV();
         }
     };
 
-
+    /**
+     * function which load the new Bitmap with its new hue depending on the selected interval
+     */
     private void loadBitmapHSV() {
         if (picture != null) {
             //Gets seekbar values and updates text and image
             int hue = hueBar.getProgress();
             int gap = gapBar.getProgress();
 
+            //Displays the texts
             hueText.setText("Hue: " + String.valueOf(hue));
             gapText.setText("Gap: " + String.valueOf(gap));
 
@@ -120,13 +130,11 @@ import android.widget.TextView;
     }
 
     /**
-     * @param src
-     *  This is the original bitmap
-     * @param settingHue
-     *  This is the hue value
-     * @param settingGap
-     *  This define the values above and after the selected one
-     * @return the new bitmap
+     * function which keeps the selected hue (given in a interval) in the Bitmap and makes the other pixels in grey
+     * @param src the bitmap the user wants to modify
+     * @param settingHue the new value of hue
+     * @param settingGap the future interval
+     * @return the modified bitmap
      */
     private Bitmap updateHSV(Bitmap src, float settingHue, float settingGap) {
 
@@ -205,7 +213,9 @@ import android.widget.TextView;
         return Bitmap.createBitmap(mapSrc, w, h, Config.ARGB_8888);
     }
 
-
+    /**
+     * Defines some buttons like "save"
+     */
     private View.OnClickListener blistener = new View.OnClickListener(){
         public void onClick(View v){
             switch (v.getId()) {

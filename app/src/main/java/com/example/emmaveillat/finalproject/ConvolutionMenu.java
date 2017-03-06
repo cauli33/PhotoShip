@@ -11,16 +11,35 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+/**
+ * This class applies convolutions and blurs to a bitmap thanks to some matrix.
+ * @caulihonore
+ */
 public class ConvolutionMenu extends AppCompatActivity {
 
+    /**
+     * Bitmaps used to be modified
+     */
     Bitmap pictureToUse, picture;
 
+    /**
+     * lenght
+     */
     int length;
 
+    /**
+     * Text choosen by the user
+     */
     EditText facteurLongueur;
 
+    /**
+     * Buttons to apply functions, to save or reset a bitmap
+     */
     Button save, reset, moy, sobel, gauss, lapla;
 
+    /**
+     * The bitmap displayed in the menu
+     */
     ImageView imgView;
 
     @Override

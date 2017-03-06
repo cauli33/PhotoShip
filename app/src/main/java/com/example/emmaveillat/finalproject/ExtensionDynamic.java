@@ -11,14 +11,25 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+/**
+ * This class improves the contrast of a bitmap thanks to the extension of dynamics.
+ * @author emmaveillat
+ */
 public class ExtensionDynamic extends AppCompatActivity {
 
-    Bitmap picture;
+    /**
+     * Bitmaps used to be modified
+     */
+    Bitmap picture,pictureToUse, pictureFinal;
 
-    Bitmap pictureToUse, pictureFinal;
-
+    /**
+     * Buttons to save, reste or applies the extension of dynamics
+     */
     Button save, ED, reset;
 
+    /**
+     * The bitmap displayed in the menu
+     */
     ImageView img;
 
     @Override
@@ -45,7 +56,10 @@ public class ExtensionDynamic extends AppCompatActivity {
 
     }
 
-    //We need a gray level picture for dynamic extension algorithm
+    /**
+     * function which transforms a bitmap in levels of grey
+      * @param bmp the original bitmap
+     */
     public void toGray(Bitmap bmp) {
         for (int i = 0; i < bmp.getWidth(); i++) {
             for (int j = 0; j < bmp.getHeight(); j++) {
@@ -63,10 +77,16 @@ public class ExtensionDynamic extends AppCompatActivity {
         }
     }
 
+    /**
+     * function which applies the dynamic extension
+     * @param bmp the original bitmap
+     */
     public void extension(Bitmap bmp) {
         try {
             int n = bmp.getHeight();
             int m = bmp.getWidth();
+
+            //builds the histogramm of the image
             int histogram[] = new int[256];
             for (int i = 0; i < m; i++) {
                 for (int j = 0; j < n; j++) {
@@ -75,6 +95,7 @@ public class ExtensionDynamic extends AppCompatActivity {
                     histogram[value]++;
                 }
             }
+            //Gets the min and the max values
             int i = 0;
             while (histogram[i] == 0) {
                 i++;
@@ -87,7 +108,7 @@ public class ExtensionDynamic extends AppCompatActivity {
             }
             int max = j;
 
-
+            //Builds a Look-up Table
             int LUT[] = new int[256];
             for (int ng = 0; ng < 256; ng++) {
                 if (max - min != 0) {
@@ -97,6 +118,8 @@ public class ExtensionDynamic extends AppCompatActivity {
 
                 }
             }
+
+            //Applies the Look-up table to the bitmap
             for (int k = 0; k < m; k++) {
                 for (int l = 0; l < n; l++) {
                     int oldPixel = pictureFinal.getPixel(k, l);
@@ -130,7 +153,7 @@ public class ExtensionDynamic extends AppCompatActivity {
                     startActivity(second);
                     break;
 
-                //Applicates dynamic extension algorithm on picture
+                //Applies dynamic extension algorithm on picture
                 case R.id.ED:
                     pictureFinal = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
                     toGray(pictureFinal);

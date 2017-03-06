@@ -10,16 +10,35 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+/**
+ * This class is used to deform a bitmap with chosen factors.
+ * @author emmaveillat
+ */
 public class ZoomMenu extends AppCompatActivity {
 
+    /**
+     * Bitmpas used to be modified
+     */
     Bitmap pictureToUse, pictureZoom, picture;
 
+    /**
+     * Values of deformation
+     */
     float facteurDecimalX, facteurDecimalY;
 
+    /**
+     * Texts chosen by the user
+     */
     EditText facteurLongueur, facteurHauteur;
 
+    /**
+     * Buttons to save or reset a bitmap
+     */
     Button save, zoom, reset;
 
+    /**
+     * The bitmap displayed in the menu
+     */
     ImageView img;
 
     @Override
@@ -53,7 +72,10 @@ public class ZoomMenu extends AppCompatActivity {
 
     }
 
-
+    /**
+     * function which deforms a bitmap thanks to factors chosen by the user
+     * @param bmp the original bitmap
+     */
     public void algoPPV(Bitmap bmp) {
         try {
             float oldHeight = (float) bmp.getHeight();

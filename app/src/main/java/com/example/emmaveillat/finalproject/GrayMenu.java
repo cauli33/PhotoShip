@@ -10,12 +10,25 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+/**
+ * This class transforms the bitmap colors on levels of grey.
+ * @author emmaveillat
+ */
 public class GrayMenu extends AppCompatActivity {
 
+    /**
+     * The bitmap modified
+     */
     static Bitmap picture;
 
+    /**
+     * The original bitmap
+     */
     Bitmap pictureToUse;
 
+    /**
+     * Buttons to save, reset or applies the grey filter
+     */
     Button save, gris, reset;
 
     @Override
@@ -41,7 +54,10 @@ public class GrayMenu extends AppCompatActivity {
 
     }
 
-
+    /**
+     * function which transforms colors of a bitmap on levels of grey
+     * @param bmp the original bitmap
+     */
     public void toGray(Bitmap bmp) {
         for (int i = 0; i < bmp.getWidth(); i++) {
             for (int j = 0; j < bmp.getHeight(); j++) {

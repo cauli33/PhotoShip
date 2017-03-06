@@ -18,16 +18,34 @@ import android.widget.TextView;
  */
 public class ColorMenu extends AppCompatActivity {
 
+    /**
+     * The value from the HSV space
+     */
     Float hue, satur, value;
 
+    /**
+     * Buttons to save the image in the gallery or to reset it
+     */
     Button save, reset;
 
+    /**
+     * The bitmap displayed in the menu
+     */
     ImageView imageResult;
 
+    /**
+     * The seekbars which modify the hue, saturation and value of a bitmap
+     */
     SeekBar hueBar, satBar, valBar;
 
+    /**
+     * Texts displayed
+     */
     TextView hueText, satText, valText;
 
+    /**
+     * Bitmaps used to be transformed and displayed
+     */
     Bitmap picture, pictureToUse;
 
 
@@ -39,8 +57,10 @@ public class ColorMenu extends AppCompatActivity {
         //Gets picture Bitmap chosen in the gallery
         pictureToUse = PhotoLoading.scaleImage();
 
+        //copies the original bitmap to be mutable
         picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
 
+        //Objects displayed in the menu
         imageResult = (ImageView) findViewById(R.id.result);
         imageResult.setImageBitmap(picture);
 
@@ -70,7 +90,9 @@ public class ColorMenu extends AppCompatActivity {
             }});
     }
 
-
+    /**
+     * Listener that changes the value of the HSV space depending on the tracking of the bars
+     */
     SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { loadBitmapHSV(); }
@@ -104,7 +126,14 @@ public class ColorMenu extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * function that changes HSV space of the Bitmap
+     * @param src the original Bitmap
+     * @param settingHue the new hue
+     * @param settingSat the new saturation
+     * @param settingVal the new value
+     * @return the modified bitmap
+     */
     private Bitmap updateHSV(Bitmap src, float settingHue, float settingSat, float settingVal) {
         //Changes pixels hsv values depending on seekbars
         hue = settingHue;
@@ -157,6 +186,9 @@ public class ColorMenu extends AppCompatActivity {
 
     }
 
+    /**
+     * Listener for some buttons like "save"
+     */
     private View.OnClickListener blistener = new View.OnClickListener(){
         public void onClick(View v){
             switch (v.getId()) {

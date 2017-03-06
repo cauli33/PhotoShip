@@ -6,8 +6,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+/**
+ * This class is the homepage of the application.
+ * @author emmaveillat
+ */
 public class Homepage extends AppCompatActivity {
 
+    /**
+     * Button to access the PhotoLoading
+     */
     Button go;
 
     @Override

@@ -14,14 +14,30 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+/**
+ * This class applies a sepia filter on the bitmap.
+ * @author emmaveillat
+ */
 public class SepiaMenu extends AppCompatActivity {
 
+    /**
+     * the bitmap modified
+     */
     static Bitmap picture;
 
+    /**
+     * Bitmaps used to be modifies
+     */
     Bitmap newPic, pictureToUse;
 
+    /**
+     * Buttons to save, reset or apply the filter
+     */
     Button save, sepia, reset;
 
+    /**
+     * The bitmap displayed in the menu
+     */
     ImageView img;
 
     @Override
@@ -48,6 +64,10 @@ public class SepiaMenu extends AppCompatActivity {
         reset.setOnClickListener(blistener);
     }
 
+    /**
+     * function which tranforms the bitmap colors in sepia
+     * @param bmpOriginal the original bitmap
+     */
     public void toSepia(Bitmap bmpOriginal) {
         int width, height, r, g, b, c, gry;
         height = bmpOriginal.getHeight();
@@ -55,11 +75,13 @@ public class SepiaMenu extends AppCompatActivity {
         int depth = 20;
         Canvas canvas = new Canvas(newPic);
         Paint paint = new Paint();
+        //Defines a matrix to create a sepia mask
         ColorMatrix cm = new ColorMatrix();
         cm.setScale(.3f, .3f, .3f, 1.0f);
         ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
         paint.setColorFilter(f);
         canvas.drawBitmap(bmpOriginal, 0, 0, paint);
+        //Applies the mask on the bitmap depending on its levels of red, blue and green
         for(int x=0; x < width; x++) {
             for(int y=0; y < height; y++) {
                 c = bmpOriginal.getPixel(x, y);

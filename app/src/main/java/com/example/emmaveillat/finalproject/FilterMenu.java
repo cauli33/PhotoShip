@@ -12,12 +12,25 @@ import android.widget.ImageView;
 
 import java.util.Random;
 
+/**
+ * This class applies a random filter on a bitmap.
+ * @author emmaveillat
+ */
 public class FilterMenu extends AppCompatActivity {
 
+    /**
+     * Bitmap modified
+     */
     static Bitmap picture;
 
+    /**
+     * Original Bitmap
+     */
     Bitmap pictureToUse;
 
+    /**
+     * Buttons to save, reset or applies the transformation
+     */
     Button save, couleur, reset;
 
 
@@ -44,8 +57,12 @@ public class FilterMenu extends AppCompatActivity {
 
     }
 
-
-    public void colorize(Bitmap bmp) { //needs changes to get/setPixelS
+    /**
+     * function which applies a random colored filter on the bitmap
+     * @param bmp the original bitmap
+     * TODO needs changes to get/setPixelS
+     */
+    public void colorize(Bitmap bmp) {
         //Replaces hue value from every pixel to the same random hue value
         float [] hsv = new float[3];
 

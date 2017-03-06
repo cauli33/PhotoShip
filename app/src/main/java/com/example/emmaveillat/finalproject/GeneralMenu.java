@@ -5,13 +5,19 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 
+/**
+ * This class is a general menu where the user can choose the transformation he wants to apply to his bitmap.
+ * @author emmaveillat
+ */
 public class GeneralMenu extends AppCompatActivity {
 
+    /**
+     * Buttons to access the menus
+     */
     Button ppv, pinch, gris, couleur, filtre, ED, teinte, sepia, HE, conv;
 
-    ImageButton aide_ppv, aide_pinch, aide_gris, aide_couleur, aide_filtre;
+    //ImageButton aide_ppv, aide_pinch, aide_gris, aide_couleur, aide_filtre;
 
 
     @Override
