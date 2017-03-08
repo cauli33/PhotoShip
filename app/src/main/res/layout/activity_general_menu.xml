@@ -93,35 +93,15 @@
         android:layout_alignParentStart="true" />
 
     <Button
-        android:text="Extension linéaire de dynamique"
-        android:layout_width="wrap_content"
+        android:text="Convolution"
         android:layout_height="wrap_content"
-        android:id="@+id/ED"
-        android:layout_above="@+id/ppv"
+        android:layout_width="wrap_content"
+        android:id="@+id/conv"
+        android:layout_below="@+id/sepia"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
-
-    <Button
-        android:text="Choix teinte"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/teinte"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_above="@+id/ED"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <Button
-        android:text="Mettre un filtre de couleur aléatoire sur l'image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/filtre"
-        android:layout_above="@+id/color"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
 
     <Button
         android:text="Modifier la couleur, la luminosité et la saturation de l'image"
@@ -133,47 +113,60 @@
         android:layout_alignParentStart="true" />
 
     <Button
-        android:text="Égalisation d'histogramme"
+        android:text="Mettre un filtre de couleur aléatoire sur l'image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/HE"
-        android:layout_below="@+id/color"
+        android:id="@+id/filtre"
+        android:layout_below="@+id/conv"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentStart="true" />
 
     <Button
         android:text="Sépia"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/sepia"
-        android:layout_below="@+id/HE"
+        android:layout_below="@+id/color"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Égalisation d'histogramme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/HE"
+        android:layout_below="@+id/color"
+        android:layout_toRightOf="@+id/sepia"
+        android:layout_toEndOf="@+id/sepia"
+        android:layout_marginLeft="28dp"
+        android:layout_marginStart="28dp" />
 
     <Button
         android:text="Déformer l'image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ppv"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="40dp" />
+        android:layout_above="@+id/pinch"
+        android:layout_alignRight="@+id/ED"
+        android:layout_alignEnd="@+id/ED" />
 
     <Button
-        android:text="Convolution"
-        android:layout_height="wrap_content"
+        android:text="Extension linéaire de dynamique"
         android:layout_width="wrap_content"
-        android:id="@+id/conv"
-        android:layout_below="@+id/sepia"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_height="wrap_content"
+        android:id="@+id/ED"
+        android:layout_above="@+id/ppv"
+        android:layout_alignLeft="@+id/HE"
+        android:layout_alignStart="@+id/HE" />
+
+    <Button
+        android:text="Choix teinte"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/teinte"
+        android:layout_above="@+id/ppv"
+        android:layout_toLeftOf="@+id/ED"
+        android:layout_toStartOf="@+id/ED" />
     <!--android:layout_below="@+id/aide_gris"-->
 
 </RelativeLayout>

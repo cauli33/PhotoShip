@@ -3,9 +3,10 @@ package com.example.emmaveillat.finalproject;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -31,6 +32,9 @@ public class GrayMenu extends AppCompatActivity {
      */
     Button save, gris, reset;
 
+    Toolbar bar;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +55,9 @@ public class GrayMenu extends AppCompatActivity {
 
         reset = (Button) findViewById(R.id.reset);
         reset.setOnClickListener(blistener);
+
+        bar = (Toolbar) findViewById(R.id.tb);
+        setSupportActionBar(bar);
 
     }
 
@@ -104,4 +111,25 @@ public class GrayMenu extends AppCompatActivity {
             }
         }
     };
+
+/*
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                // User chose the "Settings" item, show the app settings UI...
+                return true;
+
+            case R.id.action_favorite:
+                // User chose the "Favorite" action, mark the current item
+                // as a favorite...
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }*/
 }
