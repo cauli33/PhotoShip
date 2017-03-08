@@ -15,7 +15,7 @@ public class GeneralMenu extends AppCompatActivity {
     /**
      * Buttons to access the menus
      */
-    Button ppv, pinch, gris, couleur, filtre, ED, teinte, sepia, HE, conv;
+    Button ppv, pinch, gris, couleur, filtre, ED, teinte, sepia, HE, conv, crop;
 
     //ImageButton aide_ppv, aide_pinch, aide_gris, aide_couleur, aide_filtre;
 
@@ -56,6 +56,8 @@ public class GeneralMenu extends AppCompatActivity {
         conv = (Button) findViewById(R.id.conv);
         conv.setOnClickListener(blistener);
 
+        crop = (Button) findViewById(R.id.crop);
+        crop.setOnClickListener(blistener);
         //Sets help toasts
         /*aide_couleur = (ImageButton)findViewById(R.id.aide_couleur);
         aide_couleur.setOnClickListener(new View.OnClickListener(){
@@ -153,6 +155,11 @@ public class GeneralMenu extends AppCompatActivity {
                 case R.id.conv:
                     Intent eleven = new Intent(GeneralMenu.this, ConvolutionMenu.class);
                     startActivity(eleven);
+                    break;
+
+                case R.id.crop:
+                    Intent twelve = new Intent(GeneralMenu.this, CropMenu.class);
+                    startActivity(twelve);
                     break;
 
                 default:

@@ -56,8 +56,8 @@ public class GrayMenu extends AppCompatActivity {
         reset = (Button) findViewById(R.id.reset);
         reset.setOnClickListener(blistener);
 
-        bar = (Toolbar) findViewById(R.id.tb);
-        setSupportActionBar(bar);
+        //bar = (Toolbar) findViewById(R.id.tb);
+        //setSupportActionBar(bar);
 
     }
 

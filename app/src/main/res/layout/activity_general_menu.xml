@@ -142,22 +142,13 @@
         android:layout_marginStart="28dp" />
 
     <Button
-        android:text="Déformer l'image"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/ppv"
-        android:layout_above="@+id/pinch"
-        android:layout_alignRight="@+id/ED"
-        android:layout_alignEnd="@+id/ED" />
-
-    <Button
-        android:text="Extension linéaire de dynamique"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/ED"
-        android:layout_above="@+id/ppv"
-        android:layout_alignLeft="@+id/HE"
-        android:layout_alignStart="@+id/HE" />
+    android:text="Extension linéaire de dynamique"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/ED"
+    android:layout_above="@+id/ppv"
+    android:layout_alignLeft="@+id/HE"
+    android:layout_alignStart="@+id/HE" />
 
     <Button
         android:text="Choix teinte"
@@ -168,6 +159,26 @@
         android:layout_toLeftOf="@+id/ED"
         android:layout_toStartOf="@+id/ED" />
     <!--android:layout_below="@+id/aide_gris"-->
+
+    <Button
+        android:text="Rogner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/crop"
+        android:layout_above="@+id/pinch"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:text="Déformer l'image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/ppv"
+        android:layout_marginRight="36dp"
+        android:layout_marginEnd="36dp"
+        android:layout_above="@+id/pinch"
+        android:layout_toLeftOf="@+id/crop"
+        android:layout_toStartOf="@+id/crop" />
 
 </RelativeLayout>
 
