@@ -2,110 +2,166 @@ package com.example.emmaveillat.finalproject;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
-
-import java.util.Random;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 
 /**
- * This class applies a random filter on a bitmap.
- * @author emmaveillat
+ * This class is used to pick a color and apply a color filter
+ * @author caulihonore
  */
 public class FilterMenu extends AppCompatActivity {
 
     /**
-     * Bitmap modified
+     * The interval and the hue choosen by the user
      */
-    static Bitmap picture;
+    Float hue;
 
     /**
-     * Original Bitmap
+     * Buttons to save the image in the galery and to reset the image
      */
-    Bitmap pictureToUse;
+    Button save, reset;
 
     /**
-     * Buttons to save, reset or applies the transformation
+     * The image displayed in the menu
      */
-    Button save, couleur, reset;
+    ImageView imageResult;
 
+    /**
+     * The seekbars to select the hue and the interval of values
+     */
+    SeekBar hueBar;
+
+    /**
+     * Texts displayed
+     */
+    TextView hueText;
+
+    /**
+     * Bitmaps used to be transformed
+     */
+    Bitmap picture, pictureToUse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filter_menu);
 
-        //Gets picture Bitmap chosen in the gallery
+        // Gets picture Bitmap chosen in the gallery
         pictureToUse = PhotoLoading.scaleImage();
 
+        //copies the picture to make it mutable
         picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
-        ImageView img = (ImageView) findViewById(R.id.picture);
-        img.setImageBitmap(picture);
+
+        //Objects displayed in the activity
+        imageResult = (ImageView) findViewById(R.id.result);
+        imageResult.setImageBitmap(picture);
 
         save = (Button) findViewById(R.id.save);
         save.setOnClickListener(blistener);
 
-        couleur = (Button) findViewById(R.id.color);
-        couleur.setOnClickListener(blistener);
+        hueText = (TextView) findViewById(R.id.texthue);
 
-        reset = (Button) findViewById(R.id.reset);
+        hueBar = (SeekBar) findViewById(R.id.huebar);
+        hueBar.setOnSeekBarChangeListener(seekBarChangeListener);
+
+        reset = (Button)findViewById(R.id.reset);
         reset.setOnClickListener(blistener);
-
     }
 
     /**
-     * function which applies a random colored filter on the bitmap
-     * @param bmp the original bitmap
-     * TODO needs changes to get/setPixelS
+     * Listener that modifies seekbars if they are tracking or not
      */
-    public void colorize(Bitmap bmp) {
-        //Replaces hue value from every pixel to the same random hue value
-        float [] hsv = new float[3];
+    OnSeekBarChangeListener seekBarChangeListener = new OnSeekBarChangeListener() {
 
-        float hue = 0F + new Random().nextFloat() * (359F - 0F);
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { loadBitmapHSV(); }
 
-        for(int y = 0; y < bmp.getHeight(); y++){
-            for(int x = 0; x < bmp.getWidth(); x++){
-                int pixel = bmp.getPixel(x,y);
-                Color.colorToHSV(pixel,hsv);
-                hsv[0] = hue;
-                bmp.setPixel(x,y,Color.HSVToColor(Color.alpha(pixel),hsv));
-            }
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) { loadBitmapHSV(); }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            loadBitmapHSV();
+        }
+    };
+
+    /**
+     * function which load the new Bitmap with its new hue depending on the selected interval
+     */
+    private void loadBitmapHSV() {
+        if (picture != null) {
+            //Gets seekbar values and updates text and image
+            int hue = hueBar.getProgress();
+
+            //Displays the texts
+            hueText.setText("Hue: " + String.valueOf(hue));
+
+            float settingHue = (float) hue;
+            imageResult.setImageBitmap(updateHSV(picture, settingHue));
+
         }
     }
 
+    /**
+     * function which applicates a color filter of the selected hue
+     * @param src the bitmap the user wants to modify
+     * @param settingHue the new value of hue
+     * @return the modified bitmap
+     */
+    private Bitmap updateHSV(Bitmap src, float settingHue) {
 
+        hue = settingHue;
+
+        int w = src.getWidth();
+        int h = src.getHeight();
+        int[] mapSrc = new int[w * h];
+        //Array to stock pixel hsv values
+        float[] pixelHSV = new float[3];
+        //Array of pixel values from the bitmap
+        src.getPixels(mapSrc, 0, w, 0, 0, w, h);
+
+        int index = 0;
+        for (int i = 0; i < h*w; ++i) {
+            int pixel = mapSrc[i];
+            Color.colorToHSV(pixel, pixelHSV);
+            pixelHSV[0] = settingHue;
+            mapSrc[i] = Color.HSVToColor(Color.alpha(pixel),pixelHSV);
+        }
+        return Bitmap.createBitmap(mapSrc, w, h, Config.ARGB_8888);
+    }
+
+    /**
+     * Defines some buttons like "save"
+     */
     private View.OnClickListener blistener = new View.OnClickListener(){
         public void onClick(View v){
             switch (v.getId()) {
-                //Undoes changes by getting the original picture back
+                ////Undoes changes by getting the original picture back and sets hue seekbar to 0
                 case R.id.reset:
-                    picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
-                    ImageView img2 = (ImageView) findViewById(R.id.picture);
-                    img2.setImageBitmap(picture);
+                    hueBar.setProgress(0);
+                    imageResult.setImageBitmap(picture);
                     break;
-
                 //Saves image in the gallery
                 case R.id.save:
-                    MediaStore.Images.Media.insertImage(getContentResolver(), picture, PhotoLoading.imgDecodableString + "_filtre" , "");
+                    Bitmap pictureFinal = (updateHSV(picture, hue)).copy(Bitmap.Config.ARGB_8888, true);
+                    MediaStore.Images.Media.insertImage(getContentResolver(), pictureFinal, PhotoLoading.imgDecodableString + "_couleur" , "");
                     Intent second = new Intent(FilterMenu.this, PhotoLoading.class);
                     startActivity(second);
                     break;
-
-                //Applicates random color filter
-                case R.id.color:
-                    colorize(picture);
-                    ImageView img = (ImageView) findViewById(R.id.picture);
-                    img.setImageBitmap(picture);
-                    break;
-
                 default:
                     break;
             }
         }
     };
+
 }

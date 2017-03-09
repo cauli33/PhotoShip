@@ -13,7 +13,7 @@ import android.widget.ImageView;
 
 /**
  * This class applies convolutions and blurs to a bitmap thanks to some matrix.
- * @caulihonore
+ * @author caulihonore
  */
 public class ConvolutionMenu extends AppCompatActivity {
 
@@ -77,58 +77,6 @@ public class ConvolutionMenu extends AppCompatActivity {
         lapla = (Button) findViewById(R.id.lapla);
         lapla.setOnClickListener(blistener);
     }
-
-    private View.OnClickListener blistener = new View.OnClickListener() {
-        public void onClick(View v) {
-            switch (v.getId()) {
-
-                //Undoes changes by getting the original picture back
-                case R.id.reset:
-                    picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
-                    imgView.setImageBitmap(picture);
-                    break;
-
-                //Applicates 'moyenne' filter
-                case R.id.moy:
-                    length = Integer.valueOf(facteurLongueur.getText().toString());
-                    moyenne(picture, length);
-                    imgView.setImageBitmap(picture);
-                    break;
-
-                //Applicates Gaussian blur
-                case R.id.gauss:
-                    gauss(picture);
-                    imgView.setImageBitmap(picture);
-                    break;
-
-                //Applicates Sobel filter
-                case R.id.sobel:
-                    sobel(picture);
-                    imgView.setImageBitmap(picture);
-                    break;
-
-                //Applicates Laplacien filter
-                case R.id.lapla:
-                    laplacien(picture);
-                    imgView.setImageBitmap(picture);
-                    break;
-
-                //Saves image in the gallery
-                case R.id.save:
-                    try {
-                        MediaStore.Images.Media.insertImage(getContentResolver(), picture, PhotoLoading.imgDecodableString + "_convolution", "");
-                        Intent second = new Intent(ConvolutionMenu.this, PhotoLoading.class);
-                        startActivity(second);
-                        break;
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-
-                default:
-                    break;
-            }
-        }
-    };
 
     public void moyenne(Bitmap bmp, int n) {
         //Creates a matrix full of ones and applicates convolution (and divides by the number of pixels used)
@@ -243,4 +191,56 @@ public class ConvolutionMenu extends AppCompatActivity {
             bmp.setPixels(pixelsConv, 0, width, 0, 0, width, height);
         }
     }
+
+    private View.OnClickListener blistener = new View.OnClickListener() {
+        public void onClick(View v) {
+            switch (v.getId()) {
+
+                //Undoes changes by getting the original picture back
+                case R.id.reset:
+                    picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
+                    imgView.setImageBitmap(picture);
+                    break;
+
+                //Applicates 'moyenne' filter
+                case R.id.moy:
+                    length = Integer.valueOf(facteurLongueur.getText().toString());
+                    moyenne(picture, length);
+                    imgView.setImageBitmap(picture);
+                    break;
+
+                //Applicates Gaussian blur
+                case R.id.gauss:
+                    gauss(picture);
+                    imgView.setImageBitmap(picture);
+                    break;
+
+                //Applicates Sobel filter
+                case R.id.sobel:
+                    sobel(picture);
+                    imgView.setImageBitmap(picture);
+                    break;
+
+                //Applicates Laplacien filter
+                case R.id.lapla:
+                    laplacien(picture);
+                    imgView.setImageBitmap(picture);
+                    break;
+
+                //Saves image in the gallery
+                case R.id.save:
+                    try {
+                        MediaStore.Images.Media.insertImage(getContentResolver(), picture, PhotoLoading.imgDecodableString + "_convolution", "");
+                        Intent second = new Intent(ConvolutionMenu.this, PhotoLoading.class);
+                        startActivity(second);
+                        break;
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                default:
+                    break;
+            }
+        }
+    };
 }
