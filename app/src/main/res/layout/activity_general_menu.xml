@@ -170,6 +170,15 @@
         android:layout_alignParentEnd="true" />
 
     <Button
+        android:text="Fond vert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/replace"
+        android:layout_above="@+id/ED"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
         android:text="Déformer l'image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
