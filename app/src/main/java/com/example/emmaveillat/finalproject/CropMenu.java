@@ -225,6 +225,7 @@ public class CropMenu extends AppCompatActivity {
                     toCrop[0]=0; toCrop[1]=0; toCrop[2]=0; toCrop[3]=0;
                     picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
                     img.setImageBitmap(picture);
+                    cropText.setText("Crop");
                     break;
                 case R.id.up:
                     udlr = 0;
