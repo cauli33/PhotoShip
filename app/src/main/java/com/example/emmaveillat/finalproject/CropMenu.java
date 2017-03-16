@@ -2,127 +2,254 @@ package com.example.emmaveillat.finalproject;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 
-/**
- * This class is used to deform a bitmap with chosen factors.
- * @author emmaveillat
+/** A COMMENTER
+ * This class is used to pick a color and some values above and after the selected one with two seekbars.
+ * Only the select value interval is displayed, all of the others will be displayed in black and white.
+ * @author caulihonore
  */
 public class CropMenu extends AppCompatActivity {
 
     /**
-     * Bitmpas used to be modified
+     * The interval and the hue choosen by the user
      */
-    Bitmap pictureToUse, picture;
+    int[] toCrop = {0,0,0,0};
+
+    int udlr;
 
     /**
-     * Values of deformation
+     * Buttons to save the image in the galery and to reset the image
      */
-    float facteurDecimalX, facteurDecimalY;
+    Button up, down, left, right;
 
+    ImageButton save, reset, crop;
     /**
-     * Texts chosen by the user
-     */
-    EditText facteurLongueur, facteurHauteur;
-
-    /**
-     * Buttons to save or reset a bitmap
-     */
-    Button save, crop, reset;
-
-    /**
-     * The bitmap displayed in the menu
+     * The image displayed in the menu
      */
     ImageView img;
 
-    ImageButton help_crop;
+    /**
+     * The seekbars to select the hue and the interval of values
+     */
+    SeekBar cropBar;
 
-    int width, height;
+    /**
+     * Texts displayed
+     */
+    TextView cropText;
 
-    int newW, newH;
+    /**
+     * Bitmaps used to be transformed
+     */
+    Bitmap picture, pictureToUse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_crop_menu);
 
-        // Creates textzones to choose dimension changes factor for height and width
-        facteurLongueur = (EditText) findViewById(R.id.newWidth);
-        facteurLongueur.setHint("Notez ici le facteur pour la longueur");
-
-        facteurHauteur = (EditText) findViewById(R.id.newHeigh);
-        facteurHauteur.setHint("Notez ici le facteur pour la hauteur");
-
         // Gets picture Bitmap chosen in the gallery
         pictureToUse = PhotoLoading.scaleImage();
 
+        //copies the picture to make it mutable
         picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
+
+        //Objects displayed in the activity
+        udlr = 0;
 
         img = (ImageView) findViewById(R.id.pictureCroped);
         img.setImageBitmap(picture);
 
-        reset = (Button) findViewById(R.id.reset);
-        reset.setOnClickListener(blistener);
-
-        save = (Button) findViewById(R.id.save);
+        save = (ImageButton) findViewById(R.id.save);
         save.setOnClickListener(blistener);
 
-        crop = (Button) findViewById(R.id.crop);
+        cropText = (TextView) findViewById(R.id.textcrop);
+
+        cropBar = (SeekBar) findViewById(R.id.cropbar);
+        cropBar.setOnSeekBarChangeListener(seekBarChangeListener);
+
+        reset = (ImageButton)findViewById(R.id.reset);
+        reset.setOnClickListener(blistener);
+
+        up = (Button)findViewById(R.id.up);
+        up.setOnClickListener(blistener);
+
+        down = (Button)findViewById(R.id.down);
+        down.setOnClickListener(blistener);
+
+        left = (Button)findViewById(R.id.left);
+        left.setOnClickListener(blistener);
+
+        right = (Button)findViewById(R.id.right);
+        right.setOnClickListener(blistener);
+
+        crop = (ImageButton)findViewById(R.id.crop);
         crop.setOnClickListener(blistener);
-
-        width = picture.getWidth();
-        height = picture.getHeight();
-
-        help_crop = (ImageButton) findViewById(R.id.help_crop);
-        help_crop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                Toast toastAuSiropDErable = Toast.makeText(getApplicationContext(), "Cette image a une hauteur de " + height +" pixels et une longueur " + width + " pixels." , Toast.LENGTH_LONG);
-                toastAuSiropDErable.show();
-            }});
     }
 
-    private View.OnClickListener blistener = new View.OnClickListener() {
-        public void onClick(View v) {
+    /**
+     * Listener that modifies seekbars if they are tracking or not
+     */
+    OnSeekBarChangeListener seekBarChangeListener = new OnSeekBarChangeListener() {
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { loadBitmapVisual(); }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) { loadBitmapVisual(); }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            loadBitmapVisual();
+        }
+    };
+
+    /**
+     * function which load the new Bitmap with its new hue depending on the selected interval
+     */
+    private void loadBitmapVisual() {
+        if (picture != null) {
+            toCrop[udlr] = cropBar.getProgress();
+            //Gets seekbar values and updates text and image
+            switch (udlr){
+                case 0:
+                    if (toCrop[0] > 100 - toCrop[1]){
+                        toCrop[0] = 100 - toCrop[1];
+                    }
+                    cropText.setText("Crop up " + String.valueOf(toCrop[0]) + "%");
+                    break;
+                case 1:
+                    if (toCrop[1] > 100 - toCrop[0]){
+                        toCrop[1] = 100 - toCrop[0];
+                    }
+                    cropText.setText("Crop down " + String.valueOf(toCrop[1]) + "%");
+                    break;
+                case 2:
+                    if (toCrop[2] > 100 - toCrop[3]){
+                        toCrop[2] = 100 - toCrop[3];
+                    }
+                    cropText.setText("Crop left " + String.valueOf(toCrop[2]) + "%");
+                    break;
+                case 3:
+                    if (toCrop[3] > 100 - toCrop[2]){
+                        toCrop[3] = 100 - toCrop[2];
+                    }
+                    cropText.setText("Crop right " + String.valueOf(toCrop[3]) + "%");
+                    break;
+            }
+
+            img.setImageBitmap(updateVisual(picture, toCrop));
+
+        }
+    }
+
+    /**
+     * function which keeps the selected hue (given in a interval) in the Bitmap and makes the other pixels in grey
+     * @param src the bitmap the user wants to modify
+     * @return the modified bitmap
+     */
+    private Bitmap updateVisual(Bitmap src, int[] toCrop) {
+        int w = src.getWidth();
+        int h = src.getHeight();
+        int toCropUp = toCrop[0] * h / 100;
+        int toCropDown = h - toCrop[1] * h / 100;
+        int toCropLeft = toCrop[2] * w / 100;
+        int toCropRight = w - toCrop[3] * w / 100;
+        int[] mapSrc = new int[w * h];
+        src.getPixels(mapSrc, 0, w, 0, 0, w, h);
+
+        for (int y = toCropUp; y < toCropUp + 4; ++y) {
+            for (int x = toCropLeft ; x < toCropRight ; ++x) {
+                mapSrc[ y * w + x ] = Color.rgb(0,0,0);
+            }
+        }
+        for (int y = toCropDown - 4; y < toCropDown; ++y) {
+            for (int x = toCropLeft; x < toCropRight; ++x) {
+                mapSrc[ y * w + x ] = Color.rgb(0,0,0);
+            }
+        }
+        for (int x = toCropLeft; x < toCropLeft + 4; ++x) {
+            for (int y = toCropUp; y < toCropDown; ++y) {
+                mapSrc[ y * w + x ] = Color.rgb(0,0,0);
+            }
+        }
+        for (int x = toCropRight - 4; x < toCropRight; ++x) {
+            for (int y = toCropUp; y < toCropDown; ++y) {
+                mapSrc[ y * w + x ] = Color.rgb(0,0,0);
+            }
+        }
+        return Bitmap.createBitmap(mapSrc, w, h, Config.ARGB_8888);
+    }
+
+    private Bitmap crop(Bitmap src, int[] toCrop){
+        int oldWidth = src.getWidth();
+        int oldHeight = src.getHeight();
+        int toCropUp = toCrop[0] * oldHeight / 100;
+        int toCropDown = oldHeight - toCrop[1] * oldHeight / 100;
+        int toCropLeft = toCrop[2] * oldWidth / 100;
+        int toCropRight = oldWidth - toCrop[3] * oldWidth / 100;
+        int newWidth = toCropRight - toCropLeft;
+        int newHeight = toCropDown - toCropUp;
+        return Bitmap.createBitmap(picture, toCropLeft,toCropUp,newWidth, newHeight);
+
+    }
+
+    /**
+     * Defines some buttons like "save"
+     */
+    private View.OnClickListener blistener = new View.OnClickListener(){
+        public void onClick(View v){
             switch (v.getId()) {
-                //Undoes changes by getting the original picture back
+                //Saves image in the gallery
+                case R.id.save:
+                    Bitmap pictureFinal = (crop(picture, toCrop)).copy(Bitmap.Config.ARGB_8888, true);
+                    MediaStore.Images.Media.insertImage(getContentResolver(), pictureFinal, PhotoLoading.imgDecodableString + "_crop" , "");
+                    Intent second = new Intent(CropMenu.this, PhotoLoading.class);
+                    startActivity(second);
+                    break;
                 case R.id.reset:
+                    cropBar.setProgress(0);
+                    toCrop[0]=0; toCrop[1]=0; toCrop[2]=0; toCrop[3]=0;
                     picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
                     img.setImageBitmap(picture);
                     break;
-
-                //Gets values of factors from textzones
+                case R.id.up:
+                    udlr = 0;
+                    cropBar.setProgress(toCrop[0]);
+                    break;
+                case R.id.down:
+                    udlr = 1;
+                    cropBar.setProgress(toCrop[1]);
+                    break;
+                case R.id.left:
+                    udlr = 2;
+                    cropBar.setProgress(toCrop[2]);
+                    break;
+                case R.id.right:
+                    udlr = 3;
+                    cropBar.setProgress(toCrop[3]);
+                    break;
                 case R.id.crop:
-                    facteurDecimalX = Float.valueOf(facteurLongueur.getText().toString());
-                    facteurDecimalY = Float.valueOf(facteurHauteur.getText().toString());
-                    newW = (int) facteurDecimalX;
-                    newH = (int) facteurDecimalY;
-                    picture=Bitmap.createBitmap(picture, 0,0,newW, newH);
+                    picture = crop(picture, toCrop);
                     img.setImageBitmap(picture);
                     break;
-
-                //Saves image in the gallery
-                case R.id.save:
-                    try {
-                        MediaStore.Images.Media.insertImage(getContentResolver(), picture, PhotoLoading.imgDecodableString + "_deforme", "");
-                        Intent second = new Intent(CropMenu.this, PhotoLoading.class);
-                        startActivity(second);
-                        break;
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-
                 default:
                     break;
             }
         }
     };
+
 }
