@@ -65,20 +65,24 @@ public class GrayMenu extends AppCompatActivity {
      * function which transforms colors of a bitmap on levels of grey
      * @param bmp the original bitmap
      */
-    public void toGray(Bitmap bmp) {
-        for (int i = 0; i < bmp.getWidth(); i++) {
-            for (int j = 0; j < bmp.getHeight(); j++) {
-                int pixel = bmp.getPixel(i, j);
-                //Gets RGB values from the pixel and sets average value in gray level
-                int red = Color.red(pixel);
-                int blue = Color.blue(pixel);
-                int green = Color.green(pixel);
-
-                int moy = (red + blue + green)/3;
-                int gray = Color.rgb(moy, moy, moy);
-                bmp.setPixel(i, j, gray);
-            }
+    public Bitmap toGray(Bitmap bmp) {
+        int width = bmp.getWidth();
+        int height = bmp.getHeight();
+        int[] pixels = new int[height * width];
+        Bitmap bmpGray = bmp.copy(Bitmap.Config.ARGB_8888, true); /* Je copie le bitmap en entrée (ce sera le bitmap initial) et le fait modifiable */
+        bmp.getPixels(pixels, 0, width, 0, 0, width, height);
+        for (int i = 0; i < width * height; i++) {   /* boucles sur tout le tableau de pixels (bitmap initial) */
+                /* Je récupère les valeurs RGB du pixel dans le bitmap initial */
+            int pixel = pixels[i];
+            int red = Color.red(pixel);
+            int blue = Color.blue(pixel);
+            int green = Color.green(pixel);
+                /* Je fais la moyenne de ces 3 valeurs et donne au pixel du bitmap de sortie le niveau de gris associé */
+            int gray = (int) (0.299F*red + 0.587F*green + 0.114F*blue);
+            pixels[i] = Color.rgb(gray, gray, gray);
         }
+        bmpGray.setPixels(pixels, 0, width, 0, 0, width, height);
+        return bmpGray;
     }
 
     private View.OnClickListener blistener = new View.OnClickListener(){
@@ -101,7 +105,7 @@ public class GrayMenu extends AppCompatActivity {
 
                 //Changes the image to gray levels
                 case R.id.grey:
-                    toGray(picture);
+                    picture=toGray(picture);
                     ImageView img = (ImageView) findViewById(R.id.picture);
                     img.setImageBitmap(picture);
                     break;
