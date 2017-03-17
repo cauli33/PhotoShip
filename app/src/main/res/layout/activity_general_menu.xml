@@ -179,6 +179,14 @@
         android:layout_alignParentEnd="true" />
 
     <Button
+        android:text="Rotation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/rotate"
+        android:layout_above="@+id/ED"
+        android:layout_toLeftOf="@id/replace" />
+
+    <Button
         android:text="Déformer l'image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
