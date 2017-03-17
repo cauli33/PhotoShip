@@ -100,15 +100,15 @@ public class RotateMenu extends AppCompatActivity {
         src.getPixels(mapSrc, 0, w, 0, 0, w, h);
         int[] mapDest = new int[w * h];
 
-        int index = 0;
         for (int y = 0; y < h; ++y) {
             for (int x = 0 ; x < w ; ++x) {
-                mapDest[index] = mapSrc[(w - x - 1) * w + y];
-                index++;
+                mapDest[( w - x - 1) * h + y] = mapSrc[y*w+x];
             }
         }
-        return Bitmap.createBitmap(mapSrc, h, w, Config.ARGB_8888);
+        return Bitmap.createBitmap(mapDest, h, w, Config.ARGB_8888);
     }
+
+
 
     private Bitmap rightrotation(Bitmap src) {
         int w = src.getWidth();
@@ -118,13 +118,13 @@ public class RotateMenu extends AppCompatActivity {
         int[] mapDest = new int[w * h];
 
         int index = 0;
-        for (int y = 0; y < w; ++y) {
-            for (int x = 0 ; x < h ; ++x) {
-                mapDest[index] = mapSrc[x * (h + 1) - y];
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0 ; x < w ; ++x) {
+                mapDest[x*h + h - y - 1] = mapSrc[y*w+x];
                 index++;
             }
         }
-        return Bitmap.createBitmap(mapSrc, h, w, Config.ARGB_8888);
+        return Bitmap.createBitmap(mapDest, h, w, Config.ARGB_8888);
     }
 
     private Bitmap flipleftright(Bitmap src) {
@@ -134,14 +134,12 @@ public class RotateMenu extends AppCompatActivity {
         src.getPixels(mapSrc, 0, w, 0, 0, w, h);
         int[] mapDest = new int[w * h];
 
-        int index = 0;
-        for (int y = 0; y < w; ++y) {
-            for (int x = 0 ; x < h ; ++x) {
-                mapDest[index] = mapSrc[y * (w + 1) - x];
-                index++;
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0 ; x < w ; ++x) {
+                mapDest[y * w + w - x - 1] = mapSrc[y*w+x];
             }
         }
-        return Bitmap.createBitmap(mapSrc, w, h, Config.ARGB_8888);
+        return Bitmap.createBitmap(mapDest, w, h, Config.ARGB_8888);
     }
 
     private Bitmap flipupdown(Bitmap src) {
@@ -151,14 +149,12 @@ public class RotateMenu extends AppCompatActivity {
         src.getPixels(mapSrc, 0, w, 0, 0, w, h);
         int[] mapDest = new int[w * h];
 
-        int index = 0;
-        for (int y = 0; y < w; ++y) {
-            for (int x = 0 ; x < h ; ++x) {
-                mapDest[index] = mapSrc[(h - y) * w + x];
-                index++;
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0 ; x < w ; ++x) {
+                mapDest[(h - y - 1) * w + x] = mapSrc[y*w+x];
             }
         }
-        return Bitmap.createBitmap(mapSrc, w, h, Config.ARGB_8888);
+        return Bitmap.createBitmap(mapDest, w, h, Config.ARGB_8888);
     }
     /**
      * Defines some buttons like "save"
