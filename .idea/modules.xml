@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/PhotoShip.iml" filepath="$PROJECT_DIR$/PhotoShip.iml" />
       <module fileurl="file:///autofs/netapp/travail/qhonore/Android/AndroidStudioProjects/PhotoShip/PhotoShip.iml" filepath="/autofs/netapp/travail/qhonore/Android/AndroidStudioProjects/PhotoShip/PhotoShip.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file:///autofs/netapp/travail/qhonore/Android/AndroidStudioProjects/PhotoShip/app/app.iml" filepath="/autofs/netapp/travail/qhonore/Android/AndroidStudioProjects/PhotoShip/app/app.iml" />
     </modules>
   </component>
