@@ -11,15 +11,17 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.util.Arrays;
+
 /**
  * This class is used to adjust contrast of the loaded image
- * @author emmaveillat
+ * @author emmaveillat, caulihonore
  */
 public class EgalizationHistogramm extends AppCompatActivity {
 
     Bitmap picture;
 
-    Bitmap pictureToUse, pictureFinal;
+    Bitmap pictureToUse;
 
     Button save, HE, reset;
 
@@ -48,7 +50,8 @@ public class EgalizationHistogramm extends AppCompatActivity {
 
     }
 
-    //We need a gray level picture for histogram egalization algorithm
+    //We need a gray level picture for histogram equalization algorithm
+    // A REMPLACER
     public void toGray(Bitmap bmp) {
         for (int i = 0; i < bmp.getWidth(); i++) {
             for (int j = 0; j < bmp.getHeight(); j++) {
@@ -66,36 +69,38 @@ public class EgalizationHistogramm extends AppCompatActivity {
         }
     }
 
-    public void egalization(Bitmap bmp) {
-        try {
-            int n = bmp.getHeight();
-            int m = bmp.getWidth();
-            int histogram[] = new int[256];
-            for (int i = 0; i < m; i++) {
-                for (int j = 0; j < n; j++) {
-                    int pixel = bmp.getPixel(i, j);
-                    int value = Color.red(pixel);
-                    histogram[value]++;
-                }
-            }
-
-            for (int i = 1; i < 256; i++){
-                histogram[i]+= histogram[i-1];
-            }
-
-            for (int k = 0; k < m; k++) {
-                for (int l = 0; l < n; l++) {
-                    int oldPixel = pictureFinal.getPixel(k, l);
-                    int oldValue = Color.red(oldPixel);
-                    int newValue = (histogram[oldValue]*255)/(n*m);
-                    int newPixel = Color.rgb(newValue, newValue, newValue);
-                    pictureFinal.setPixel(k, l, newPixel);
-                }
-            }
-        } catch (Exception e) {
-            Toast.makeText(this, "Quelque chose a mal fonctionné, veuillez réessayer.", Toast.LENGTH_LONG).show();
+    public int[] histogram(Bitmap bmp) {
+        int h = bmp.getHeight();
+        int w = bmp.getWidth();
+        int[] pixels = new int[w * h];
+        int histogram[] = new int[256];
+        bmp.getPixels(pixels, 0, w, 0, 0, w, h);
+        Arrays.fill(histogram, 0);
+        int value;
+        for (int i = 0; i < w * h; i++) {
+            value = Color.red(pixels[i]);
+            histogram[value]++;
         }
+        for (int i = 1; i < 256; i++) {
+            histogram[i] += histogram[i - 1];
+        }
+        return histogram;
     }
+
+    public void equalization(Bitmap bmp, int[] histogram) {
+        int h = bmp.getHeight();
+        int w = bmp.getWidth();
+        int[] pixels = new int[w * h];
+        bmp.getPixels(pixels, 0, w, 0, 0, w, h);
+        int oldValue, newValue;
+        for (int i = 0; i < w * h; i++) {
+            oldValue = Color.red(pixels[i]);
+            newValue = (histogram[oldValue] * 255) / (w * h);
+            pixels[i] = Color.rgb(newValue, newValue, newValue);
+        }
+        bmp.setPixels(pixels, 0, w, 0, 0, w, h);
+    }
+
 
 
     private View.OnClickListener blistener = new View.OnClickListener(){
@@ -117,10 +122,11 @@ public class EgalizationHistogramm extends AppCompatActivity {
 
                 //Applicates histogram extension algorithm on picture
                 case R.id.HE:
-                    pictureFinal = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
-                    toGray(pictureFinal);
-                    egalization(pictureToUse);
-                    img.setImageBitmap(pictureFinal);
+                    picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
+                    toGray(picture);
+                    int[] histogram = histogram(picture);
+                    equalization(picture, histogram);
+                    img.setImageBitmap(picture);
                     break;
 
                 default:
