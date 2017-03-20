@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.util.Arrays;
+
 /**
  * This class improves the contrast of a bitmap thanks to the extension of dynamics.
  * @author emmaveillat
@@ -20,7 +22,7 @@ public class ExtensionDynamic extends AppCompatActivity {
     /**
      * Bitmaps used to be modified
      */
-    Bitmap picture,pictureToUse, pictureFinal;
+    Bitmap picture,pictureToUse;
 
     /**
      * Buttons to save, reste or applies the extension of dynamics
@@ -56,79 +58,65 @@ public class ExtensionDynamic extends AppCompatActivity {
 
     }
 
-    /**
-     * function which transforms a bitmap in levels of grey
-      * @param bmp the original bitmap
-     */
-    public void toGray(Bitmap bmp) {
-        for (int i = 0; i < bmp.getWidth(); i++) {
-            for (int j = 0; j < bmp.getHeight(); j++) {
-                int pixel = bmp.getPixel(i, j);
-
-                //Gets RGB values from the pixel and sets average value in gray level
-                int red = Color.red(pixel);
-                int blue = Color.blue(pixel);
-                int green = Color.green(pixel);
-
-                int moy = (red + blue + green)/3;
-                int gray = Color.rgb(moy, moy, moy);
-                bmp.setPixel(i, j, gray);
-            }
+    public MinMaxandMap minmax(Bitmap bmp) {
+        int h = bmp.getHeight();
+        int w = bmp.getWidth();
+        int[] pixels = new int[w * h];
+        int[] histogram = new int[256];
+        bmp.getPixels(pixels, 0, w, 0, 0, w, h);
+        Arrays.fill(histogram, 0);
+        int red, blue, green, gray, pixel;
+        for (int i = 0; i < w * h; i++) {
+            pixel = pixels[i];
+            red = Color.red(pixel);
+            blue = Color.blue(pixel);
+            green = Color.green(pixel);
+                /* Je fais la moyenne de ces 3 valeurs et donne au pixel du bitmap de sortie le niveau de gris associé */
+            gray = (int) (0.299F*red + 0.587F*green + 0.114F*blue);
+            pixels[i] = gray;
+            histogram[gray]++;
         }
+        //Gets the min and the max values
+        int k = 0;
+        while (histogram[k] == 0) {
+            k++;
+        }
+        int min = k;
+
+        k = 255;
+        while (histogram[k] == 0) {
+            k--;
+        }
+        int max = k;
+        return new MinMaxandMap(min, max, pixels);
     }
 
     /**
      * function which applies the dynamic extension
      * @param bmp the original bitmap
      */
-    public void extension(Bitmap bmp) {
+    public void extension(Bitmap bmp, MinMaxandMap minmax) {
         try {
-            int n = bmp.getHeight();
-            int m = bmp.getWidth();
+            int h = bmp.getHeight();
+            int w = bmp.getWidth();
+            int min = minmax.getMin();
+            int max = minmax.getMax();
 
-            //builds the histogramm of the image
-            int histogram[] = new int[256];
-            for (int i = 0; i < m; i++) {
-                for (int j = 0; j < n; j++) {
-                    int pixel = bmp.getPixel(i, j);
-                    int value = Color.red(pixel);
-                    histogram[value]++;
-                }
+            int[] pixels = new int[w * h];
+            bmp.getPixels(pixels, 0, w, 0, 0, w, h);
+            int pixel, oldValue;
+            int valMap[]=minmax.getMap();
+            float newValue;
+            float[] pixelHSV = new float[3];
+            for (int i = 0; i < w*h; i++) {
+                    pixel = pixels[i];
+                    oldValue = valMap[i];
+                    newValue = (float)(oldValue - min)/(max - min);
+                    Color.colorToHSV(pixel, pixelHSV);
+                    pixelHSV[2] = newValue;
+                    pixels[i] = Color.HSVToColor(pixelHSV);
             }
-            //Gets the min and the max values
-            int i = 0;
-            while (histogram[i] == 0) {
-                i++;
-            }
-            int min = i;
-
-            int j = 255;
-            while (histogram[j] == 0) {
-                j--;
-            }
-            int max = j;
-
-            //Builds a Look-up Table
-            int LUT[] = new int[256];
-            for (int ng = 0; ng < 256; ng++) {
-                if (max - min != 0) {
-                    LUT[ng] = 255 * (ng - min) / (max - min);
-                } else{
-                    Toast.makeText(this, "Problème dans la construction de la LUT", Toast.LENGTH_LONG).show();
-
-                }
-            }
-
-            //Applies the Look-up table to the bitmap
-            for (int k = 0; k < m; k++) {
-                for (int l = 0; l < n; l++) {
-                    int oldPixel = pictureFinal.getPixel(k, l);
-                    int oldValue = Color.red(oldPixel);
-                    int newValue = LUT[oldValue];
-                    int newPixel = Color.rgb(newValue, newValue, newValue);
-                    pictureFinal.setPixel(k, l, newPixel);
-                }
-            }
+            bmp.setPixels(pixels, 0, w, 0, 0, w, h);
         } catch (Exception e) {
             Toast.makeText(this, "Quelque chose a mal fonctionné, veuillez réessayer.", Toast.LENGTH_LONG).show();
         }
@@ -142,8 +130,7 @@ public class ExtensionDynamic extends AppCompatActivity {
                 //Undoes changes by getting the original picture back
                 case R.id.reset:
                     picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
-                    ImageView img2 = (ImageView) findViewById(R.id.picture);
-                    img2.setImageBitmap(picture);
+                    img.setImageBitmap(picture);
                     break;
 
                 //Saves image in the gallery
@@ -155,10 +142,10 @@ public class ExtensionDynamic extends AppCompatActivity {
 
                 //Applies dynamic extension algorithm on picture
                 case R.id.ED:
-                    pictureFinal = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
-                    toGray(pictureFinal);
-                    extension(pictureToUse);
-                    img.setImageBitmap(pictureFinal);
+                    picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
+                    MinMaxandMap minmax = minmax(picture);
+                    extension(picture, minmax);
+                    img.setImageBitmap(picture);
                     break;
 
                 default:
@@ -168,3 +155,24 @@ public class ExtensionDynamic extends AppCompatActivity {
     };
 }
 
+final class MinMaxandMap {
+    private final int min;
+    private final int max;
+    private final int[] map;
+
+    public MinMaxandMap(int min, int max, int[] map) {
+        this.min = min;
+        this.max = max;
+        this.map = map;
+    }
+
+    public int getMin() {
+        return min;
+    }
+
+    public int getMax() { return max; }
+
+    public int[] getMap() {
+        return map;
+    }
+}
