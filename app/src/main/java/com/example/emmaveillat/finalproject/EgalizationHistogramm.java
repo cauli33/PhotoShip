@@ -50,53 +50,47 @@ public class EgalizationHistogramm extends AppCompatActivity {
 
     }
 
-    //We need a gray level picture for histogram equalization algorithm
-    // A REMPLACER
-    public void toGray(Bitmap bmp) {
-        for (int i = 0; i < bmp.getWidth(); i++) {
-            for (int j = 0; j < bmp.getHeight(); j++) {
-                int pixel = bmp.getPixel(i, j);
-
-                //Gets RGB values from the pixel and sets average value in gray level
-                int red = Color.red(pixel);
-                int blue = Color.blue(pixel);
-                int green = Color.green(pixel);
-
-                int moy = (red + blue + green)/3;
-                int gray = Color.rgb(moy, moy, moy);
-                bmp.setPixel(i, j, gray);
-            }
-        }
-    }
-
-    public int[] histogram(Bitmap bmp) {
+    public HistandMap histogram(Bitmap bmp) {
         int h = bmp.getHeight();
         int w = bmp.getWidth();
         int[] pixels = new int[w * h];
-        int histogram[] = new int[256];
+        int[] histogram = new int[256];
         bmp.getPixels(pixels, 0, w, 0, 0, w, h);
         Arrays.fill(histogram, 0);
-        int value;
+        int red, blue, green, gray, pixel;
         for (int i = 0; i < w * h; i++) {
-            value = Color.red(pixels[i]);
-            histogram[value]++;
+            pixel = pixels[i];
+            red = Color.red(pixel);
+            blue = Color.blue(pixel);
+            green = Color.green(pixel);
+                /* Je fais la moyenne de ces 3 valeurs et donne au pixel du bitmap de sortie le niveau de gris associé */
+            gray = (int) (0.299F*red + 0.587F*green + 0.114F*blue);
+            pixels[i] = gray;
+            histogram[gray]++;
         }
         for (int i = 1; i < 256; i++) {
             histogram[i] += histogram[i - 1];
         }
-        return histogram;
+        return new HistandMap(histogram, pixels);
     }
 
-    public void equalization(Bitmap bmp, int[] histogram) {
+    public void equalization(Bitmap bmp, HistandMap histmap) {
         int h = bmp.getHeight();
         int w = bmp.getWidth();
         int[] pixels = new int[w * h];
         bmp.getPixels(pixels, 0, w, 0, 0, w, h);
-        int oldValue, newValue;
+        int pixel, oldValue;
+        float newValue;
+        int[] valMap = histmap.getMap();
+        int[] histogram = histmap.getHistogram();
+        float[] pixelHSV = new float[3];
         for (int i = 0; i < w * h; i++) {
-            oldValue = Color.red(pixels[i]);
-            newValue = (histogram[oldValue] * 255) / (w * h);
-            pixels[i] = Color.rgb(newValue, newValue, newValue);
+            pixel = pixels[i];
+            oldValue = valMap[i];
+            newValue = (float) (histogram[oldValue]) / (w * h);
+            Color.colorToHSV(pixel, pixelHSV);
+            pixelHSV[2] = newValue;
+            pixels[i] = Color.HSVToColor(pixelHSV);
         }
         bmp.setPixels(pixels, 0, w, 0, 0, w, h);
     }
@@ -123,9 +117,8 @@ public class EgalizationHistogramm extends AppCompatActivity {
                 //Applicates histogram extension algorithm on picture
                 case R.id.HE:
                     picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
-                    toGray(picture);
-                    int[] histogram = histogram(picture);
-                    equalization(picture, histogram);
+                    HistandMap histmap = histogram(picture);
+                    equalization(picture, histmap);
                     img.setImageBitmap(picture);
                     break;
 
@@ -136,4 +129,20 @@ public class EgalizationHistogramm extends AppCompatActivity {
     };
 }
 
+final class HistandMap {
+    private final int[] histogram;
+    private final int[] map;
 
+    public HistandMap(int[] histogram, int[] map) {
+        this.histogram = histogram;
+        this.map = map;
+    }
+
+    public int[] getHistogram() {
+        return histogram;
+    }
+
+    public int[] getMap() {
+        return map;
+    }
+}
