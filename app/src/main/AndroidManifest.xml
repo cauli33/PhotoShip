@@ -34,6 +34,7 @@
         <activity android:name=".EgalizationHistogramm" />
         <activity android:name=".RotateMenu" />
         <activity android:name=".ReplaceMenu" />
+        <activity android:name=".FingerMenu" />
         <activity android:name=".CropMenu"></activity>
     </application>
 

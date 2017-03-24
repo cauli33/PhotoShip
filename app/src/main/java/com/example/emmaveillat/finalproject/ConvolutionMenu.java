@@ -35,7 +35,7 @@ public class ConvolutionMenu extends AppCompatActivity {
     /**
      * Buttons to apply functions, to save or reset a bitmap
      */
-    Button save, reset, moy, sobel, gauss, lapla;
+    Button save, reset, moy, sobel, gauss, lapla, cartoon;
 
     /**
      * The bitmap displayed in the menu
@@ -76,6 +76,9 @@ public class ConvolutionMenu extends AppCompatActivity {
 
         lapla = (Button) findViewById(R.id.lapla);
         lapla.setOnClickListener(blistener);
+
+        cartoon = (Button) findViewById(R.id.cartoon);
+        cartoon.setOnClickListener(blistener);
     }
 
     public void moyenne(Bitmap bmp, int n) {
@@ -276,6 +279,83 @@ public class ConvolutionMenu extends AppCompatActivity {
         }
     }
 
+    public void findAreaColor(int[] src, int[] borders, int x, int y, int width, int height, int[] sumRGB){
+        int index = x*width+y;
+        if (borders[index]==0){
+            borders[index]=1;
+            int pixel = src[index];
+            sumRGB[0] += Color.red(pixel);
+            sumRGB[1] += Color.green(pixel);
+            sumRGB[2] += Color.blue(pixel);
+            sumRGB[3] = 10;
+            if (x>0){findAreaColor(src, borders, x-1, y, width, height, sumRGB);}
+            if (x<width-1){findAreaColor(src, borders, x+1, y, width, height, sumRGB);}
+            if (y>0){findAreaColor(src, borders, x, y-1, width, height, sumRGB);}
+            if (y<height-1){findAreaColor(src, borders, x, y+1, width, height, sumRGB);}
+        }
+    }
+
+    public void paintArea(int[] src, int[] borders, int x, int y, int width, int height, int color){
+        if (borders[y*width + x]==1){
+            src[y*width+x] = color;
+            borders[y*width + x] = 2;
+            if (x>0){paintArea(src, borders, x-1, y, width, height, color);}
+            if (x<width-1){paintArea(src, borders, x+1, y, width, height, color);}
+            if (y>0){paintArea(src, borders, x, y-1, width, height, color);}
+            if (y<height-1){paintArea(src, borders, x, y+1, width, height, color);}
+        }
+    }
+
+    public void cartoon(Bitmap bmp, Bitmap sobel) {
+        int w = bmp.getWidth();
+        int h = bmp.getHeight();
+        int mapBorders[] = new int[w * h];
+        int mapSrc[] = new int[w * h];
+        bmp.getPixels(mapSrc, 0, w, 0, 0, w, h);
+        int mapSobel[] = new int[w * h];
+        sobel.getPixels(mapSobel, 0, w, 0, 0, w, h);
+        int pixel, red, green, blue;
+        //Fills mapBorders with -1 at borders
+        for (int i = 0; i < w * h; i++) {
+            pixel = mapSobel[i];
+            red = Color.red(pixel);
+            green = Color.green(pixel);
+            blue = Color.blue(pixel);
+            if (red + blue + green > 50) {
+                mapBorders[i] = -1;
+            }
+        }
+        int color;
+        int y = 0;
+        int x;
+        int[] startArea = new int[2];
+        int comptArea = 0;
+        int nArea, pixelsInArea;
+        int[] sumRGB = new int[3];
+        while (y < h) {
+            x = 0;
+            while (x < w) {
+
+                if ((mapBorders[y * w + x] == 0) && (x < w)) {
+                    startArea[0] = x;
+                    startArea[1] = y;
+                    comptArea++;
+                    nArea = comptArea;
+                    while ((mapBorders[y * w + x] == 0) && (x < w)) {
+
+                        findAreaColor(mapSrc, mapBorders, x, y, w, h, sumRGB);
+                        red = sumRGB[0] / sumRGB[3];
+                        green = sumRGB[1] / sumRGB[3];
+                        blue = sumRGB[2] / sumRGB[3];
+                        color = Color.rgb(red, green, blue);
+                        paintArea(mapSrc, mapBorders, x, y, w, h, color);
+                    }
+                }
+            }
+            bmp.setPixels(mapSrc, 0, w, 0, 0, w, h);
+        }
+    }
+
     private View.OnClickListener blistener = new View.OnClickListener() {
         public void onClick(View v) {
             switch (v.getId()) {
@@ -308,6 +388,13 @@ public class ConvolutionMenu extends AppCompatActivity {
                 //Applicates Laplacien filter
                 case R.id.lapla:
                     laplacien(picture);
+                    imgView.setImageBitmap(picture);
+                    break;
+
+                case R.id.cartoon:
+                    Bitmap sobel = picture.copy(Bitmap.Config.ARGB_8888, true);
+                    sobel(sobel);
+                    cartoon(picture,sobel);
                     imgView.setImageBitmap(picture);
                     break;
 

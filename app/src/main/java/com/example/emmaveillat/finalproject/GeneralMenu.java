@@ -15,7 +15,7 @@ public class GeneralMenu extends AppCompatActivity {
     /**
      * Buttons to access the menus
      */
-    Button ppv, pinch, gris, couleur, filtre, ED, teinte, sepia, HE, conv, crop, replace, rotate;
+    Button ppv, pinch, gris, couleur, filtre, ED, teinte, sepia, HE, conv, crop, replace, rotate, finger;
 
     //ImageButton aide_ppv, aide_pinch, aide_gris, aide_couleur, aide_filtre;
 
@@ -64,6 +64,9 @@ public class GeneralMenu extends AppCompatActivity {
 
         rotate = (Button) findViewById(R.id.rotate);
         rotate.setOnClickListener(blistener);
+
+        finger = (Button) findViewById(R.id.finger);
+        finger.setOnClickListener(blistener);
         //Sets help toasts
         /*aide_couleur = (ImageButton)findViewById(R.id.aide_couleur);
         aide_couleur.setOnClickListener(new View.OnClickListener(){
@@ -176,6 +179,11 @@ public class GeneralMenu extends AppCompatActivity {
                 case R.id.rotate:
                     Intent fourteen = new Intent(GeneralMenu.this, RotateMenu.class);
                     startActivity(fourteen);
+                    break;
+
+                case R.id.finger:
+                    Intent fifteen = new Intent(GeneralMenu.this, FingerMenu.class);
+                    startActivity(fifteen);
                     break;
 
                 default:
