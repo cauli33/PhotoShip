@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import java.util.Arrays;
+
 /**
  * This class applies convolutions and blurs to a bitmap thanks to some matrix.
  * @author caulihonore
@@ -280,14 +282,14 @@ public class ConvolutionMenu extends AppCompatActivity {
     }
 
     public void findAreaColor(int[] src, int[] borders, int x, int y, int width, int height, int[] sumRGB){
-        int index = x*width+y;
+        int index = y*width+x;
         if (borders[index]==0){
             borders[index]=1;
             int pixel = src[index];
             sumRGB[0] += Color.red(pixel);
             sumRGB[1] += Color.green(pixel);
             sumRGB[2] += Color.blue(pixel);
-            sumRGB[3] = 10;
+            sumRGB[3] ++;
             if (x>0){findAreaColor(src, borders, x-1, y, width, height, sumRGB);}
             if (x<width-1){findAreaColor(src, borders, x+1, y, width, height, sumRGB);}
             if (y>0){findAreaColor(src, borders, x, y-1, width, height, sumRGB);}
@@ -310,6 +312,7 @@ public class ConvolutionMenu extends AppCompatActivity {
         int w = bmp.getWidth();
         int h = bmp.getHeight();
         int mapBorders[] = new int[w * h];
+        Arrays.fill(mapBorders, 0);
         int mapSrc[] = new int[w * h];
         bmp.getPixels(mapSrc, 0, w, 0, 0, w, h);
         int mapSobel[] = new int[w * h];
@@ -326,34 +329,21 @@ public class ConvolutionMenu extends AppCompatActivity {
             }
         }
         int color;
-        int y = 0;
-        int x;
-        int[] startArea = new int[2];
-        int comptArea = 0;
-        int nArea, pixelsInArea;
-        int[] sumRGB = new int[3];
-        while (y < h) {
-            x = 0;
-            while (x < w) {
-
-                if ((mapBorders[y * w + x] == 0) && (x < w)) {
-                    startArea[0] = x;
-                    startArea[1] = y;
-                    comptArea++;
-                    nArea = comptArea;
-                    while ((mapBorders[y * w + x] == 0) && (x < w)) {
-
-                        findAreaColor(mapSrc, mapBorders, x, y, w, h, sumRGB);
-                        red = sumRGB[0] / sumRGB[3];
-                        green = sumRGB[1] / sumRGB[3];
-                        blue = sumRGB[2] / sumRGB[3];
-                        color = Color.rgb(red, green, blue);
-                        paintArea(mapSrc, mapBorders, x, y, w, h, color);
-                    }
+        int[] sumRGB = new int[4];
+        for (int y=0; y<h; y++){
+            for (int x=0; x<w; x++) {
+                if ((mapBorders[y * w + x] == 0)) {
+                    Arrays.fill(sumRGB, 0);
+                    findAreaColor(mapSrc, mapBorders, x, y, w, h, sumRGB);
+                    red = sumRGB[0] / sumRGB[3];
+                    green = sumRGB[1] / sumRGB[3];
+                    blue = sumRGB[2] / sumRGB[3];
+                    color = Color.rgb(red, green, blue);
+                    paintArea(mapSrc, mapBorders, x, y, w, h, color);
                 }
             }
-            bmp.setPixels(mapSrc, 0, w, 0, 0, w, h);
         }
+            bmp.setPixels(mapSrc, 0, w, 0, 0, w, h);
     }
 
     private View.OnClickListener blistener = new View.OnClickListener() {
