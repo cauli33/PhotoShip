@@ -32,7 +32,7 @@
         android:layout_alignParentEnd="true" />
 
     <TextView
-        android:text="Facteur longueur :"
+        android:text="Paramètre filtre moyenneur :"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/facX"
