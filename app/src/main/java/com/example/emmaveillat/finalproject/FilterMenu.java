@@ -15,6 +15,7 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
+
 /**
  * This class is used to pick a color and apply a color filter
  * @author caulihonore
@@ -50,6 +51,8 @@ public class FilterMenu extends AppCompatActivity {
      * Bitmaps used to be transformed
      */
     Bitmap picture, pictureToUse;
+
+    boolean go = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +102,8 @@ public class FilterMenu extends AppCompatActivity {
      * function which load the new Bitmap with its new hue depending on the selected interval
      */
     private void loadBitmapHSV() {
-        if (picture != null) {
+        if ((picture != null)&&(go)) {
+            go = false;
             //Gets seekbar values and updates text and image
             int hue = hueBar.getProgress();
 
@@ -107,7 +111,8 @@ public class FilterMenu extends AppCompatActivity {
             hueText.setText("Hue: " + String.valueOf(hue));
 
             float settingHue = (float) hue;
-            imageResult.setImageBitmap(updateHSV(picture, settingHue));
+            go = updateHSV(picture, settingHue);
+            imageResult.setImageBitmap(picture);
 
         }
     }
@@ -115,13 +120,10 @@ public class FilterMenu extends AppCompatActivity {
     /**
      * function which applicates a color filter of the selected hue
      * @param src the bitmap the user wants to modify
-     * @param settingHue the new value of hue
+     * @param hue the new value of hue
      * @return the modified bitmap
      */
-    private Bitmap updateHSV(Bitmap src, float settingHue) {
-
-        hue = settingHue;
-
+    private boolean updateHSV(Bitmap src, float hue) {
         int w = src.getWidth();
         int h = src.getHeight();
         int[] mapSrc = new int[w * h];
@@ -130,14 +132,14 @@ public class FilterMenu extends AppCompatActivity {
         //Array of pixel values from the bitmap
         src.getPixels(mapSrc, 0, w, 0, 0, w, h);
 
-        int index = 0;
         for (int i = 0; i < h*w; ++i) {
             int pixel = mapSrc[i];
             Color.colorToHSV(pixel, pixelHSV);
-            pixelHSV[0] = settingHue;
-            mapSrc[i] = Color.HSVToColor(Color.alpha(pixel),pixelHSV);
+            pixelHSV[0] = hue;
+            mapSrc[i] = Color.HSVToColor(pixelHSV);
         }
-        return Bitmap.createBitmap(mapSrc, w, h, Config.ARGB_8888);
+        src.setPixels(mapSrc, 0, w, 0, 0, w, h);
+        return true;
     }
 
     /**
@@ -153,7 +155,8 @@ public class FilterMenu extends AppCompatActivity {
                     break;
                 //Saves image in the gallery
                 case R.id.save:
-                    Bitmap pictureFinal = (updateHSV(picture, hue)).copy(Bitmap.Config.ARGB_8888, true);
+                    Bitmap pictureFinal = picture.copy(Bitmap.Config.ARGB_8888, true);
+                    updateHSV(pictureFinal, hue);
                     MediaStore.Images.Media.insertImage(getContentResolver(), pictureFinal, PhotoLoading.imgDecodableString + "_couleur" , "");
                     Intent second = new Intent(FilterMenu.this, PhotoLoading.class);
                     startActivity(second);
