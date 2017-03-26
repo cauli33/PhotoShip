@@ -14,7 +14,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/up"
+        android:layout_above="@+id/textcrop"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
         <ImageView
@@ -91,6 +91,7 @@
         android:layout_height="wrap_content"
         android:text="Crop"
         android:layout_above="@+id/cropbar"
+        android:layout_below="@+id/pictureCroped"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
