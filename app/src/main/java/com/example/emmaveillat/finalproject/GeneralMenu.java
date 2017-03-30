@@ -1,10 +1,13 @@
 package com.example.emmaveillat.finalproject;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 
 /**
  * This class is a general menu where the user can choose the transformation he wants to apply to his bitmap.
@@ -12,10 +15,13 @@ import android.widget.Button;
  */
 public class GeneralMenu extends AppCompatActivity {
 
+    ImageView img;
     /**
      * Buttons to access the menus
      */
-    Button ppv, pinch, gris, couleur, filtre, ED, teinte, sepia, HE, conv, crop, replace, rotate, finger;
+    Bitmap pictureToUse, picture;
+    ImageButton gris, filtre, ED, teinte, sepia, HE, conv, crop, rotate;
+    Button ppv, pinch, couleur, replace, finger;
 
     //ImageButton aide_ppv, aide_pinch, aide_gris, aide_couleur, aide_filtre;
 
@@ -25,44 +31,54 @@ public class GeneralMenu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_general_menu);
 
+        //Gets picture Bitmap chosen in the gallery
+        pictureToUse = PhotoLoading.scaleImage();
+
+        //copies the original bitmap to be mutable
+        picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
+
+        //Objects displayed in the menu
+        img = (ImageView) findViewById(R.id.picture);
+        img.setImageBitmap(picture);
+
         //Sets buttons
         pinch = (Button) findViewById(R.id.pinch);
         pinch.setOnClickListener(blistener);
 
-        teinte = (Button) findViewById(R.id.teinte);
+        teinte = (ImageButton) findViewById(R.id.teinte);
         teinte.setOnClickListener(blistener);
 
         ppv = (Button) findViewById(R.id.ppv);
         ppv.setOnClickListener(blistener);
 
-        gris = (Button) findViewById(R.id.grey);
+        gris = (ImageButton) findViewById(R.id.grey);
         gris.setOnClickListener(blistener);
 
         couleur = (Button) findViewById(R.id.color);
         couleur.setOnClickListener(blistener);
 
-        filtre = (Button) findViewById(R.id.filtre);
+        filtre = (ImageButton) findViewById(R.id.filtre);
         filtre.setOnClickListener(blistener);
 
-        ED = (Button) findViewById(R.id.ED);
+        ED = (ImageButton) findViewById(R.id.ED);
         ED.setOnClickListener(blistener);
 
-        HE = (Button) findViewById(R.id.HE);
+        HE = (ImageButton) findViewById(R.id.HE);
         HE.setOnClickListener(blistener);
 
-        sepia = (Button) findViewById(R.id.sepia);
+        sepia = (ImageButton) findViewById(R.id.sepia);
         sepia.setOnClickListener(blistener);
 
-        conv = (Button) findViewById(R.id.conv);
+        conv = (ImageButton) findViewById(R.id.conv);
         conv.setOnClickListener(blistener);
 
-        crop = (Button) findViewById(R.id.crop);
+        crop = (ImageButton) findViewById(R.id.crop);
         crop.setOnClickListener(blistener);
 
         replace = (Button) findViewById(R.id.replace);
         replace.setOnClickListener(blistener);
 
-        rotate = (Button) findViewById(R.id.rotate);
+        rotate = (ImageButton) findViewById(R.id.rotate);
         rotate.setOnClickListener(blistener);
 
         finger = (Button) findViewById(R.id.finger);

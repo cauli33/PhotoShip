@@ -5,205 +5,134 @@
     android:id="@+id/activity_general_menu"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.emmaveillat.finalproject.GeneralMenu">
 
-    <!--<ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@android:drawable/ic_menu_info_details"
-        android:id="@+id/aide_ppv"
-        android:layout_alignTop="@+id/ppv"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@android:drawable/ic_menu_info_details"
-        android:id="@+id/aide_pinch"
-        android:layout_alignTop="@+id/pinch"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@android:drawable/ic_menu_info_details"
-        android:layout_alignTop="@+id/filtre"
-        android:layout_alignLeft="@+id/aide_ppv"
-        android:layout_alignStart="@+id/aide_ppv"
-        android:id="@+id/aide_filtre" />
-
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@android:drawable/ic_menu_info_details"
-        android:id="@+id/aide_couleur"
-        android:layout_alignTop="@+id/color"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />-->
-
-    <!--android:layout_toLeftOf="@+id/aide_couleur"
-        android:layout_toStartOf="@+id/aide_couleur" -->
-
-    <!--android:layout_toLeftOf="@+id/aide_ppv"
-        android:layout_toStartOf="@+id/aide_ppv" -->
-
-    <!--android:layout_toLeftOf="@+id/aide_ppv"
-        android:layout_toStartOf="@+id/aide_ppv" -->
-
-    <!--android:layout_toLeftOf="@+id/aide_ppv"
-        android:layout_toStartOf="@+id/aide_ppv"
-        android:layout_above="@+id/aide_ppv"-->
-
-    <!--android:layout_above="@+id/aide_filtre"-->
-
-    <!--<ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@android:drawable/ic_menu_info_details"
-        android:id="@+id/aide_gris"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
-        android:layout_alignLeft="@+id/aide_couleur"
-        android:layout_alignStart="@+id/aide_couleur"/>-->
-
-    <Button
-        android:text="Changer l'image en noir et blanc"
+    <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/grey"
+        android:layout_height="150dp"
+        android:id="@+id/filterscrollview"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
-        <!--android:layout_toLeftOf="@+id/aide_gris"
-        android:layout_toStartOf="@+id/aide_gris"-->
-
-    <Button
-        android:text="Voir l'image plus en détail (pinch zoom)"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/pinch"
+        android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentEnd="true"
+        >
 
-    <Button
-        android:text="Convolution"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:id="@+id/conv"
-        android:layout_below="@+id/sepia"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:weightSum="1">
 
-    <Button
-        android:text="Modifier la couleur, la luminosité et la saturation de l'image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/color"
-        android:layout_below="@+id/grey"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/grey"
+                android:src="@drawable/gris" />
 
-    <Button
-        android:text="Mettre un filtre de couleur aléatoire sur l'image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/filtre"
-        android:layout_below="@+id/conv"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/sepia"
+                android:src="@drawable/sepia"/>
 
-    <Button
-        android:text="Sépia"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/sepia"
-        android:layout_below="@+id/color"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+            <ImageButton
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:id="@+id/conv"
+                android:src="@drawable/filtre_moyenne"/>
 
-    <Button
-        android:text="Égalisation d'histogramme"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/HE"
-        android:layout_below="@+id/color"
-        android:layout_toRightOf="@+id/sepia"
-        android:layout_toEndOf="@+id/sepia"
-        android:layout_marginLeft="28dp"
-        android:layout_marginStart="28dp" />
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/filtre"
+                android:src="@drawable/rose"/>
 
-    <Button
-    android:text="Extension linéaire de dynamique"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/ED"
-    android:layout_above="@+id/ppv"
-    android:layout_alignLeft="@+id/HE"
-    android:layout_alignStart="@+id/HE" />
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/HE"
+                android:src="@drawable/egalisationhistogramme"
+                android:layout_weight="0.12" />
 
-    <Button
-        android:text="Choix teinte"
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/ED"
+                android:src="@drawable/extensiondynamique"/>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/teinte"
+                android:src="@drawable/une_couleur"/>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/crop"
+                android:src="@android:drawable/ic_menu_crop"/>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/rotate"
+                android:src="@android:drawable/ic_menu_rotate"/>
+
+            <Button
+                android:text="Zoom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/pinch" />
+
+            <Button
+                android:text="HSV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/color" />
+
+            <Button
+                android:text="Fond vert"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/replace" />
+
+            <Button
+                android:text="Finger"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/finger"/>
+
+            <Button
+                android:text="Déformer l'image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ppv"/>
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/teinte"
-        android:layout_above="@+id/ppv"
-        android:layout_toLeftOf="@+id/ED"
-        android:layout_toStartOf="@+id/ED" />
-    <!--android:layout_below="@+id/aide_gris"-->
+        android:layout_height="match_parent"
+        android:layout_above="@+id/filterscrollview"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+        <ImageView
+            android:id="@+id/picture"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:scaleType="center"
+            android:layout_above="@id/filterscrollview">
+        </ImageView>
+    </ScrollView>
 
-    <Button
-        android:text="Rogner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/crop"
-        android:layout_above="@+id/pinch"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <Button
-        android:text="Fond vert"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/replace"
-        android:layout_above="@+id/ED"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <Button
-        android:text="Rotation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/rotate"
-        android:layout_above="@+id/ED"
-        android:layout_toLeftOf="@id/replace" />
-
-    <Button
-        android:text="Finger"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/finger"
-        android:layout_above="@+id/ED"
-        android:layout_toLeftOf="@id/rotate" />
-
-    <Button
-        android:text="Déformer l'image"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/ppv"
-        android:layout_marginRight="36dp"
-        android:layout_marginEnd="36dp"
-        android:layout_above="@+id/pinch"
-        android:layout_toLeftOf="@+id/crop"
-        android:layout_toStartOf="@+id/crop" />
 
 </RelativeLayout>
 
