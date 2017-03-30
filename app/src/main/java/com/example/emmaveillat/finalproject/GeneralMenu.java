@@ -4,10 +4,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
  * This class is a general menu where the user can choose the transformation he wants to apply to his bitmap.
@@ -25,21 +27,57 @@ public class GeneralMenu extends AppCompatActivity {
 
     //ImageButton aide_ppv, aide_pinch, aide_gris, aide_couleur, aide_filtre;
 
+    /**
+     * the dimensions of the bitmap
+     */
+    int bmpWidth, bmpHeight;
+
+    /**
+     * statments of the fingers on the screen
+     */
+    int touchState;
+    final int IDLE = 0;
+    final int TOUCH = 1;
+    final int PINCH = 2;
+
+    /**
+     * distances from the fingers
+     */
+    float dist0, distCurrent;
+
+    /**
+     * Text displayed
+     */
+    TextView txt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_general_menu);
 
+        //Objects displayed in the menu
+        img = (ImageView) findViewById(R.id.picture);
+        img.setImageBitmap(picture);
+        
         //Gets picture Bitmap chosen in the gallery
         pictureToUse = PhotoLoading.scaleImage();
 
         //copies the original bitmap to be mutable
         picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
 
-        //Objects displayed in the menu
-        img = (ImageView) findViewById(R.id.picture);
-        img.setImageBitmap(picture);
+        bmpWidth = picture.getWidth();
+        bmpHeight = picture.getHeight();
+
+        //initialization of the distances
+        distCurrent = 1;
+        dist0 = 1;
+        drawMatrix();
+
+        img.setOnTouchListener(MyOnTouchListener);
+        touchState = IDLE;
+
+        txt = (TextView) findViewById(R.id.zoomfactor);
+        txt.setText(String.valueOf(distCurrent/dist0));
 
         //Sets buttons
         pinch = (Button) findViewById(R.id.pinch);
@@ -125,6 +163,21 @@ public class GeneralMenu extends AppCompatActivity {
             }});*/
     }
 
+    /**
+     * function which draw a matrix depending on the distances and creates the new zoomed bitmap
+     */
+    private void drawMatrix(){
+        float curScale = distCurrent/dist0;
+        if (curScale < 0.1){
+            curScale = 0.1f;
+        }
+
+        Bitmap resizedBitmap;
+        int newHeight = (int) (bmpHeight * curScale);
+        int newWidth = (int) (bmpWidth * curScale);
+        resizedBitmap = Bitmap.createScaledBitmap(picture, newWidth, newHeight, false);
+        img.setImageBitmap(resizedBitmap);
+    }
 
     private View.OnClickListener blistener = new View.OnClickListener(){
         public void onClick(View v){
@@ -206,6 +259,60 @@ public class GeneralMenu extends AppCompatActivity {
                     break;
             }
         }
+    };
+
+    View.OnTouchListener MyOnTouchListener = new View.OnTouchListener(){
+        @Override
+        public boolean onTouch(View view, MotionEvent event) {
+            // TODO Auto-generated method stub
+            float distx, disty;
+            switch(event.getAction() & MotionEvent.ACTION_MASK) {
+
+                //if a finger touches the screen, the factor of zoom is displayed
+                case MotionEvent.ACTION_DOWN:touchState = TOUCH;
+
+                    txt = (TextView) findViewById(R.id.zoomfactor);
+                    txt.setText(String.valueOf(distCurrent/dist0));
+                    break;
+
+                //if the fingers pinch the bitmap, the distances change and the factor of zoom is displayed
+                case MotionEvent.ACTION_POINTER_DOWN:touchState = PINCH;
+                    distx = event.getX(0) - event.getX(1);
+                    disty = event.getY(0) - event.getY(1);
+                    dist0 = (float) Math.sqrt(distx * distx + disty * disty);
+
+                    txt = (TextView) findViewById(R.id.zoomfactor);
+                    txt.setText(String.valueOf(distCurrent/dist0));
+                    break;
+
+                // if the fingers move, the distances change and the factor of zoom is displayed
+                case MotionEvent.ACTION_MOVE:
+                    if (touchState == PINCH) {
+                        distx = event.getX(0) - event.getX(1);
+                        disty = event.getY(0) - event.getY(1);
+                        distCurrent =  (float) Math.sqrt(distx * distx + disty * disty);
+                        drawMatrix();
+
+                        txt = (TextView) findViewById(R.id.zoomfactor);
+                        txt.setText(String.valueOf(distCurrent/dist0));
+                    }
+                    break;
+
+                //if the fingers stop zooming the bitmap, the factor of zoom is displayed
+                case MotionEvent.ACTION_UP:touchState = IDLE;
+                    txt = (TextView) findViewById(R.id.zoomfactor);
+                    txt.setText(String.valueOf(distCurrent/dist0));
+                    break;
+
+                //if one finger touches the screen, the factor of zoom is displayed
+                case MotionEvent.ACTION_POINTER_UP:touchState = TOUCH;
+                    txt = (TextView) findViewById(R.id.zoomfactor);
+                    txt.setText(String.valueOf(distCurrent/dist0));
+                    break;
+            }
+            return true;
+        }
+
     };
 }
 
