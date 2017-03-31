@@ -77,11 +77,6 @@ public class FingerMenu extends AppCompatActivity {
 
         gap = Math.min(bmpWidth,bmpHeight)/10;
 
-        //initialization of the distances
-        distCurrent = 1;
-        dist0 = 1;
-        drawMatrix();
-
         img.setOnTouchListener(MyOnTouchListener);
         touchState = IDLE;
     }
@@ -104,21 +99,6 @@ public class FingerMenu extends AppCompatActivity {
         }
         bmpGray.setPixels(pixels, 0, width, 0, 0, width, height);
         return bmpGray;
-    }
-    /**
-     * function which draw a matrix depending on the distances and creates the new zoomed bitmap
-     */
-    private void drawMatrix(){
-        float curScale = distCurrent/dist0;
-        if (curScale < 0.1){
-            curScale = 0.1f;
-        }
-
-        Bitmap resizedBitmap;
-        int newHeight = (int) (bmpHeight * curScale);
-        int newWidth = (int) (bmpWidth * curScale);
-        resizedBitmap = Bitmap.createScaledBitmap(picture, newWidth, newHeight, false);
-        img.setImageBitmap(resizedBitmap);
     }
 
     private void replace(Bitmap oldbmp, Bitmap newbmp, int x, int y){

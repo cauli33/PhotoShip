@@ -89,6 +89,7 @@ import android.widget.TextView;
                 hueBar.setProgress(0);
                 gapBar.setProgress(0);
                 picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
+                imageResult.setImageBitmap(picture);
             }});
     }
 

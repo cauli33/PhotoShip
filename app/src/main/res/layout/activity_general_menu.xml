@@ -116,22 +116,28 @@
 
     </HorizontalScrollView>
 
-    <ScrollView
+    <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/filterscrollview"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
-        <ImageView
-            android:id="@+id/picture"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:scaleType="center"
-            android:layout_above="@id/filterscrollview">
-        </ImageView>
-    </ScrollView>
+            android:layout_alignParentStart="true">
+            <ImageView
+                android:id="@+id/picture"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:scaleType="center"
+                android:layout_above="@id/filterscrollview">
+            </ImageView>
+        </ScrollView>
+    </HorizontalScrollView>
 
     <TextView
         android:text="Facteur de zoom :"
