@@ -88,7 +88,7 @@ import android.widget.TextView;
                 //Initializes hue and gap seekbars to 0 (left extremity)
                 hueBar.setProgress(0);
                 gapBar.setProgress(0);
-                loadBitmapHSV();
+                picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
             }});
     }
 

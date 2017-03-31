@@ -151,6 +151,7 @@ public class FilterMenu extends AppCompatActivity {
                 ////Undoes changes by getting the original picture back and sets hue seekbar to 0
                 case R.id.reset:
                     hueBar.setProgress(0);
+                    picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
                     imageResult.setImageBitmap(picture);
                     break;
                 //Saves image in the gallery
