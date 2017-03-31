@@ -7,9 +7,12 @@ import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -40,6 +43,8 @@ public class SepiaMenu extends AppCompatActivity {
      */
     ImageView img;
 
+    Toolbar mToolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +67,27 @@ public class SepiaMenu extends AppCompatActivity {
 
         reset = (Button) findViewById(R.id.reset);
         reset.setOnClickListener(blistener);
+    }
+
+    //gère le click sur une action de l'ActionBar
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_save:
+                //save();
+                return true;
+            case R.id.action_delete:
+                //delete();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //ajoute les entrées de menu_test à l'ActionBar
+        getMenuInflater().inflate(R.menu.menu_test, menu);
+        return true;
     }
 
     /**
