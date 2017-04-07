@@ -29,47 +29,46 @@
             android:weightSum="1">
 
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="100dip"
+                android:layout_height="100dip"
                 android:id="@+id/grey"
-                android:src="@drawable/gris" />
+                android:background="@drawable/gris" />
 
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="100dip"
+                android:layout_height="100dip"
                 android:id="@+id/sepia"
-                android:src="@drawable/sepia"/>
+                android:background="@drawable/sepia"/>
 
             <ImageButton
-                android:layout_height="match_parent"
-                android:layout_width="wrap_content"
+                android:layout_width="100dip"
+                android:layout_height="100dip"
                 android:id="@+id/conv"
-                android:src="@drawable/filtre_moyenne"/>
+                android:background="@drawable/filtre_moyenne"/>
 
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="100dip"
+                android:layout_height="100dip"
                 android:id="@+id/filtre"
-                android:src="@drawable/rose"/>
+                android:background="@drawable/rose"/>
 
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="100dip"
+                android:layout_height="100dip"
                 android:id="@+id/HE"
-                android:src="@drawable/egalisationhistogramme"
-                android:layout_weight="0.12" />
+                android:background="@drawable/egalisationhistogramme" />
 
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="100dip"
+                android:layout_height="100dip"
                 android:id="@+id/ED"
-                android:src="@drawable/extensiondynamique"/>
+                android:background="@drawable/extensiondynamique"/>
 
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="100dip"
+                android:layout_height="100dip"
                 android:id="@+id/teinte"
-                android:src="@drawable/une_couleur"/>
+                android:background="@drawable/une_couleur"/>
 
             <ImageButton
                 android:layout_width="wrap_content"

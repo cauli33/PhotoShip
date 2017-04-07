@@ -243,12 +243,76 @@ public class ConvolutionMenu extends AppCompatActivity {
         return null;
     }
 
-    public void laplacien(Bitmap bmp){
-        //Applicates convolution with Laplacien matrix
+    public void convolutionLaplacien(Bitmap bmp) {
         int[][] mask = {{1,1,1},{1,-8,1},{1,1,1}};
-        convolution(bmp, mask, 1);
+        int width = bmp.getWidth();
+        int height = bmp.getHeight();
+        int[] pixels = new int[height * width];
+        int[][] pixelsConvRGB = new int[height * width][3];
+        //Gets array of every pixels from the Bitmap
+        bmp.getPixels(pixels, 0, width, 0, 0, width, height);
+        int R, G, B;
+        int sumR, sumG, sumB;
+        int black = Color.rgb(0,0,0);
+        //Convolution avoiding borders
+        for (int y = 1; y < height - 1; y++) {
+            for (int x = 1; x < width - 1; x++) {
+                sumR = 0;
+                sumG = 0;
+                sumB = 0;
+                for (int j = -1; j <= 1; j++) {
+                    for (int i = -1; i <= 1; i++) {
+                        float coef_mask = mask[j + 1][i + 1];
+                        int pixel = pixels[(y + j) * width + x + i];
+                        //For every RGB componants, multiplies by convolution matrix coefficient
+                        sumR += coef_mask * Color.red(pixel);
+                        sumG += coef_mask * Color.green(pixel);
+                        sumB += coef_mask * Color.blue(pixel);
+                    }
+                }
+                pixelsConvRGB[y*width+x][0] = sumR;
+                pixelsConvRGB[y*width+x][1] = sumG;
+                pixelsConvRGB[y*width+x][2] = sumB;
+            }
+        }
+        int min = (pixelsConvRGB[1][0] + pixelsConvRGB[1][1] + pixelsConvRGB[1][2]) / 3;
+        int max = (pixelsConvRGB[1][0] + pixelsConvRGB[1][1] + pixelsConvRGB[1][2]) / 3;
+        int moy;
+        for (int y = 1; y < height - 1; y++) {
+            for (int x = 1; x < width - 1; x++) {
+                moy = (pixelsConvRGB[y*width+x][0] + pixelsConvRGB[y*width+x][1] + pixelsConvRGB[y*width+x][2]) / 3;
+                if (moy < min) {
+                    min = moy;
+                }
+                else if (moy > max) {
+                    max = moy;
+                }
+            }
+        }
+        //Bordures en noir
+        for (int y = 0; y < height; y++) {
+            pixels[y * width] = black;
+            pixels[(y+1)*width - 1] = black;
+        }
+        for (int x = 1; x < width - 1; x++) {
+            pixels[x] = black;
+            pixels[(height -1) * width + x] = black;
+        }
+        int fact;
+        for (int y = 1; y < height - 1; y++) {
+            for (int x = 1; x < width - 1; x++) {
+                R = pixelsConvRGB[y*width+x][0];
+                G = pixelsConvRGB[y*width+x][1];
+                B = pixelsConvRGB[y*width+x][2];
+                fact = ((R + G + B) / 3 - min) * 255 / (max -min);
+                R *= fact;
+                G *= fact;
+                B *= fact;
+                pixels[y*width+x] = Color.rgb(R,G,B);
+            }
+        }
+        bmp.setPixels(pixels, 0, width, 0, 0, width, height);
     }
-
 
     public void convolution(Bitmap bmp, int[][] mask, int factor) {
         int n = mask.length / 2;
@@ -459,7 +523,7 @@ public class ConvolutionMenu extends AppCompatActivity {
 
                 //Applicates Laplacien filter
                 case R.id.lapla:
-                    laplacien(picture);
+                    convolutionLaplacien(picture);
                     imgView.setImageBitmap(picture);
                     break;
 
