@@ -143,40 +143,50 @@ public class ConvolutionMenu extends AppCompatActivity {
         int height = bmp.getHeight();
         //applicates convolution with hx et hy matrix
         int[][] hx = {{-1,0,1},{-2,0,2},{-1,0,1}};
-        //int[][] hx = {{0,0,0},{-1,0,1},{0,0,0}};
-        int[][] Gx = sobelConvolutionAux(bmp,hx);
+        int[][] Gx = convolutionBorders(bmp,hx);
 
         int[][] hy = {{-1,-2,-1},{0,0,0},{1,2,1}};
-        //int[][] hy = {{0,-1,0},{0,0,0},{0,1,0}};
-        int[][] Gy = sobelConvolutionAux(bmp,hy);
+        int[][] Gy = convolutionBorders(bmp,hy);
 
         int[] map = new int[width*height];
-
-        for (int i=0; i<height*width; i++){
-            R = (int) Math.sqrt(Math.pow(Gx[0][i],2)+Math.pow(Gy[0][i],2));
-            G = (int) Math.sqrt(Math.pow(Gx[1][i],2)+Math.pow(Gy[1][i],2));
-            B = (int) Math.sqrt(Math.pow(Gx[2][i],2)+Math.pow(Gy[2][i],2));
-
-            if(R < 0) { R = 0; }
-            else if(R > 255) { R = 255; }
-
-            if(G < 0) { G = 0; }
-            else if(G > 255) { G = 255; }
-
-            if(B < 0) { B = 0; }
-            else if(B > 255) { B = 255; }
-            map[i] = Color.rgb(R, G, B);
+        int max = 0;
+        for (int i=0; i<height*width; i++) {
+            R = (int) Math.sqrt(Math.pow(Gx[i][0], 2) + Math.pow(Gy[i][0], 2));
+            G = (int) Math.sqrt(Math.pow(Gx[i][1], 2) + Math.pow(Gy[i][1], 2));
+            B = (int) Math.sqrt(Math.pow(Gx[i][2], 2) + Math.pow(Gy[i][2], 2));
+            if (R>255){R=255;}
+            if (G>255){G=255;}
+            if (B>255){B=255;}
+            map[i] = Color.rgb(R,G,B);
         }
+            /*Gx[i][0] = (int) Math.sqrt(Math.pow(Gx[i][0], 2) + Math.pow(Gy[i][0], 2));
+            Gx[i][1] = (int) Math.sqrt(Math.pow(Gx[i][1], 2) + Math.pow(Gy[i][1], 2));
+            Gx[i][2] = (int) Math.sqrt(Math.pow(Gx[i][2], 2) + Math.pow(Gy[i][2], 2));
+
+
+            if(Gx[i][0] > max) { max = Gx[i][0]; }
+
+            if(Gx[i][1] > max) { max = Gx[i][1]; }
+
+            if(Gx[i][2] > max) { max = Gx[i][2]; }
+        }
+        for (int i=0; i<height*width; i++){
+            R = Gx[i][0] * 255 / max;
+            G = Gx[i][1] * 255 / max;
+            B = Gx[i][2] * 255 / max;
+            map[i] = Color.rgb(R,G,B);
+        }*/
+
         bmp.setPixels(map, 0, width, 0, 0, width, height);
     }
 
-    public int[][] sobelConvolutionAux(Bitmap bmp, int[][] mask) {
+    public int[][] convolutionBorders(Bitmap bmp, int[][] mask) {
         int n = mask.length / 2;
         if (n!=0) {
             int width = bmp.getWidth();
             int height = bmp.getHeight();
             int[] pixels = new int[height * width];
-            int[][] pixelsConvRGB = new int[3][height*width];
+            int[][] pixelsConvRGB = new int[height*width][3];
             //Gets array of every pixels from the Bitmap
             bmp.getPixels(pixels, 0, width, 0, 0, width, height);
             int sumR, sumG, sumB;
@@ -185,33 +195,33 @@ public class ConvolutionMenu extends AppCompatActivity {
             for (int y = 0; y < n; y++) {
                 for (int x = 0; x < width; x++) {
                     pixel = pixels[y*width + x];
-                    pixelsConvRGB[0][y * width + x] = Color.red(pixel);
-                    pixelsConvRGB[1][y * width + x] = Color.green(pixel);
-                    pixelsConvRGB[2][y * width + x] = Color.blue(pixel);
+                    pixelsConvRGB[y * width + x][0] = Color.red(pixel);
+                    pixelsConvRGB[y * width + x][1] = Color.green(pixel);
+                    pixelsConvRGB[y * width + x][2] = Color.blue(pixel);
                 }
             }
             for (int y = height - n; y < height; y++) {
                 for (int x = 0; x < width; x++) {
                     pixel = pixels[y*width + x];
-                    pixelsConvRGB[0][y * width + x] = Color.red(pixel);
-                    pixelsConvRGB[1][y * width + x] = Color.green(pixel);
-                    pixelsConvRGB[2][y * width + x] = Color.blue(pixel);
+                    pixelsConvRGB[y * width + x][0] = Color.red(pixel);
+                    pixelsConvRGB[y * width + x][1] = Color.green(pixel);
+                    pixelsConvRGB[y * width + x][2] = Color.blue(pixel);
                 }
             }
             for (int x = 0; x < n; x++) {
                 for (int y = n; y < height - n; y++) {
                     pixel = pixels[y*width + x];
-                    pixelsConvRGB[0][y * width + x] = Color.red(pixel);
-                    pixelsConvRGB[1][y * width + x] = Color.green(pixel);
-                    pixelsConvRGB[2][y * width + x] = Color.blue(pixel);
+                    pixelsConvRGB[y * width + x][0] = Color.red(pixel);
+                    pixelsConvRGB[y * width + x][1] = Color.green(pixel);
+                    pixelsConvRGB[y * width + x][2] = Color.blue(pixel);
                 }
             }
             for (int x = width - n; x < height; x++) {
                 for (int y = n; y < height - n; y++) {
                     pixel = pixels[y*width + x];
-                    pixelsConvRGB[0][y * width + x] = Color.red(pixel);
-                    pixelsConvRGB[1][y * width + x] = Color.green(pixel);
-                    pixelsConvRGB[2][y * width + x] = Color.blue(pixel);
+                    pixelsConvRGB[y * width + x][0] = Color.red(pixel);
+                    pixelsConvRGB[y * width + x][1] = Color.green(pixel);
+                    pixelsConvRGB[y * width + x][2] = Color.blue(pixel);
                 }
             }
             //Convolution avoiding borders
@@ -231,11 +241,9 @@ public class ConvolutionMenu extends AppCompatActivity {
                             sumB += coef_mask * Color.blue(pixel);
                         }
                     }
-                    pixelsConvRGB[0][y*width + x]=sumR;
-
-                    pixelsConvRGB[1][y*width + x]=sumG;
-
-                    pixelsConvRGB[2][y*width + x]=sumB;
+                    pixelsConvRGB[y*width + x][0]=sumR;
+                    pixelsConvRGB[y*width + x][1]=sumG;
+                    pixelsConvRGB[y*width + x][2]=sumB;
                 }
             }
             return pixelsConvRGB;
@@ -243,75 +251,68 @@ public class ConvolutionMenu extends AppCompatActivity {
         return null;
     }
 
+    public int[] minmax(int[][] pixelsRGB, int width, int height, int n){
+        int[] minmax = new int[2];
+        minmax[0]= (pixelsRGB[1][0] + pixelsRGB[1][1] + pixelsRGB[1][2]) / 3;
+        minmax[1] = (pixelsRGB[1][0] + pixelsRGB[1][1] + pixelsRGB[1][2]) / 3;
+        int moy;
+        for (int y = n; y < height - n; y++) {
+            for (int x = n; x < width - n; x++) {
+                moy = (pixelsRGB[y*width+x][0] + pixelsRGB[y*width+x][1] + pixelsRGB[y*width+x][2]) / 3;
+                if (moy < minmax[0]) {
+                    minmax[0] = moy;
+                }
+                else if (moy > minmax[1]) {
+                    minmax[1] = moy;
+                }
+            }
+        }
+        return minmax;
+    }
+
     public void convolutionLaplacien(Bitmap bmp) {
         int[][] mask = {{1,1,1},{1,-8,1},{1,1,1}};
         int width = bmp.getWidth();
         int height = bmp.getHeight();
         int[] pixels = new int[height * width];
-        int[][] pixelsConvRGB = new int[height * width][3];
-        //Gets array of every pixels from the Bitmap
-        bmp.getPixels(pixels, 0, width, 0, 0, width, height);
+        int[][] pixelsConvRGB = convolutionBorders(bmp, mask);
+        int[] minmax = minmax(pixelsConvRGB, width, height, 1);
+        int min = minmax[0];
+        int max = minmax[1];
+        int white = Color.rgb(255, 255, 255);
         int R, G, B;
-        int sumR, sumG, sumB;
-        int black = Color.rgb(0,0,0);
-        //Convolution avoiding borders
-        for (int y = 1; y < height - 1; y++) {
+
+        if (min!=max) {
+            //Bordures en noir
+            for (int y = 0; y < height; y++) {
+                pixels[y * width] = white;
+                pixels[(y + 1) * width - 1] = white;
+            }
             for (int x = 1; x < width - 1; x++) {
-                sumR = 0;
-                sumG = 0;
-                sumB = 0;
-                for (int j = -1; j <= 1; j++) {
-                    for (int i = -1; i <= 1; i++) {
-                        float coef_mask = mask[j + 1][i + 1];
-                        int pixel = pixels[(y + j) * width + x + i];
-                        //For every RGB componants, multiplies by convolution matrix coefficient
-                        sumR += coef_mask * Color.red(pixel);
-                        sumG += coef_mask * Color.green(pixel);
-                        sumB += coef_mask * Color.blue(pixel);
+                pixels[x] = white;
+                pixels[(height - 1) * width + x] = white;
+            }
+            int newmoy, moy;
+            for (int y = 1; y < height - 1; y++) {
+                for (int x = 1; x < width - 1; x++) {
+                    R = pixelsConvRGB[y * width + x][0] - min;
+                    G = pixelsConvRGB[y * width + x][1] - min;
+                    B = pixelsConvRGB[y * width + x][2] - min;
+                    moy = (R + G + B) / 3;
+                    if (moy == 0){
+                        pixels[y*width+x] = Color.rgb(0,0,0);
+                    }
+                    else {
+                        newmoy = ((R + G + B) / 3) * 255 / (max - min);
+                        R = (R - min) * newmoy / moy;
+                        G = (G - min) * newmoy / moy;
+                        B = (B - min) * newmoy / moy;
+                        pixels[y * width + x] = Color.rgb(R, G, B);
                     }
                 }
-                pixelsConvRGB[y*width+x][0] = sumR;
-                pixelsConvRGB[y*width+x][1] = sumG;
-                pixelsConvRGB[y*width+x][2] = sumB;
             }
+            bmp.setPixels(pixels, 0, width, 0, 0, width, height);
         }
-        int min = (pixelsConvRGB[1][0] + pixelsConvRGB[1][1] + pixelsConvRGB[1][2]) / 3;
-        int max = (pixelsConvRGB[1][0] + pixelsConvRGB[1][1] + pixelsConvRGB[1][2]) / 3;
-        int moy;
-        for (int y = 1; y < height - 1; y++) {
-            for (int x = 1; x < width - 1; x++) {
-                moy = (pixelsConvRGB[y*width+x][0] + pixelsConvRGB[y*width+x][1] + pixelsConvRGB[y*width+x][2]) / 3;
-                if (moy < min) {
-                    min = moy;
-                }
-                else if (moy > max) {
-                    max = moy;
-                }
-            }
-        }
-        //Bordures en noir
-        for (int y = 0; y < height; y++) {
-            pixels[y * width] = black;
-            pixels[(y+1)*width - 1] = black;
-        }
-        for (int x = 1; x < width - 1; x++) {
-            pixels[x] = black;
-            pixels[(height -1) * width + x] = black;
-        }
-        int fact;
-        for (int y = 1; y < height - 1; y++) {
-            for (int x = 1; x < width - 1; x++) {
-                R = pixelsConvRGB[y*width+x][0];
-                G = pixelsConvRGB[y*width+x][1];
-                B = pixelsConvRGB[y*width+x][2];
-                fact = ((R + G + B) / 3 - min) * 255 / (max -min);
-                R *= fact;
-                G *= fact;
-                B *= fact;
-                pixels[y*width+x] = Color.rgb(R,G,B);
-            }
-        }
-        bmp.setPixels(pixels, 0, width, 0, 0, width, height);
     }
 
     public void convolution(Bitmap bmp, int[][] mask, int factor) {
@@ -384,38 +385,25 @@ public class ConvolutionMenu extends AppCompatActivity {
         }
     }
 
-    public void findAreaColor(int[] src, int[] borders, int x, int y, int width, int height, int[] sumRGB){
+    public void findAreaColor(int[] src, int[] borders, int x, int y, int width, int height, int[] sumRGB, int nArea){
         int index = y*width+x;
-        borders[index]=1;
+        borders[index]=nArea;
         int pixel = src[index];
         sumRGB[0] += Color.red(pixel);
         sumRGB[1] += Color.green(pixel);
         sumRGB[2] += Color.blue(pixel);
         sumRGB[3] ++;
-        if ((x>0) && (borders[index-1]==0)){findAreaColor(src, borders, x-1, y, width, height, sumRGB);}
-        if ((x<width-1)&&(borders[index+1]==0)){findAreaColor(src, borders, x+1, y, width, height, sumRGB);}
-        if ((y>0)&&(borders[index-width]==0)){findAreaColor(src, borders, x, y-1, width, height, sumRGB);}
-        if ((y<height-1)&&(borders[index+width]==0)){findAreaColor(src, borders, x, y+1, width, height, sumRGB);}
-    }
-
-    public void paintArea(int[] src, int[] borders, int x, int y, int width, int height, int color){
-        if (borders[y*width + x]==1){
-            src[y*width+x] = color;
-            borders[y*width + x] = 2;
-            if ((x>0)){paintArea(src, borders, x-1, y, width, height, color);}
-            if (x<width-1){paintArea(src, borders, x+1, y, width, height, color);}
-            if (y>0){paintArea(src, borders, x, y-1, width, height, color);}
-            if (y<height-1){paintArea(src, borders, x, y+1, width, height, color);}
-        }
+        if ((x>0) && (borders[index-1]==0)){findAreaColor(src, borders, x-1, y, width, height, sumRGB, nArea);}
+        if ((x<width-1)&&(borders[index+1]==0)){findAreaColor(src, borders, x+1, y, width, height, sumRGB, nArea);}
+        if ((y>0)&&(borders[index-width]==0)){findAreaColor(src, borders, x, y-1, width, height, sumRGB, nArea);}
+        if ((y<height-1)&&(borders[index+width]==0)){findAreaColor(src, borders, x, y+1, width, height, sumRGB, nArea);}
     }
 
     public void cartoon(Bitmap bmp, Bitmap sobel) {
         try {
             int w = bmp.getWidth();
-
             int h = bmp.getHeight();
             int mapBorders[] = new int[w * h];
-            Arrays.fill(mapBorders, 0);
             int mapSrc[] = new int[w * h];
             bmp.getPixels(mapSrc, 0, w, 0, 0, w, h);
             int mapSobel[] = new int[w * h];
@@ -427,36 +415,54 @@ public class ConvolutionMenu extends AppCompatActivity {
                 red = Color.red(pixel);
                 green = Color.green(pixel);
                 blue = Color.blue(pixel);
-                if (red + blue + green > 50) {
+                if (red + blue + green > 10) {
                     mapBorders[i] = -1;
                 }
             }
-            int color;
+
+            int[] colors = new int[w*h];
+            int[] basicColors = new int[100];
+            int countBasicColors = 0;
+            int countColors = 0;
             int[] sumRGB = new int[4];
             float[] pixelHSV = new float[3];
+            int i;
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
                     if (mapBorders[y * w + x] == 0) {
                         Arrays.fill(sumRGB, 0);
-                        findAreaColor(mapSrc, mapBorders, x, y, w, h, sumRGB);
+                        findAreaColor(mapSrc, mapBorders, x, y, w, h, sumRGB, countColors);
                         red = sumRGB[0] / sumRGB[3];
                         green = sumRGB[1] / sumRGB[3];
                         blue = sumRGB[2] / sumRGB[3];
-                        color = Color.rgb(red, green, blue);
-                        paintArea(mapSrc, mapBorders, x, y, w, h, color);
+                        i = 0;
+                        while ((i < countBasicColors) && (red + green + blue - Color.green(basicColors[i]) - Color.blue(basicColors[i]) - Color.red(basicColors[i]) > 50)){i++;}
+                        if (i<countBasicColors){
+                            colors[countColors] = i;
+                        }
+                        else{
+                            basicColors[countBasicColors] = Color.rgb(red, green, blue);
+                            colors[countColors] = countBasicColors;
+                            countBasicColors++;
+                        }
+                        countColors++;
                     }
                 }
             }
-            for (int i = 0; i < w * h; i++) {
-                if (mapBorders[i] == -1) {
-                    Color.colorToHSV(mapSobel[i], pixelHSV);
+            for (int j = 0; j < w * h; j++) {
+                if (mapBorders[j] == -1) {
+                    Color.colorToHSV(mapSobel[j], pixelHSV);
                     if (pixelHSV[2] > 0.5) {
                         int v = (int) (100 * (1 - pixelHSV[2]));
-                        mapSrc[i] = Color.rgb(v, v, v);
+                        mapSrc[j] = Color.rgb(v, v, v);
                     }
+                }
+                else{
+                    mapSrc[j] = basicColors[colors[mapBorders[j]]];
                 }
             }
             bmp.setPixels(mapSrc, 0, w, 0, 0, w, h);
+
         } catch (StackOverflowError e) {
             AlertDialog.Builder reducedialog = new AlertDialog.Builder(ConvolutionMenu.this);
             reducedialog.setTitle("Échec")
@@ -479,6 +485,7 @@ public class ConvolutionMenu extends AppCompatActivity {
             alert.show();
         }
     }
+
 
     private View.OnClickListener blistener = new View.OnClickListener() {
         public void onClick(View v) {

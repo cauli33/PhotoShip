@@ -58,7 +58,7 @@ public class GeneralMenu extends AppCompatActivity {
         //Objects displayed in the menu
         img = (ImageView) findViewById(R.id.picture);
         img.setImageBitmap(picture);
-        
+
         //Gets picture Bitmap chosen in the gallery
         pictureToUse = PhotoLoading.scaleImage();
 
