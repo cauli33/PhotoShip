@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 /**
  * This class is a general menu where the user can choose the transformation he wants to apply to his bitmap.
@@ -21,11 +20,12 @@ public class GeneralMenu extends AppCompatActivity {
     /**
      * Buttons to access the menus
      */
-    Bitmap pictureToUse, picture;
+
+    BitmapList memory;
+    MyBitmap current;
+    Bitmap pictureFromGallery;
     ImageButton gris, filtre, ED, teinte, sepia, HE, conv, crop, rotate;
     Button ppv, pinch, couleur, replace, finger;
-
-    //ImageButton aide_ppv, aide_pinch, aide_gris, aide_couleur, aide_filtre;
 
     /**
      * the dimensions of the bitmap
@@ -45,28 +45,21 @@ public class GeneralMenu extends AppCompatActivity {
      */
     float dist0, distCurrent;
 
-    /**
-     * Text displayed
-     */
-    TextView txt;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_general_menu);
 
+        pictureFromGallery = PhotoLoading.scaleImage();
+        //copies the original bitmap to be mutable
+
+        current = new MyBitmap(pictureFromGallery.copy(Bitmap.Config.ARGB_8888, true), null, null);
         //Objects displayed in the menu
         img = (ImageView) findViewById(R.id.picture);
-        img.setImageBitmap(picture);
-        
-        //Gets picture Bitmap chosen in the gallery
-        pictureToUse = PhotoLoading.scaleImage();
+        img.setImageBitmap(current.getBitmap());
 
-        //copies the original bitmap to be mutable
-        picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
+        memory = new BitmapList(current);
 
-        bmpWidth = picture.getWidth();
-        bmpHeight = picture.getHeight();
 
         //initialization of the distances
         distCurrent = 1;
@@ -75,9 +68,6 @@ public class GeneralMenu extends AppCompatActivity {
 
         img.setOnTouchListener(MyOnTouchListener);
         touchState = IDLE;
-
-        txt = (TextView) findViewById(R.id.zoomfactor);
-        txt.setText(String.valueOf(distCurrent/dist0));
 
         //Sets buttons
         pinch = (Button) findViewById(R.id.pinch);
@@ -89,7 +79,7 @@ public class GeneralMenu extends AppCompatActivity {
         ppv = (Button) findViewById(R.id.ppv);
         ppv.setOnClickListener(blistener);
 
-        gris = (ImageButton) findViewById(R.id.grey);
+        gris = (ImageButton) findViewById(R.id.gray);
         gris.setOnClickListener(blistener);
 
         couleur = (Button) findViewById(R.id.color);
@@ -121,46 +111,6 @@ public class GeneralMenu extends AppCompatActivity {
 
         finger = (Button) findViewById(R.id.finger);
         finger.setOnClickListener(blistener);
-        //Sets help toasts
-        /*aide_couleur = (ImageButton)findViewById(R.id.aide_couleur);
-        aide_couleur.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View arg0) {
-                Toast toastAuNutella = Toast.makeText(getApplicationContext(), "Ce menu permet de modifier manuellement la luminosité, la couleur ou encore la saturation de l'image.", Toast.LENGTH_LONG);
-                toastAuNutella.show();
-            }});
-
-        aide_filtre = (ImageButton) findViewById(R.id.aide_filtre);
-        aide_filtre.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View arg0) {
-                Toast toastAuBeurre = Toast.makeText(getApplicationContext(), "Ce menu permet d'appliquer à l'image un filtre de couleur choisie aléatoirement par l'application.", Toast.LENGTH_LONG);
-                toastAuBeurre.show();
-            }});
-
-        aide_gris = (ImageButton) findViewById(R.id.aide_gris);
-        aide_gris.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View arg0) {
-                Toast toastALaConfitureDeFraise = Toast.makeText(getApplicationContext(), "Ce menu permet de mettre l'image en noir et blanc.", Toast.LENGTH_LONG);
-                toastALaConfitureDeFraise.show();
-            }});
-
-        aide_pinch = (ImageButton) findViewById(R.id.aide_pinch);
-        aide_pinch.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View arg0) {
-                Toast toastAuMiel = Toast.makeText(getApplicationContext(), "Ce menu permet de faire un zoom sur l'image.", Toast.LENGTH_LONG);
-                toastAuMiel.show();
-            }});
-
-        aide_ppv = (ImageButton) findViewById(R.id.aide_ppv);
-        aide_ppv.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View arg0) {
-                Toast toastAuSiropDErable = Toast.makeText(getApplicationContext(), "Ce menu permet de déformer l'image grâce à des facteurs multiplicateurs à choisir. Veiller à ne pas utiliser de facteur tropgrand ou trop petit (pas plus de 10 ou pas moins de 0,001).", Toast.LENGTH_LONG);
-                toastAuSiropDErable.show();
-            }});*/
     }
 
     /**
@@ -173,20 +123,21 @@ public class GeneralMenu extends AppCompatActivity {
         }
 
         Bitmap resizedBitmap;
-        int newHeight = (int) (bmpHeight * curScale);
-        int newWidth = (int) (bmpWidth * curScale);
-        resizedBitmap = Bitmap.createScaledBitmap(picture, newWidth, newHeight, false);
+        int newHeight = (int) (current.height * curScale);
+        int newWidth = (int) (current.width * curScale);
+        resizedBitmap = Bitmap.createScaledBitmap(current.getBitmap(), newWidth, newHeight, false);
         img.setImageBitmap(resizedBitmap);
     }
 
-    private View.OnClickListener blistener = new View.OnClickListener(){
-        public void onClick(View v){
+            private View.OnClickListener blistener = new View.OnClickListener(){
+                public void onClick(View v){
             switch (v.getId()) {
                 //Gets to chosen activity when clicking a button
 
-                case R.id.grey:
-                    Intent second = new Intent(GeneralMenu.this, GrayMenu.class);
-                    startActivity(second);
+                case R.id.gray:
+                    current = current.toGray();
+                    memory.setNext(current);
+                    img.setImageBitmap(current.getBitmap());
                     break;
 
                 case R.id.color:
@@ -221,8 +172,9 @@ public class GeneralMenu extends AppCompatActivity {
                     break;
 
                 case R.id.sepia:
-                    Intent nine = new Intent(GeneralMenu.this, SepiaMenu.class);
-                    startActivity(nine);
+                    current = current.sepia();
+                    memory.setNext(current);
+                    img.setImageBitmap(current.getBitmap());
                     break;
 
                 case R.id.HE:
@@ -270,9 +222,6 @@ public class GeneralMenu extends AppCompatActivity {
 
                 //if a finger touches the screen, the factor of zoom is displayed
                 case MotionEvent.ACTION_DOWN:touchState = TOUCH;
-
-                    txt = (TextView) findViewById(R.id.zoomfactor);
-                    txt.setText(String.valueOf(distCurrent/dist0));
                     break;
 
                 //if the fingers pinch the bitmap, the distances change and the factor of zoom is displayed
@@ -281,8 +230,6 @@ public class GeneralMenu extends AppCompatActivity {
                     disty = event.getY(0) - event.getY(1);
                     dist0 = (float) Math.sqrt(distx * distx + disty * disty);
 
-                    txt = (TextView) findViewById(R.id.zoomfactor);
-                    txt.setText(String.valueOf(distCurrent/dist0));
                     break;
 
                 // if the fingers move, the distances change and the factor of zoom is displayed
@@ -292,22 +239,15 @@ public class GeneralMenu extends AppCompatActivity {
                         disty = event.getY(0) - event.getY(1);
                         distCurrent =  (float) Math.sqrt(distx * distx + disty * disty);
                         drawMatrix();
-
-                        txt = (TextView) findViewById(R.id.zoomfactor);
-                        txt.setText(String.valueOf(distCurrent/dist0));
                     }
                     break;
 
                 //if the fingers stop zooming the bitmap, the factor of zoom is displayed
                 case MotionEvent.ACTION_UP:touchState = IDLE;
-                    txt = (TextView) findViewById(R.id.zoomfactor);
-                    txt.setText(String.valueOf(distCurrent/dist0));
                     break;
 
                 //if one finger touches the screen, the factor of zoom is displayed
                 case MotionEvent.ACTION_POINTER_UP:touchState = TOUCH;
-                    txt = (TextView) findViewById(R.id.zoomfactor);
-                    txt.setText(String.valueOf(distCurrent/dist0));
                     break;
             }
             return true;

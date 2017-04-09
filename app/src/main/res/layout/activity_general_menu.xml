@@ -14,7 +14,7 @@
 
     <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="100dip"
         android:id="@+id/filterscrollview"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
@@ -24,14 +24,14 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="100dip"
             android:orientation="horizontal"
             android:weightSum="1">
 
             <ImageButton
                 android:layout_width="100dip"
                 android:layout_height="100dip"
-                android:id="@+id/grey"
+                android:id="@+id/gray"
                 android:background="@drawable/gris" />
 
             <ImageButton
@@ -71,14 +71,14 @@
                 android:background="@drawable/une_couleur"/>
 
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="100dip"
+                android:layout_height="100dip"
                 android:id="@+id/crop"
                 android:src="@android:drawable/ic_menu_crop"/>
 
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="100dip"
+                android:layout_height="100dip"
                 android:id="@+id/rotate"
                 android:src="@android:drawable/ic_menu_rotate"/>
 
@@ -137,24 +137,6 @@
             </ImageView>
         </ScrollView>
     </HorizontalScrollView>
-
-    <TextView
-        android:text="Facteur de zoom :"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="33dp"
-        android:id="@+id/textView"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/zoomfactor" />
 
 
 </RelativeLayout>
