@@ -53,10 +53,10 @@ public class GeneralMenu extends AppCompatActivity {
         pictureFromGallery = PhotoLoading.scaleImage();
         //copies the original bitmap to be mutable
 
-        current = new MyBitmap(pictureFromGallery.copy(Bitmap.Config.ARGB_8888, true), null, null);
+        current = new MyBitmap(pictureFromGallery.copy(Bitmap.Config.ARGB_8888, true));
         //Objects displayed in the menu
         img = (ImageView) findViewById(R.id.picture);
-        img.setImageBitmap(current.getBitmap());
+        img.setImageBitmap(current.bmp);
 
         memory = new BitmapList(current);
 
@@ -125,7 +125,7 @@ public class GeneralMenu extends AppCompatActivity {
         Bitmap resizedBitmap;
         int newHeight = (int) (current.height * curScale);
         int newWidth = (int) (current.width * curScale);
-        resizedBitmap = Bitmap.createScaledBitmap(current.getBitmap(), newWidth, newHeight, false);
+        resizedBitmap = Bitmap.createScaledBitmap(current.bmp, newWidth, newHeight, false);
         img.setImageBitmap(resizedBitmap);
     }
 
@@ -135,9 +135,9 @@ public class GeneralMenu extends AppCompatActivity {
                 //Gets to chosen activity when clicking a button
 
                 case R.id.gray:
-                    current = current.toGray();
+                    current = current.toGray(memory.valMap);
                     memory.setNext(current);
-                    img.setImageBitmap(current.getBitmap());
+                    img.setImageBitmap(current.bmp);
                     break;
 
                 case R.id.color:
@@ -161,8 +161,10 @@ public class GeneralMenu extends AppCompatActivity {
                     break;
 
                 case R.id.ED:
-                    Intent seven = new Intent(GeneralMenu.this, ExtensionDynamic.class);
-                    startActivity(seven);
+                    current = current.dynamicExtension(memory);
+                    memory.validHistogram = 0;
+                    memory.setNext(current);
+                    img.setImageBitmap(current.bmp);
                     break;
 
 
@@ -172,14 +174,17 @@ public class GeneralMenu extends AppCompatActivity {
                     break;
 
                 case R.id.sepia:
-                    current = current.sepia();
+                    current = current.sepia(memory.valMap);
+                    memory.validHistogram = 0;
                     memory.setNext(current);
-                    img.setImageBitmap(current.getBitmap());
+                    img.setImageBitmap(current.bmp);
                     break;
 
                 case R.id.HE:
-                    Intent ten = new Intent(GeneralMenu.this, EgalizationHistogramm.class);
-                    startActivity(ten);
+                    current = current.histogramEqualization(memory);
+                    memory.validHistogram = 0;
+                    memory.setNext(current);
+                    img.setImageBitmap(current.bmp);
                     break;
 
                 case R.id.conv:
