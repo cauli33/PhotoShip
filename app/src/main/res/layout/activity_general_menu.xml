@@ -171,12 +171,6 @@
                 android:id="@+id/crop"
                 android:src="@android:drawable/ic_menu_crop"/>
 
-            <ImageButton
-                android:layout_width="100dip"
-                android:layout_height="100dip"
-                android:id="@+id/rotate"
-                android:src="@android:drawable/ic_menu_rotate"/>
-
             <Button
                 android:text="Zoom"
                 android:layout_width="wrap_content"

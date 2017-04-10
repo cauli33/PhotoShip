@@ -128,15 +128,6 @@ public class GeneralMenu extends AppCompatActivity {
 
         crop = (ImageButton) findViewById(R.id.crop);
         crop.setOnClickListener(blistener);
-
-        replace = (Button) findViewById(R.id.replace);
-        replace.setOnClickListener(blistener);
-
-        rotate = (ImageButton) findViewById(R.id.rotate);
-        rotate.setOnClickListener(blistener);
-
-        finger = (Button) findViewById(R.id.finger);
-        finger.setOnClickListener(blistener);
     }
 
     /**
@@ -221,6 +212,20 @@ public class GeneralMenu extends AppCompatActivity {
                     img.setImageBitmap(current.bmp);
                     break;
 
+                case R.id.sobel:
+                    current = current.sobel();
+                    memory.validHistogram = 0;
+                    memory.setNext(current);
+                    img.setImageBitmap(current.bmp);
+                    break;
+
+                case R.id.laplacien:
+                    current = current.laplacien();
+                    memory.validHistogram = 0;
+                    memory.setNext(current);
+                    img.setImageBitmap(current.bmp);
+                    break;
+
                 case R.id.color:
                     Intent third = new Intent(GeneralMenu.this, ColorMenu.class);
                     startActivity(third);
@@ -276,11 +281,6 @@ public class GeneralMenu extends AppCompatActivity {
                 case R.id.replace:
                     Intent thirteen = new Intent(GeneralMenu.this, ReplaceMenu.class);
                     startActivity(thirteen);
-                    break;
-
-                case R.id.rotate:
-                    Intent fourteen = new Intent(GeneralMenu.this, RotateMenu.class);
-                    startActivity(fourteen);
                     break;
 
                 case R.id.finger:

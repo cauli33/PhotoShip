@@ -196,7 +196,7 @@ public class MyBitmap {
     private MyBitmap convolutionBlur(int[][] mask, int factor, int filter) {
         int n = mask.length / 2;
         int[] pixelsConv = new int[height * width];
-        int white = Color.rgb(0,0,0);
+        int white = Color.rgb(255,255,255);
         int R, G, B, sumR, sumG, sumB, pixel;
         float coef_mask;
         //Bordures haut et bas en blanc
@@ -257,48 +257,128 @@ public class MyBitmap {
         int[][] mask ={{1,2,3,2,1},{2,6,8,6,2},{3,8,10,8,3},{2,6,8,6,2},{1,2,3,2,1}};
         return convolutionBlur(mask, 98, 6);
     }
-    
-    public MyBitmap sobel() {
-        int R, G, B;
-        int width = bmp.getWidth();
-        int height = bmp.getHeight();
-        //applicates convolution with hx et hy matrix
-        int[][] hx = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
-        //int[][] hx = {{0,0,0},{-1,0,1},{0,0,0}};
-        int[][] Gx = sobelConvolutionAux(bmp, hx);
 
-        int[][] hy = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
-        //int[][] hy = {{0,-1,0},{0,0,0},{0,1,0}};
-        int[][] Gy = sobelConvolutionAux(bmp, hy);
-
-        int[] map = new int[width * height];
-
-        for (int i = 0; i < height * width; i++) {
-            R = (int) Math.sqrt(Math.pow(Gx[0][i], 2) + Math.pow(Gy[0][i], 2));
-            G = (int) Math.sqrt(Math.pow(Gx[1][i], 2) + Math.pow(Gy[1][i], 2));
-            B = (int) Math.sqrt(Math.pow(Gx[2][i], 2) + Math.pow(Gy[2][i], 2));
-
-            if (R < 0) {
-                R = 0;
-            } else if (R > 255) {
-                R = 255;
+    public int[][] convolutionBorders(int[][] mask) {
+        int n = mask.length / 2;
+        int[][] pixelsConvRGB = new int[height * width][3];
+        int sumR, sumG, sumB;
+        int pixel;
+        //Keeps original values for the borders
+        for (int y = 0; y < n; y++) {
+            for (int x = 0; x < width; x++) {
+                pixel = pixels[y * width + x];
+                pixelsConvRGB[y * width + x][0] = Color.red(pixel);
+                pixelsConvRGB[y * width + x][1] = Color.green(pixel);
+                pixelsConvRGB[y * width + x][2] = Color.blue(pixel);
+                pixelsConvRGB[(height - y - 1) * width + x][0] = Color.red(pixel);
+                pixelsConvRGB[(height - y - 1) * width + x][1] = Color.green(pixel);
+                pixelsConvRGB[(height - y - 1) * width + x][2] = Color.blue(pixel);
             }
-
-            if (G < 0) {
-                G = 0;
-            } else if (G > 255) {
-                G = 255;
-            }
-
-            if (B < 0) {
-                B = 0;
-            } else if (B > 255) {
-                B = 255;
-            }
-            map[i] = Color.rgb(R, G, B);
         }
-        bmp.setPixels(map, 0, width, 0, 0, width, height);
+        for (int y = height - n; y < height - n; y++) {
+            for (int x = 0; x < n; x++) {
+                pixel = pixels[y * width + x];
+                pixelsConvRGB[y * width + x][0] = Color.red(pixel);
+                pixelsConvRGB[y * width + x][1] = Color.green(pixel);
+                pixelsConvRGB[y * width + x][2] = Color.blue(pixel);
+                pixelsConvRGB[(y + 1) * width - x - 1][0] = Color.red(pixel);
+                pixelsConvRGB[(y + 1) * width - x - 1][1] = Color.green(pixel);
+                pixelsConvRGB[(y + 1) * width - x - 1][2] = Color.blue(pixel);
+            }
+        }
+        //Convolution avoiding borders
+        float coef_mask;
+        for (int y = n; y < height - n; y++) {
+            for (int x = n; x < width - n; x++) {
+                sumR = 0;
+                sumG = 0;
+                sumB = 0;
+                for (int j = -n; j <= n; j++) {
+                    for (int i = -n; i <= n; i++) {
+                        coef_mask = mask[j + n][i + n];
+                        pixel = pixels[(y + j) * width + x + i];
+                        //For every RGB componants, multiplies by convolution matrix coefficient
+                        sumR += coef_mask * Color.red(pixel);
+                        sumG += coef_mask * Color.green(pixel);
+                        sumB += coef_mask * Color.blue(pixel);
+                    }
+                }
+                if (sumR < 0) {
+                    sumR = -sumR;
+                }
+                if (sumG < 0) {
+                    sumG = -sumG;
+                }
+                if (sumB < 0) {
+                    sumB = -sumB;
+                }
+                pixelsConvRGB[y * width + x][0] = sumR;
+                pixelsConvRGB[y * width + x][1] = sumG;
+                pixelsConvRGB[y * width + x][2] = sumB;
+            }
+        }
+        return pixelsConvRGB;
     }
 
+
+    public MyBitmap sobel(){
+        int R,G,B;
+        //applicates convolution with hx et hy matrix
+        int[][] hx = {{-1,0,1},{-2,0,2},{-1,0,1}};
+        int[][] Gx = convolutionBorders(hx);
+
+        int[][] hy = {{-1,-2,-1},{0,0,0},{1,2,1}};
+        int[][] Gy = convolutionBorders(hy);
+
+        int[][] norm = new int[width*height][3];
+
+        int[] pixelsSobel = new int[width*height];
+        int max = 0;
+        for (int i=0; i<height*width; i++) {
+            norm[i][0] = (int) Math.sqrt(Math.pow(Gx[i][0], 2) + Math.pow(Gy[i][0], 2));
+            norm[i][1] = (int) Math.sqrt(Math.pow(Gx[i][1], 2) + Math.pow(Gy[i][1], 2));
+            norm[i][2] = (int) Math.sqrt(Math.pow(Gx[i][2], 2) + Math.pow(Gy[i][2], 2));
+            if (norm[i][0] > max){max = norm[i][0];}
+            if (norm[i][1] > max){max = norm[i][1];}
+            if (norm[i][2] > max){max = norm[i][2];}
+        }
+        if (max!=0){
+            for (int i=0; i<height*width; i++) {
+                R = norm[i][0] * 255 / max;
+                G = norm[i][1] * 255 / max;
+                B = norm[i][2] * 255 / max;
+                pixelsSobel[i] = Color.rgb(R,G,B);
+            }
+        }
+        Bitmap bmpSobel = Bitmap.createBitmap(pixelsSobel, width, height, Bitmap.Config.ARGB_8888);
+        MyBitmap sobel = new MyBitmap(bmpSobel, 7);
+        return sobel;
+    }
+
+    public MyBitmap laplacien(){
+        int R,G,B;
+        //applicates convolution with hx et hy matrix
+        int[][] mask = {{1,1,1},{1,-8,1},{1,1,1}};
+        int[][] Gl = convolutionBorders(mask);
+
+        int[] pixelsLapla = new int[width*height];
+        int max = 0;
+        for (int i=0; i<height*width; i++) {
+            if (Gl[i][0] > max){max = Gl[i][0];}
+            if (Gl[i][1] > max){max = Gl[i][1];}
+            if (Gl[i][2] > max){max = Gl[i][2];}
+        }
+        if (max!=0){
+            for (int i=0; i<height*width; i++) {
+                R = Gl[i][0] * 255 / max;
+                G = Gl[i][1] * 255 / max;
+                B = Gl[i][2] * 255 / max;
+                pixelsLapla[i] = Color.rgb(R,G,B);
+            }
+        }
+        Bitmap bmpLapla = Bitmap.createBitmap(pixelsLapla, width, height, Bitmap.Config.ARGB_8888);
+        MyBitmap laplacien = new MyBitmap(bmpLapla, 8);
+        return laplacien;
+    }
 
 }
