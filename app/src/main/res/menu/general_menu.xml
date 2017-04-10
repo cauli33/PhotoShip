@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/previous"
+        android:icon="@drawable/ic_undo_black_24dp"
+        android:title="Previous"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/next"
+        android:icon="@drawable/ic_redo_black_24dp"
+        android:title="Next"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/save"
+        android:icon="@drawable/ic_save_black_24dp"
+        android:title="Save"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/rotateright"
+        android:title="Rotation à droite" />
+    <item
+        android:id="@+id/rotateleft"
+        android:title="Rotation à gauche" />
+    <item
+        android:title="Miroir horizontal"
+        android:id="@+id/fliplr" />
+    <item
+        android:id="@+id/flipud"
+        android:title="Miroir vertical" />
+</menu>

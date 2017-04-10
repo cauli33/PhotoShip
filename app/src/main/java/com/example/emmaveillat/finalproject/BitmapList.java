@@ -9,7 +9,7 @@ public class BitmapList {
     public int current;
     private int maxsize = 30;
     MyBitmap [] list = new MyBitmap[maxsize];
-    int maxknown;
+    public int maxknown;
     private int deletable = 10;
     int [] histogramChanges = new int[maxsize];
     public int[] histogram;
@@ -52,10 +52,6 @@ public class BitmapList {
     }
 
     public MyBitmap getPrevious(){
-        /*if (current == 0){
-            Toast noprevious = Toast.makeText(getApplicationContext(), "Il n'y a pas de changement à annuler", Toast.LENGTH_LONG);
-            noprevious.show();
-        }*/
         if (histogramChanges[current] == 1){
             validHistogram = 0;
         }

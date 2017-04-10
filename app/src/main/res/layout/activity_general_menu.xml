@@ -14,7 +14,7 @@
 
     <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="100dip"
+        android:layout_height="115dip"
         android:id="@+id/filterscrollview"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
@@ -24,27 +24,122 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="100dip"
+            android:layout_height="140dip"
             android:orientation="horizontal"
             android:weightSum="1">
 
-            <ImageButton
-                android:layout_width="100dip"
-                android:layout_height="100dip"
-                android:id="@+id/gray"
-                android:background="@drawable/gris" />
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
 
-            <ImageButton
-                android:layout_width="100dip"
-                android:layout_height="100dip"
-                android:id="@+id/sepia"
-                android:background="@drawable/sepia"/>
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
+                    android:id="@+id/gray"
+                    android:background="@drawable/gris" />
 
-            <ImageButton
-                android:layout_width="100dip"
-                android:layout_height="100dip"
-                android:id="@+id/conv"
-                android:background="@drawable/filtre_moyenne"/>
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Noir et Blanc"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
+
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
+                    android:id="@+id/sepia"
+                    android:background="@drawable/sepia"/>
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Sepia"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
+
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
+                    android:id="@+id/moy"
+                    android:background="@drawable/filtre_moyenne"/>
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Flou moyenneur"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
+
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
+                    android:id="@+id/gauss"
+                    android:background="@drawable/gauss"/>
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Flou gaussien"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
+
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
+                    android:id="@+id/sobel"
+                    android:background="@drawable/sobel"/>
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Sobel"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
+
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
+                    android:id="@+id/laplacien"
+                    android:background="@drawable/laplacien"/>
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Laplacien"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+            </LinearLayout>
+
 
             <ImageButton
                 android:layout_width="100dip"
