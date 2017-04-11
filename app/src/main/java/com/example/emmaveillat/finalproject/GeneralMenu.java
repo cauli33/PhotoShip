@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
@@ -15,8 +16,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -30,15 +34,16 @@ public class GeneralMenu extends AppCompatActivity {
      */
 
     BitmapList memory;
-    MyBitmap current;
+    MyBitmap current, bmpTest;
     Bitmap pictureFromGallery;
-    ImageButton gris, sepia, moy, gauss, sobel, laplacien, filtre, ED, teinte, HE, crop, rotate;
-    Button ppv, pinch, couleur, replace, finger;
+    ImageButton gris, sepia, moy, gauss, sobel, laplacien, filtre, ED, teinte, HE, crop;
+    Button ppv, pinch, couleur, test, ok, cancel;
+    HorizontalScrollView filtersBar;
 
-    /**
-     * the dimensions of the bitmap
-     */
-    int bmpWidth, bmpHeight;
+    SeekBar seekbar1, seekbar2, seekbar3;
+    TextView textsb1, textsb2, textsb3;
+
+    int filterToUse, seekbarsDisplayed, val1, val2, val3;
 
     /**
      * statments of the fingers on the screen
@@ -74,6 +79,8 @@ public class GeneralMenu extends AppCompatActivity {
         //Objects displayed in the menu
         img = (ImageView) findViewById(R.id.picture);
         img.setImageBitmap(current.bmp);
+
+        filtersBar = (HorizontalScrollView) findViewById(R.id.filterscrollview);
 
         memory = new BitmapList(current);
 
@@ -128,6 +135,28 @@ public class GeneralMenu extends AppCompatActivity {
 
         crop = (ImageButton) findViewById(R.id.crop);
         crop.setOnClickListener(blistener);
+
+        test = (Button) findViewById(R.id.test);
+        test.setOnClickListener(blistener);
+
+        ok = (Button) findViewById(R.id.ok);
+        ok.setOnClickListener(blistener);
+
+        cancel = (Button) findViewById(R.id.cancel);
+        cancel.setOnClickListener(blistener);
+
+        textsb1 = (TextView) findViewById(R.id.textsb1);
+        textsb2 = (TextView) findViewById(R.id.textsb2);
+        textsb3 = (TextView) findViewById(R.id.textsb3);
+
+        seekbar1 = (SeekBar) findViewById(R.id.seekbar1);
+        seekbar2 = (SeekBar) findViewById(R.id.seekbar2);
+        seekbar3 = (SeekBar) findViewById(R.id.seekbar3);
+
+        seekbar1.setOnSeekBarChangeListener(seekBarChangeListener);
+        seekbar2.setOnSeekBarChangeListener(seekBarChangeListener);
+        seekbar3.setOnSeekBarChangeListener(seekBarChangeListener);
+        delSeekbars();
     }
 
     /**
@@ -144,6 +173,58 @@ public class GeneralMenu extends AppCompatActivity {
         int newWidth = (int) (current.width * curScale);
         resizedBitmap = Bitmap.createScaledBitmap(current.bmp, newWidth, newHeight, false);
         img.setImageBitmap(resizedBitmap);
+    }
+
+    private void setSeekbars(int n){
+        seekbar1.setVisibility(View.VISIBLE);
+        seekbar1.setActivated(true);
+        textsb1.setVisibility(View.VISIBLE);
+
+        if (n>1) {
+            seekbar2.setVisibility(View.VISIBLE);
+            seekbar2.setActivated(true);
+            textsb2.setVisibility(View.VISIBLE);
+            if (n>2){
+                seekbar3.setVisibility(View.VISIBLE);
+                seekbar3.setActivated(true);
+                textsb3.setVisibility(View.VISIBLE);
+            }
+        }
+
+        filtersBar.setVisibility(View.INVISIBLE);
+        filtersBar.setActivated(false);
+
+        test.setVisibility(View.VISIBLE);
+        test.setActivated(true);
+        ok.setVisibility(View.VISIBLE);
+        ok.setActivated(true);
+        cancel.setVisibility(View.VISIBLE);
+        cancel.setActivated(true);
+        seekbarsDisplayed = n;
+        val1 = val2 = val3 = 0;
+    }
+
+    private void delSeekbars(){
+        seekbar1.setVisibility(View.INVISIBLE);
+        seekbar1.setActivated(false);
+        textsb1.setVisibility(View.INVISIBLE);
+        seekbar2.setVisibility(View.INVISIBLE);
+        seekbar2.setActivated(false);
+        textsb2.setVisibility(View.INVISIBLE);
+        seekbar3.setVisibility(View.INVISIBLE);
+        seekbar3.setActivated(false);
+        textsb3.setVisibility(View.INVISIBLE);
+
+        test.setVisibility(View.INVISIBLE);
+        test.setActivated(false);
+        ok.setVisibility(View.INVISIBLE);
+        ok.setActivated(false);
+        cancel.setVisibility(View.INVISIBLE);
+        cancel.setActivated(false);
+
+        filtersBar.setVisibility(View.VISIBLE);
+        filtersBar.setActivated(true);
+        seekbarsDisplayed = 0;
     }
 
     private View.OnClickListener blistener = new View.OnClickListener() {
@@ -257,11 +338,35 @@ public class GeneralMenu extends AppCompatActivity {
 
 
                 case R.id.teinte:
-                    Intent eight = new Intent(GeneralMenu.this, ChoiceMenu.class);
-                    startActivity(eight);
+                    setSeekbars(2);
+                    seekbar1.setProgress(0);
+                    seekbar1.setMax(180);
+                    textsb1.setText("Tolérance");
+
+                    seekbar2.setProgress(0);
+                    seekbar2.setMax(360);
+                    textsb2.setText("Teinte");
+
+                    filterToUse = 1;
                     break;
 
+                case R.id.test:
+                    bmpTest = current.applyFilter(filterToUse, val1, val2, val3);
+                    img.setImageBitmap(bmpTest.bmp);
+                    break;
 
+                case R.id.ok:
+                    current = current.applyFilter(filterToUse, val1, val2, val3);
+                    memory.setNext(current);
+                    memory.validHistogram = 0;
+                    img.setImageBitmap(bmpTest.bmp);
+                    delSeekbars();
+                    break;
+
+                case R.id.cancel:
+                    img.setImageBitmap(current.bmp);
+                    delSeekbars();
+                    break;
 
                 case R.id.HE:
                     if (current.filter != 3) {
@@ -293,6 +398,31 @@ public class GeneralMenu extends AppCompatActivity {
             }
         }
     };
+
+    SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {editText();}
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {editText();}
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {editText();}
+    };
+
+    public void editText(){
+        val1 = seekbar1.getProgress();
+        textsb1.setText(String.valueOf(val1));
+        if (seekbarsDisplayed>1){
+            val2 = seekbar2.getProgress();
+            textsb2.setText(String.valueOf(val2));
+            if (seekbarsDisplayed>2){
+                val3 = seekbar3.getProgress();
+                textsb3.setText(String.valueOf(val3));
+            }
+        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

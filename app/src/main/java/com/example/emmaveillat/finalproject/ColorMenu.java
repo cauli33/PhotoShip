@@ -157,23 +157,23 @@ public class ColorMenu extends AppCompatActivity {
 
                 pixelHSV[0] = pixelHSV[0] + settingHue;
                 if (pixelHSV[0] < 0.0f) {
-                    pixelHSV[0] = 0.0f;
+                    pixelHSV[0] += 360.0f;
                 } else if (pixelHSV[0] > 360.0f) {
-                    pixelHSV[0] = 360.0f;
+                    pixelHSV[0] -= 360.0f;
                 }
 
                 pixelHSV[1] = pixelHSV[1] + settingSat;
                 if (pixelHSV[1] < 0.0f) {
-                    pixelHSV[1] = 0.0f;
+                    pixelHSV[1] += 1.0f;
                 } else if (pixelHSV[1] > 1.0f) {
-                    pixelHSV[1] = 1.0f;
+                    pixelHSV[1] -= 1.0f;
                 }
 
                 pixelHSV[2] = pixelHSV[2] + settingVal;
                 if (pixelHSV[2] < 0.0f) {
-                    pixelHSV[2] = 0.0f;
+                    pixelHSV[2] += 1.0f;
                 } else if (pixelHSV[2] > 1.0f) {
-                    pixelHSV[2] = 1.0f;
+                    pixelHSV[2] -= 1.0f;
                 }
 
                 mapDestColor[index] = Color.HSVToColor(pixelHSV);

@@ -140,30 +140,78 @@
                     android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
 
-            <ImageButton
-                android:layout_width="100dip"
-                android:layout_height="100dip"
-                android:id="@+id/filtre"
-                android:background="@drawable/rose"/>
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
+                    android:id="@+id/filtre"
+                    android:background="@drawable/rose"/>
 
-            <ImageButton
-                android:layout_width="100dip"
-                android:layout_height="100dip"
-                android:id="@+id/HE"
-                android:background="@drawable/egalisationhistogramme" />
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Filtre couleur"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+            </LinearLayout>
 
-            <ImageButton
-                android:layout_width="100dip"
-                android:layout_height="100dip"
-                android:id="@+id/ED"
-                android:background="@drawable/extensiondynamique"/>
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
 
-            <ImageButton
-                android:layout_width="100dip"
-                android:layout_height="100dip"
-                android:id="@+id/teinte"
-                android:background="@drawable/une_couleur"/>
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
+                    android:id="@+id/HE"
+                    android:background="@drawable/egalisationhistogramme"/>
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Égalisation histogramme"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
+
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
+                    android:id="@+id/ED"
+                    android:background="@drawable/extensiondynamique"/>
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Extension dynamique"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
+
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
+                    android:id="@+id/teinte"
+                    android:background="@drawable/une_couleur"/>
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Choix couleur"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+            </LinearLayout>
+
 
             <ImageButton
                 android:layout_width="100dip"
@@ -226,6 +274,86 @@
             </ImageView>
         </ScrollView>
     </HorizontalScrollView>
+
+    <Button
+        android:text="Valider"
+        android:layout_width="180dip"
+        android:layout_height="40dip"
+        android:id="@+id/ok"
+        android:layout_alignParentBottom="true"/>
+
+    <Button
+        android:text="Annuler"
+        android:layout_width="match_parent"
+        android:layout_height="40dip"
+        android:id="@+id/cancel"
+        android:layout_toRightOf="@id/ok"
+        android:layout_toEndOf="@id/ok"
+        android:layout_alignParentBottom="true"/>
+
+    <Button
+        android:text="Test"
+        android:layout_width="match_parent"
+        android:layout_height="40dip"
+        android:id="@+id/test"
+        android:layout_above="@id/ok"/>
+
+    <TextView
+        android:id="@+id/textsb1"
+        android:layout_width="80dip"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/test"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="10dip"
+        android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+
+    <SeekBar
+        android:id="@+id/seekbar1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:progress="0"
+        android:layout_toRightOf="@+id/textsb1"
+        android:layout_toEndOf="@id/textsb1"
+        android:layout_above="@id/test"
+        android:layout_marginBottom="10dip"/>
+
+    <TextView
+        android:id="@+id/textsb2"
+        android:layout_width="80dip"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/textsb1"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+
+    <SeekBar
+        android:id="@+id/seekbar2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:progress="0"
+        android:layout_above="@+id/textsb1"
+        android:layout_toRightOf="@+id/textsb2"
+        android:layout_toEndOf="@id/textsb2" />
+
+    <TextView
+        android:id="@+id/textsb3"
+        android:layout_width="80dip"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/textsb2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+
+    <SeekBar
+        android:id="@+id/seekbar3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:progress="0"
+        android:layout_above="@+id/textsb2"
+        android:layout_toRightOf="@+id/textsb3"
+        android:layout_toEndOf="@id/textsb3"/>
+
 
 
 </RelativeLayout>

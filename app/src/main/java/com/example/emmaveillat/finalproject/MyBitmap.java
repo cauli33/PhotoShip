@@ -19,6 +19,10 @@ public class MyBitmap {
         filter = filt;
     }
 
+    public MyBitmap copy(){
+        return new MyBitmap(bmp, filter);
+    }
+
     public MyBitmap toGray(int[] valMap){
         int[] pixelsGray = new int[height * width];
         Bitmap bmpGray = bmp.copy(Bitmap.Config.ARGB_8888, true); /* Je copie la bitmap en entrée (ce sera la bitmap initial) et la fait modifiable */
@@ -379,6 +383,80 @@ public class MyBitmap {
         Bitmap bmpLapla = Bitmap.createBitmap(pixelsLapla, width, height, Bitmap.Config.ARGB_8888);
         MyBitmap laplacien = new MyBitmap(bmpLapla, 8);
         return laplacien;
+    }
+
+    public MyBitmap applyFilter(int filterToUse, int v1, int v2, int v3){
+        if (filterToUse == 1){
+            return selectHue(v1, v2);
+        }
+        return null;
+    }
+
+    private MyBitmap selectHue(int gap, int hue){
+        int[] pixelsSelect = pixels.clone();
+        //Array to stock pixel hsv values
+        float[] pixelHSV = new float[3];
+
+        int index = 0;
+        //3 cases: each one changes the way we choose the pixels we change to gray and the one we keep colored
+        //Chosen hue value is not too close to 0 or 360
+        if ((hue >= gap)&&(hue<=360F - gap)){
+            for (int y = 0; y < height; ++y) {
+                for (int x = 0; x < width; ++x) {
+                    int pixel = pixelsSelect[index];
+                    Color.colorToHSV(pixel, pixelHSV);
+                    float pixelHue = pixelHSV[0];
+                    //Get pixels out of the gap defined around hue value in gray
+                    if ((pixelHue >= hue + gap) || (pixelHue <= hue - gap)) {
+                        int red = Color.red(pixel);
+                        int blue = Color.blue(pixel);
+                        int green = Color.green(pixel);
+                        int gray = (red + blue + green) / 3;
+                        pixelsSelect[index] = Color.rgb(gray, gray, gray);
+                    }
+                    index++;
+                }
+            }
+        }
+        //Chosen hue value is close to 0
+        else if (hue < gap){
+            for (int y = 0; y < height; ++y) {
+                for (int x = 0; x < width; ++x) {
+                    int pixel = pixelsSelect[index];
+                    Color.colorToHSV(pixel, pixelHSV);
+                    float pixelHue = pixelHSV[0];
+                    if ((pixelHue >= hue + gap) && (pixelHue <= hue + 360F - gap)) {
+                        int red = Color.red(pixel);
+                        int blue = Color.blue(pixel);
+                        int green = Color.green(pixel);
+                        int gray = (red + blue + green) / 3;
+                        pixelsSelect[index] = Color.rgb(gray, gray, gray);
+                    }
+                    index++;
+                }
+            }
+        }
+        //Chosen value is close to 360
+        else{
+            for (int y = 0; y < height; ++y) {
+                for (int x = 0; x < width; ++x) {
+                    int pixel = pixelsSelect[index];
+                    Color.colorToHSV(pixel, pixelHSV);
+                    float pixelHue = pixelHSV[0];
+                    if ((pixelHue >= hue -360F + gap) && (pixelHue <= hue - gap)) {
+                        int red = Color.red(pixel);
+                        int blue = Color.blue(pixel);
+                        int green = Color.green(pixel);
+                        int gray = (red + blue + green) / 3;
+                        pixelsSelect[index] = Color.rgb(gray, gray, gray);
+                    }
+                    index++;
+                }
+            }
+        }
+        Bitmap bmpSelect = Bitmap.createBitmap(pixelsSelect, width, height, Bitmap.Config.ARGB_8888);
+        MyBitmap select = new MyBitmap(bmpSelect, 10);
+        return select;
     }
 
 }
