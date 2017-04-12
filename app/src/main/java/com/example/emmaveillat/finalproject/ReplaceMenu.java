@@ -66,14 +66,6 @@ public class ReplaceMenu extends AppCompatActivity {
                     startActivity(second);
                     break;
 
-                //Changes the image to gray levels
-                case R.id.replace:
-                    Bitmap cutted = cut(picture,130F,30F);
-                    Bitmap back = BitmapFactory.decodeResource(getResources(), R.drawable.montagne);
-                    //picture = replace(cutBitmap, back, 0);
-                    img.setImageBitmap(cutted);
-                    break;
-
                 default:
                     break;
             }

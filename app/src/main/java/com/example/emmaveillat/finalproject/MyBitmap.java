@@ -389,6 +389,9 @@ public class MyBitmap {
         if (filterToUse == 1){
             return selectHue(v1, v2);
         }
+        if (filterToUse == 2){
+            return filterHue(v1);
+        }
         return null;
     }
 
@@ -457,6 +460,65 @@ public class MyBitmap {
         Bitmap bmpSelect = Bitmap.createBitmap(pixelsSelect, width, height, Bitmap.Config.ARGB_8888);
         MyBitmap select = new MyBitmap(bmpSelect, 10);
         return select;
+    }
+
+    public MyBitmap filterHue(int hue){
+        int[] pixelsFilter = new int[width * height];
+        float[] pixelHSV = new float[3];
+
+        for (int i = 0; i < width*height; ++i) {
+            int pixel = pixels[i];
+            Color.colorToHSV(pixel, pixelHSV);
+            pixelHSV[0] = hue;
+            pixelsFilter[i] = Color.HSVToColor(pixelHSV);
+        }
+        Bitmap bmpFilter = Bitmap.createBitmap(pixelsFilter, width, height, Bitmap.Config.ARGB_8888);
+        MyBitmap filter = new MyBitmap(bmpFilter, 11);
+        return filter;
+    }
+
+    public MyBitmap visualCrop(int[] toCrop){
+        int[] pixelsCrop = pixels.clone();
+        int toCropUp = toCrop[0] * height / 100;
+        int toCropDown = height - toCrop[1] * height / 100;
+        int toCropLeft = toCrop[2] * width / 100;
+        int toCropRight = width - toCrop[3] * width / 100;
+
+        for (int y = toCropUp; y < toCropUp + 4; ++y) {
+            for (int x = toCropLeft ; x < toCropRight ; ++x) {
+                pixelsCrop[ y * width + x ] = Color.rgb(0,0,0);
+            }
+        }
+        for (int y = toCropDown - 4; y < toCropDown; ++y) {
+            for (int x = toCropLeft; x < toCropRight; ++x) {
+                pixelsCrop[ y * width + x ] = Color.rgb(0,0,0);
+            }
+        }
+        for (int x = toCropLeft; x < toCropLeft + 4; ++x) {
+            for (int y = toCropUp; y < toCropDown; ++y) {
+                pixelsCrop[ y * width + x ] = Color.rgb(0,0,0);
+            }
+        }
+        for (int x = toCropRight - 4; x < toCropRight; ++x) {
+            for (int y = toCropUp; y < toCropDown; ++y) {
+                pixelsCrop[ y * width + x ] = Color.rgb(0,0,0);
+            }
+        }
+        Bitmap bmpCrop = Bitmap.createBitmap(pixelsCrop, width, height, Bitmap.Config.ARGB_8888);
+        MyBitmap crop = new MyBitmap(bmpCrop, filter);
+        return crop;
+    }
+
+    public MyBitmap crop(int[] toCrop){
+        int toCropUp = toCrop[0] * height / 100;
+        int toCropDown = height - toCrop[1] * height / 100;
+        int toCropLeft = toCrop[2] * width / 100;
+        int toCropRight = width - toCrop[3] * width / 100;
+        int newWidth = toCropRight - toCropLeft;
+        int newHeight = toCropDown - toCropUp;
+        Bitmap bmpCrop = Bitmap.createBitmap(bmp, toCropLeft,toCropUp,newWidth, newHeight);
+        MyBitmap crop = new MyBitmap(bmpCrop, filter);
+        return crop;
     }
 
 }

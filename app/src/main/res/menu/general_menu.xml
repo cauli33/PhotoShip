@@ -3,17 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/previous"
-        android:icon="@drawable/ic_undo_black_24dp"
+        android:icon="@mipmap/ic_undo_black_24dp"
         android:title="Previous"
         app:showAsAction="always"/>
     <item
         android:id="@+id/next"
-        android:icon="@drawable/ic_redo_black_24dp"
+        android:icon="@mipmap/ic_redo_black_24dp"
         android:title="Next"
         app:showAsAction="always" />
     <item
         android:id="@+id/save"
-        android:icon="@drawable/ic_save_black_24dp"
+        android:icon="@mipmap/ic_save_black_24dp"
         android:title="Save"
         app:showAsAction="always" />
     <item
@@ -28,4 +28,10 @@
     <item
         android:id="@+id/flipud"
         android:title="Miroir vertical" />
+    <item
+        android:id="@+id/cropmenu"
+        android:title="Rogner" />
+    <item
+        android:id="@+id/ppv"
+        android:title="Déformer"/>
 </menu>
