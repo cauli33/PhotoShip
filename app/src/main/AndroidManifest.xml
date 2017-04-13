@@ -12,7 +12,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:hardwareAccelerated="false">
         <activity android:name=".Homepage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,19 +23,10 @@
         </activity>
         <activity android:name=".PhotoLoading" />
         <activity android:name=".GeneralMenu" />
-        <activity android:name=".GrayMenu" />
         <activity android:name=".ChoiceMenu" />
         <activity android:name=".ColorMenu" />
         <activity android:name=".FilterMenu" />
-        <activity android:name=".ExtensionDynamic" />
-        <activity android:name=".PinchZoomMenu" />
-        <activity android:name=".SepiaMenu" />
-        <activity android:name=".ConvolutionMenu" />
         <activity android:name=".ZoomMenu" />
-        <activity android:name=".EgalizationHistogramm" />
-        <activity android:name=".RotateMenu" />
-        <activity android:name=".ReplaceMenu" />
-        <activity android:name=".FingerMenu" />
         <activity android:name=".CropMenu"></activity>
     </application>
 

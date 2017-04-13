@@ -9,6 +9,8 @@ public class MyBitmap {
     public int height;
     public int[] pixels;
     public int filter;
+    public int[] histogram = null;
+    public int[] valMap = null;
 
     public MyBitmap(Bitmap bitmap, int filt){
         bmp = bitmap;
@@ -23,22 +25,53 @@ public class MyBitmap {
         return new MyBitmap(bmp, filter);
     }
 
-    public MyBitmap toGray(int[] valMap){
+    public void findHistogram() {
+        valMap = new int[width * height];
+        histogram = new int[256];
+        int pixel, r, g, b, lvl;
+        for (int i = 0; i < width * height; i++) {   /* boucles sur tout le tableau de pixels (bitmap initial) */
+            /* Je récupère les valeurs RGB du pixel dans le bitmap initial */
+            pixel = pixels[i];
+            r = Color.red(pixel);
+            b = Color.blue(pixel);
+            g = Color.green(pixel);
+            /* Je fais la moyenne de ces 3 valeurs et donne au pixel du bitmap de sortie le niveau de gris associé */
+            lvl = (int) (0.299F * r + 0.587F * g + 0.114F * b);
+            valMap[i] = lvl;
+            histogram[lvl]++;
+        }
+    }
+
+    public MyBitmap toGray(){
+        if (histogram == null){findHistogram();}
         int[] pixelsGray = new int[height * width];
         Bitmap bmpGray = bmp.copy(Bitmap.Config.ARGB_8888, true); /* Je copie la bitmap en entrée (ce sera la bitmap initial) et la fait modifiable */
-        int lvl;
+        int lvl, pixel;
         for (int i = 0; i < width * height; i++) {   /* boucles sur tout le tableau de pixels (bitmap initial) */
             lvl = valMap[i];
             pixelsGray[i] = Color.rgb(lvl,lvl,lvl);
         }
         bmpGray.setPixels(pixelsGray, 0, width, 0, 0, width, height);
         MyBitmap gray = new MyBitmap(bmpGray, 1);
+        gray.histogram = histogram;
+        gray.valMap = valMap;
         return gray;
     }
 
-    public MyBitmap sepia(int[] valMap){
+    public Bitmap scale(float factor){
+        if (factor < 0.1){
+            factor = 0.1f;
+        }
+        int newHeight = (int) (height * factor);
+        int newWidth = (int) (width * factor);
+        return Bitmap.createScaledBitmap(bmp, newWidth, newHeight, false);
+    }
+
+    public MyBitmap sepia(){
+        if (histogram == null){findHistogram();}
         int r, g, lvl;
         int[] pixelsSepia = new int[height * width];
+        MyBitmap gray = this.toGray();
         int depth = 20;
         //Applies the mask on the bitmap depending on its levels of red, blue and green
         for (int i = 0; i < width * height; i++) {   /* boucles sur tout le tableau de pixels (bitmap initial) */
@@ -60,22 +93,18 @@ public class MyBitmap {
         return sepia;
     }
 
-    public MyBitmap histogramEqualization(BitmapList memory){
-        if (memory.validHistogram == 0){
-            memory.findHistogram();
-        }
+    public MyBitmap histogramEqualization(){
+        if (histogram == null){findHistogram();}
         int[] pixelsEqualized = new int[height * width];
-        int[] cumulHistogram = memory.histogram;
-        int[] valMap = memory.valMap;
         for (int i = 1; i < 256; i++) {
-            cumulHistogram[i] += cumulHistogram[i - 1];
+            histogram[i] += histogram[i - 1];
         }
         float[] pixelHSV = new float[3];
         int pixel;
         float newValue;
         for (int i = 0; i < width * height; i++) {
             pixel = pixels[i];
-            newValue = (float) (cumulHistogram[valMap[i]]) / (width * height);
+            newValue = (float) (histogram[valMap[i]]) / (width * height);
             Color.colorToHSV(pixel, pixelHSV);
             pixelHSV[2] = newValue;
             pixelsEqualized[i] = Color.HSVToColor(pixelHSV);
@@ -86,13 +115,9 @@ public class MyBitmap {
         return equalized;
     }
 
-    public MyBitmap dynamicExtension(BitmapList memory){
-        if (memory.validHistogram == 0){
-            memory.findHistogram();
-        }
+    public MyBitmap dynamicExtension(){
+        if (histogram == null){findHistogram();}
         int[] pixelsExtension = new int[height * width];
-        int[] histogram = memory.histogram;
-        int[] valMap = memory.valMap;
         int k = 0;
         while (histogram[k] == 0) {
             k++;

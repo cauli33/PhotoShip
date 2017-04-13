@@ -17,14 +17,17 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.util.Arrays;
 
@@ -47,7 +50,7 @@ public class GeneralMenu extends AppCompatActivity {
     int cropdirection;
     Button ppv, couleur, test, ok, cancel, crop;
     HorizontalScrollView filtersBar;
-    RelativeLayout seekbarsInterface, cropInterface;
+    RelativeLayout seekbarsInterface, cropInterface, generalMenu;
 
     SeekBar seekbar1, seekbar2, seekbar3, cropbar;
     TextView textsb1, textsb2, textsb3, valsb1, valsb2, valsb3, textCrop;
@@ -57,6 +60,7 @@ public class GeneralMenu extends AppCompatActivity {
     /**
      * statments of the fingers on the screen
      */
+    float mx, my;
     int touchState;
     final int IDLE = 0;
     final int TOUCH = 1;
@@ -65,7 +69,7 @@ public class GeneralMenu extends AppCompatActivity {
     /**
      * distances from the fingers
      */
-    float dist0, distCurrent;
+    float dist0, distCurrent, factor;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -88,6 +92,17 @@ public class GeneralMenu extends AppCompatActivity {
         //Objects displayed in the menu
         img = (ImageView) findViewById(R.id.picture);
         img.setImageBitmap(current.bmp);
+        img.setOnTouchListener(ScrollListener);
+        Switch toggle = (Switch) findViewById(R.id.zoomswitch);
+        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    img.setOnTouchListener(PinchZoomListener);
+                } else {
+                    img.setOnTouchListener(ScrollListener); {
+                }
+            }
+        }});
 
         filtersBar = (HorizontalScrollView) findViewById(R.id.filterscrollview);
         seekbarsInterface = (RelativeLayout) findViewById(R.id.seekbars_interface);
@@ -99,9 +114,7 @@ public class GeneralMenu extends AppCompatActivity {
         //initialization of the distances
         distCurrent = 1;
         dist0 = 1;
-        drawMatrix();
 
-        img.setOnTouchListener(MyOnTouchListener);
         touchState = IDLE;
 
         //Sets buttons
@@ -194,22 +207,6 @@ public class GeneralMenu extends AppCompatActivity {
         cropInterface.setVisibility(View.INVISIBLE);
     }
 
-    /**
-     * function which draw a matrix depending on the distances and creates the new zoomed bitmap
-     */
-    private void drawMatrix(){
-        float curScale = distCurrent/dist0;
-        if (curScale < 0.1){
-            curScale = 0.1f;
-        }
-
-        Bitmap resizedBitmap;
-        int newHeight = (int) (current.height * curScale);
-        int newWidth = (int) (current.width * curScale);
-        resizedBitmap = Bitmap.createScaledBitmap(current.bmp, newWidth, newHeight, false);
-        img.setImageBitmap(resizedBitmap);
-    }
-
     private void setSeekbars(int n){
         seekbarsInterface.setVisibility(View.VISIBLE);
         seekbarsInterface.setActivated(true);
@@ -250,7 +247,7 @@ public class GeneralMenu extends AppCompatActivity {
 
                 case R.id.gray:
                     if (current.filter != 1) {
-                        current = current.toGray(memory.valMap);
+                        current = current.toGray();
                         memory.setNext(current);
                         img.setImageBitmap(current.bmp);
                     }
@@ -258,8 +255,7 @@ public class GeneralMenu extends AppCompatActivity {
 
                 case R.id.sepia:
                     if (current.filter != 2) {
-                        current = current.sepia(memory.valMap);
-                        memory.validHistogram = 0;
+                        current = current.sepia();
                         memory.setNext(current);
                         img.setImageBitmap(current.bmp);
                     }
@@ -292,8 +288,7 @@ public class GeneralMenu extends AppCompatActivity {
                                     }
                                     else{
                                         current = current.moyenne(param);
-                                        memory.setNext(current);
-                                        memory.validHistogram = 0;
+                                        memory.setNext(current);;
                                         img.setImageBitmap(current.bmp);
                                     }
                                 }
@@ -304,21 +299,18 @@ public class GeneralMenu extends AppCompatActivity {
 
                 case R.id.gauss:
                     current = current.gauss();
-                    memory.validHistogram = 0;
                     memory.setNext(current);
                     img.setImageBitmap(current.bmp);
                     break;
 
                 case R.id.sobel:
                     current = current.sobel();
-                    memory.validHistogram = 0;
                     memory.setNext(current);
                     img.setImageBitmap(current.bmp);
                     break;
 
                 case R.id.laplacien:
                     current = current.laplacien();
-                    memory.validHistogram = 0;
                     memory.setNext(current);
                     img.setImageBitmap(current.bmp);
                     break;
@@ -344,8 +336,7 @@ public class GeneralMenu extends AppCompatActivity {
 
                 case R.id.ED:
                     if (current.filter != 4) {
-                        current = current.dynamicExtension(memory);
-                        memory.validHistogram = 0;
+                        current = current.dynamicExtension();
                         memory.setNext(current);
                         img.setImageBitmap(current.bmp);
                     }
@@ -374,7 +365,6 @@ public class GeneralMenu extends AppCompatActivity {
                 case R.id.ok:
                     current = current.applyFilter(filterToUse, val1, val2, val3);
                     memory.setNext(current);
-                    memory.validHistogram = 0;
                     img.setImageBitmap(current.bmp);
                     delSeekbars();
                     break;
@@ -386,8 +376,7 @@ public class GeneralMenu extends AppCompatActivity {
 
                 case R.id.HE:
                     if (current.filter != 3) {
-                        current = current.histogramEqualization(memory);
-                        memory.validHistogram = 0;
+                        current = current.histogramEqualization();
                         memory.setNext(current);
                         img.setImageBitmap(current.bmp);
                     }
@@ -416,7 +405,6 @@ public class GeneralMenu extends AppCompatActivity {
                 case R.id.crop:
                     current = current.crop(toCrop);
                     memory.setNext(current);
-                    memory.validHistogram = 0;
                     img.setImageBitmap(current.bmp);
                     cropInterface.setVisibility(View.INVISIBLE);
                     cropInterface.setActivated(false);
@@ -458,19 +446,19 @@ public class GeneralMenu extends AppCompatActivity {
         val1 = seekbar1.getProgress();
         valsb1.setText("   " + String.valueOf(val1));
         if (seekbarToColor == 1){
-            editColor(seekbar1, val1);
+            //editColor(seekbar1, val1);
         }
         if (seekbarsDisplayed>1){
             val2 = seekbar2.getProgress();
             valsb2.setText("   " + String.valueOf(val2));
             if (seekbarToColor == 2){
-                editColor(seekbar2, val2);
+                //editColor(seekbar2, val2);
             }
             if (seekbarsDisplayed>2){
                 val3 = seekbar3.getProgress();
                 valsb3.setText("   " + String.valueOf(val3));
                 if (seekbarToColor == 3){
-                    editColor(seekbar3, val3);
+                    //editColor(seekbar3, val3);
                 }
             }
         }
@@ -544,28 +532,24 @@ public class GeneralMenu extends AppCompatActivity {
 
             case R.id.rotateleft:
                 current = current.rotateLeft();
-                memory.validHistogram = 0;
                 memory.setNext(current);
                 img.setImageBitmap(current.bmp);
                 return true;
 
             case R.id.rotateright:
                 current = current.rotateRight();
-                memory.validHistogram = 0;
                 memory.setNext(current);
                 img.setImageBitmap(current.bmp);
                 return true;
 
             case R.id.fliplr:
                 current = current.fliplr();
-                memory.validHistogram = 0;
                 memory.setNext(current);
                 img.setImageBitmap(current.bmp);
                 return true;
 
             case R.id.flipud:
                 current = current.flipud();
-                memory.validHistogram = 0;
                 memory.setNext(current);
                 img.setImageBitmap(current.bmp);
                 return true;
@@ -590,37 +574,74 @@ public class GeneralMenu extends AppCompatActivity {
         return true;
     }
 
-    View.OnTouchListener MyOnTouchListener = new View.OnTouchListener(){
+    View.OnTouchListener ScrollListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View arg0, MotionEvent event) {
+
+            float curX, curY;
+
+            switch (event.getAction()) {
+
+                case MotionEvent.ACTION_DOWN:
+                    touchState = TOUCH;
+                    mx = event.getX();
+                    my = event.getY();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    touchState = TOUCH;
+                    curX = event.getX();
+                    curY = event.getY();
+                    img.scrollBy((int) (mx - curX), (int) (my - curY));
+                    mx = curX;
+                    my = curY;
+                    break;
+                case MotionEvent.ACTION_UP:
+                    touchState = TOUCH;
+                    curX = event.getX();
+                    curY = event.getY();
+                    img.scrollBy((int) (mx - curX), (int) (my - curY));
+                    break;
+            }
+            return true;
+        }
+    };
+
+    View.OnTouchListener PinchZoomListener = new View.OnTouchListener(){
         @Override
         public boolean onTouch(View view, MotionEvent event) {
             // TODO Auto-generated method stub
             float distx, disty;
             switch(event.getAction() & MotionEvent.ACTION_MASK) {
 
-                //if a finger touches the screen, the factor of zoom is displayed
-                case MotionEvent.ACTION_DOWN:touchState = TOUCH;
-                    break;
-
                 //if the fingers pinch the bitmap, the distances change and the factor of zoom is displayed
                 case MotionEvent.ACTION_POINTER_DOWN:touchState = PINCH;
                     distx = event.getX(0) - event.getX(1);
                     disty = event.getY(0) - event.getY(1);
                     dist0 = (float) Math.sqrt(distx * distx + disty * disty);
-
                     break;
 
                 // if the fingers move, the distances change and the factor of zoom is displayed
                 case MotionEvent.ACTION_MOVE:
-                    if (touchState == PINCH) {
-                        distx = event.getX(0) - event.getX(1);
-                        disty = event.getY(0) - event.getY(1);
-                        distCurrent =  (float) Math.sqrt(distx * distx + disty * disty);
-                        drawMatrix();
+                    if(touchState == PINCH) {
+                        if (event.getPointerCount() >= 2) {
+                            distx = event.getX(0) - event.getX(1);
+                            disty = event.getY(0) - event.getY(1);
+                            distCurrent = (float) Math.sqrt(distx * distx + disty * disty);
+                            factor = distCurrent / dist0;
+                            img.setImageBitmap(current.scale(factor));
+                        }
                     }
                     break;
 
                 //if the fingers stop zooming the bitmap, the factor of zoom is displayed
                 case MotionEvent.ACTION_UP:touchState = IDLE;
+                    if (current.filter == 20) {
+                        current = new MyBitmap(current.scale(factor), 20);
+                    }
+                    else{
+                        current = new MyBitmap(current.scale(factor), 20);
+                        memory.setNext(current);
+                    }
                     break;
 
                 //if one finger touches the screen, the factor of zoom is displayed

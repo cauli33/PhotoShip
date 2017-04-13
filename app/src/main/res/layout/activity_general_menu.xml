@@ -245,28 +245,32 @@
 
     </HorizontalScrollView>
 
-    <HorizontalScrollView
+
+    <ImageView
+        android:id="@+id/picture"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/filterscrollview"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
-            <ImageView
-                android:id="@+id/picture"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:scaleType="center"
-                android:layout_above="@id/filterscrollview">
-            </ImageView>
-        </ScrollView>
-    </HorizontalScrollView>
+        android:layout_above="@id/filterscrollview"
+        android:scaleType="center"
+        android:background="#e5e5e5"
+        android:layout_gravity="center">
+    </ImageView>
+
+    <ImageButton
+        android:id="@+id/zoom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:background="@android:drawable/ic_menu_zoom"/>
+
+    <Switch
+        android:id="@+id/zoomswitch"
+        android:layout_width="wrap_content"
+        android:layout_height="35dip"
+        android:layout_toLeftOf="@id/zoom"
+        android:layout_toStartOf="@id/zoom"/>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
