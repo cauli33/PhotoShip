@@ -1,23 +1,61 @@
 package com.example.emmaveillat.finalproject;
 
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.widget.Toast;
-
-
+/**
+ * La classe  BitmapList est une classe permettant la création d'une liste d'images ayant lieu
+ * d'historique de modifications.
+ * Ainsi, l'utilisateur peut "revenir en arrière" dans ses modifications ou bien retrouver la plus
+ * récente.
+ * La liste d'images est limitée par sa taille, ce qui efface de la mémoire les modifications trop
+ * anciennes.
+ * De plus, si l'utilisateur est revenu sur une modification antérieure et en a appliqué une
+ * nouvelle, il ne peut retrouver celles qu'il a effectuées auparavant.
+ */
 public class BitmapList {
+
+    /**
+     * position actuelle dans le tableau qui correspond à l'image visible par l'utilisateur dans
+     * l'application.
+     */
     public int current;
+
+    /**
+     * taille de la liste de bitmaps utilisée. Elle est limitée à 64.
+     */
     private int maxsize = 64;
+
+    /**
+     * liste de bitmaps de taille maixesize = 64.
+     */
     MyBitmap [] list = new MyBitmap[maxsize];
+
+    /**
+     * maximum d'images stockées dans la liste actuellement. Cela correspond aux modifications
+     * réalisées après un "retour en arrière" par l'utilisateur.
+     */
     public int maxknown;
+
+    /**
+     * nombre d'images à supprimer de la liste si sa mémoire est pleine.
+     */
     private int deletable = 16;
 
+    /**
+     * fonction qui initialise la liste à partir d'une première image. La position courante dans le
+     * tableau correspond donc à l'image visible par l'utilisateur et il n'y a pas plus d'image
+     * modifiée antérieurement par l'utilisateur.
+     * @param first la première image stockée dans la liste
+     */
     public BitmapList(MyBitmap first){
         list[0] = first;
         current = 0;
         maxknown = 0;
     }
 
+    /**
+     * fonction qui libère la mémoire de la liste si celle-ci est pleine. Elle décale de 16
+     * éléments toute la liste vers la gauche et place la position actuelle à 16 places à gauche.
+     * Les modifications suivantes écraseront celles placées entre les places 47 et 63.
+     */
     private void freespace(){
         for (int i=0; i<maxsize - deletable; i++){
             list[i] = list[deletable+i];
@@ -26,20 +64,43 @@ public class BitmapList {
         current = maxsize - deletable;
     }
 
+    /**
+     * fonction qui donne l'image contenant la dernière modification effectuée avant l'image
+     * actuelle.
+     * Le curseur courant est donc placée sur la position précédente et on retourne l'image
+     * correspondante.
+     * @return l'image contenant les modifications précédentes
+     */
     public MyBitmap getPrevious(){
         current--;
         return list[current];
     }
 
+    /**
+     * fonction qui donne l'image vue actuellement par l'utilisateur.
+     * @return l'image actuelle
+     */
     public MyBitmap getCurrent(){
         return list[current];
     }
 
+    /**
+     * fonction qui donne l'image suivante dans la liste, c'est-à-dire l'image avec des
+     * modifications plus récentes que celle actuellement vue par l'utilisateur.
+     * @return l'image suivante dans la liste
+     */
     public MyBitmap getNext(){
         current++;
         return list[current];
     }
 
+    /**
+     * fonction qui ajoute une nouvelle image modifiée à la liste et actualise ainsi sa position.
+     * Si la liste est pleine, la fonction fait appelle à "freespace" pour libérer de la mémoire.
+     * Sinon, l'image est ajoutée après l'image actuelle et la valeur max d'images dans la liste et
+     * le curseur prennent leur valeur +1.
+     * @param bmp l'image à ajouter dans la liste
+     */
     public void setNext(MyBitmap bmp){
         if (current == maxsize){
             freespace();
