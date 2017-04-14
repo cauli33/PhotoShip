@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.Image;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.VisibleForTesting;
@@ -51,11 +52,12 @@ public class GeneralMenu extends AppCompatActivity {
     Button ppv, couleur, test, ok, cancel, crop;
     HorizontalScrollView filtersBar;
     RelativeLayout seekbarsInterface, cropInterface;
+    ImageView colorviewleft, colorviewmid, colorviewright;
 
     SeekBar seekbar1, seekbar2, seekbar3, cropbar;
     TextView textsb1, textsb2, textsb3, valsb1, valsb2, valsb3, textCrop;
 
-    int filterToUse, seekbarsDisplayed, seekbarToColor, val1, val2, val3;
+    int filterToUse, seekbarsDisplayed, huebar, gapbar, val1, val2, val3;
 
     /**
      * statments of the fingers on the screen
@@ -107,6 +109,13 @@ public class GeneralMenu extends AppCompatActivity {
         filtersBar = (HorizontalScrollView) findViewById(R.id.filterscrollview);
         seekbarsInterface = (RelativeLayout) findViewById(R.id.seekbars_interface);
         cropInterface = (RelativeLayout) findViewById(R.id.crop_interface);
+
+        colorviewleft = (ImageView) findViewById(R.id.color_left);
+        colorviewleft.setVisibility(View.INVISIBLE);
+        colorviewmid = (ImageView) findViewById(R.id.color_mid);
+        colorviewmid.setVisibility(View.INVISIBLE);
+        colorviewright = (ImageView) findViewById(R.id.color_right);
+        colorviewright.setVisibility(View.INVISIBLE);
 
         memory = new BitmapList(current);
 
@@ -225,14 +234,26 @@ public class GeneralMenu extends AppCompatActivity {
         if (n<3) {
             seekbar3.setVisibility(View.INVISIBLE);
             seekbar3.setActivated(false);
+            valsb3.setVisibility(View.INVISIBLE);
             textsb3.setVisibility(View.INVISIBLE);
-            textsb3.setActivated(false);
-            if (n==1){
+            if (n<2){
                 seekbar2.setVisibility(View.INVISIBLE);
                 seekbar2.setActivated(false);
                 textsb2.setVisibility(View.INVISIBLE);
-                textsb2.setActivated(false);
+                valsb2.setVisibility(View.INVISIBLE);
             }
+        }
+        else{
+            seekbar3.setVisibility(View.VISIBLE);
+            seekbar3.setActivated(true);
+            valsb3.setVisibility(View.VISIBLE);
+            textsb3.setVisibility(View.VISIBLE);
+        }
+        if (n==2){
+            seekbar2.setVisibility(View.VISIBLE);
+            seekbar2.setActivated(true);
+            textsb2.setVisibility(View.VISIBLE);
+            valsb2.setVisibility(View.VISIBLE);
         }
 
         filtersBar.setVisibility(View.INVISIBLE);
@@ -248,7 +269,11 @@ public class GeneralMenu extends AppCompatActivity {
         filtersBar.setVisibility(View.VISIBLE);
         filtersBar.setActivated(true);
         seekbarsDisplayed = 0;
-        seekbarToColor = -1;
+        huebar = 0;
+        gapbar = 0;
+        colorviewleft.setVisibility(View.INVISIBLE);
+        colorviewmid.setVisibility(View.INVISIBLE);
+        colorviewright.setVisibility(View.INVISIBLE);
     }
 
     private View.OnClickListener blistener = new View.OnClickListener() {
@@ -343,17 +368,15 @@ public class GeneralMenu extends AppCompatActivity {
                     img.setImageBitmap(current.bmp);
                     break;
 
-                case R.id.color:
-                    Intent third = new Intent(GeneralMenu.this, ColorMenu.class);
-                    startActivity(third);
-                    break;
-
                 case R.id.filtre:
                     setSeekbars(1);
                     seekbar1.setProgress(0);
                     seekbar1.setMax(360);
+                    seekbar1.setOnSeekBarChangeListener(huebarlistener);
                     textsb1.setText("Teinte");
-                    seekbarToColor = 1;
+                    colorviewmid.setVisibility(View.VISIBLE);
+                    editHueColor();
+                    huebar = 1;
                     filterToUse = 2;
                     break;
 
@@ -371,11 +394,19 @@ public class GeneralMenu extends AppCompatActivity {
                     seekbar1.setProgress(0);
                     seekbar1.setMax(180);
                     textsb1.setText("Tolérance");
+                    seekbar1.setOnSeekBarChangeListener(gapbarlistener);
 
                     seekbar2.setProgress(0);
                     seekbar2.setMax(360);
                     textsb2.setText("Teinte");
-                    seekbarToColor = 2;
+                    seekbar2.setOnSeekBarChangeListener(huebarlistener);
+                    huebar = 2;
+                    gapbar = 1;
+                    colorviewleft.setVisibility(View.VISIBLE);
+                    colorviewmid.setVisibility(View.VISIBLE);
+                    colorviewright.setVisibility(View.VISIBLE);
+                    editGapColor();
+                    editHueColor();
 
                     filterToUse = 1;
                     break;
@@ -468,13 +499,13 @@ public class GeneralMenu extends AppCompatActivity {
     SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
 
         @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {editTextandColor();}
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {editText();}
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {}
 
         @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {editTextandColor();}
+        public void onStopTrackingTouch(SeekBar seekBar) {editText();}
     };
 
     SeekBar.OnSeekBarChangeListener seekBarChangeListenerCrop = new SeekBar.OnSeekBarChangeListener() {
@@ -489,30 +520,104 @@ public class GeneralMenu extends AppCompatActivity {
         public void onStopTrackingTouch(SeekBar seekBar) {updateCrop();}
     };
 
-    private void editTextandColor(){
+    SeekBar.OnSeekBarChangeListener huebarlistener = new SeekBar.OnSeekBarChangeListener() {
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            editText();
+            editHueColor();
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            editText();
+            editHueColor();
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            editText();
+            editHueColor();
+        }
+    };
+
+    SeekBar.OnSeekBarChangeListener gapbarlistener = new SeekBar.OnSeekBarChangeListener() {
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            editText();
+            editGapColor();
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            editText();
+            editGapColor();
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            editText();
+            editGapColor();
+        }
+    };
+
+    private void editText(){
         val1 = seekbar1.getProgress();
         valsb1.setText("   " + String.valueOf(val1));
-        if (seekbarToColor == 1){
-            //editColor(seekbar1, val1);
-        }
         if (seekbarsDisplayed>1){
             val2 = seekbar2.getProgress();
             valsb2.setText("   " + String.valueOf(val2));
-            if (seekbarToColor == 2){
-                //editColor(seekbar2, val2);
-            }
             if (seekbarsDisplayed>2){
                 val3 = seekbar3.getProgress();
                 valsb3.setText("   " + String.valueOf(val3));
-                if (seekbarToColor == 3){
-                    //editColor(seekbar3, val3);
-                }
             }
         }
     }
 
-    private void editColor(SeekBar bar, int hue){
-        float[] hsv = {(float) hue, 0.5F, 0.5F};
+    private void editHueColor(){
+        if (gapbar != 0){
+            editGapColor();
+        }
+        float[] hsv = new float[3];
+        if (huebar == 1){
+            hsv[0] = (float) seekbar1.getProgress();
+        }
+        else{
+            hsv[0] = (float) seekbar2.getProgress();
+        }
+        hsv[1] = hsv[2] = 0.5F;
+        colorviewmid.setImageDrawable(new ColorDrawable(Color.HSVToColor(hsv)));
+    }
+
+    private void editGapColor(){
+        float[] hsvleft = new float[3];
+        float[] hsvright = new float[3];
+        float hue, gap;
+        if (huebar == 1){
+            hue = (float) seekbar1.getProgress();
+            gap = (float) seekbar2.getProgress();
+        }
+        else{
+            hue = (float) seekbar2.getProgress();
+            gap = (float) seekbar1.getProgress();
+        }
+        hsvleft[1] = hsvright[1] = hsvleft[2] = hsvright[2] = 0.5F;
+        if (hue - gap < 0F){
+            hsvleft[0] = hue - gap + 360F;
+        }
+        else{
+            hsvleft[0] = hue - gap;
+        }
+        if (hue + gap >= 360F){
+            hsvright[0] = hue + gap - 360F;
+        }
+        else{
+            hsvright[0] = hue + gap;
+        }
+        colorviewleft.setImageDrawable(new ColorDrawable(Color.HSVToColor(hsvleft)));
+        colorviewright.setImageDrawable(new ColorDrawable(Color.HSVToColor(hsvright)));
+
     }
 
     private void updateCrop(){
