@@ -36,6 +36,25 @@
                 <ImageButton
                     android:layout_width="80dip"
                     android:layout_height="80dip"
+                    android:id="@+id/original"
+                    android:background="@drawable/original" />
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Original"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
+
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
                     android:id="@+id/gray"
                     android:background="@drawable/gris" />
 
@@ -74,13 +93,13 @@
                 <ImageButton
                     android:layout_width="80dip"
                     android:layout_height="80dip"
-                    android:id="@+id/moy"
-                    android:background="@drawable/filtre_moyenne"/>
+                    android:id="@+id/invert"
+                    android:background="@drawable/negatif" />
 
                 <TextView
                     android:layout_height="wrap_content"
                     android:layout_width="80dip"
-                    android:text="Flou moyenneur"
+                    android:text="Négatif"
                     android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
 
             </LinearLayout>
@@ -93,13 +112,13 @@
                 <ImageButton
                     android:layout_width="80dip"
                     android:layout_height="80dip"
-                    android:id="@+id/gauss"
-                    android:background="@drawable/gauss"/>
+                    android:id="@+id/moy"
+                    android:background="@drawable/filtre_moyenne"/>
 
                 <TextView
                     android:layout_height="wrap_content"
                     android:layout_width="80dip"
-                    android:text="Flou gaussien"
+                    android:text="Flou"
                     android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
 
             </LinearLayout>
@@ -212,29 +231,65 @@
                     android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
             </LinearLayout>
 
-            <Button
-                android:text="Zoom"
-                android:layout_width="wrap_content"
+            <LinearLayout
                 android:layout_height="wrap_content"
-                android:id="@+id/pinch" />
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
+
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
+                    android:id="@+id/pencil1"
+                    android:background="@drawable/dessin1"/>
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Effet dessin 1"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
+
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
+                    android:id="@+id/pencil2"
+                    android:background="@drawable/dessin2"/>
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Effet dessin 2"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
+
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
+                    android:id="@+id/pencil3"
+                    android:background="@drawable/dessin3"/>
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Effet dessin 3"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+            </LinearLayout>
 
             <Button
                 android:text="HSV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/color" />
-
-            <Button
-                android:text="Fond vert"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/replace" />
-
-            <Button
-                android:text="Finger"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/finger"/>
 
             <Button
                 android:text="Déformer l'image"

@@ -27,8 +27,6 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
-
 import java.util.Arrays;
 
 /**
@@ -44,13 +42,13 @@ public class GeneralMenu extends AppCompatActivity {
     BitmapList memory;
     MyBitmap current, bmpTest;
     Bitmap pictureFromGallery;
-    ImageButton gris, sepia, moy, gauss, sobel, laplacien, filtre, ED, teinte, HE;
+    ImageButton original, gris, sepia, invert, moy, sobel, laplacien, filtre, ED, teinte, HE, pencil1, pencil2, pencil3;
     ImageButton top, left, right, bot;
     int[] toCrop;
     int cropdirection;
     Button ppv, couleur, test, ok, cancel, crop;
     HorizontalScrollView filtersBar;
-    RelativeLayout seekbarsInterface, cropInterface, generalMenu;
+    RelativeLayout seekbarsInterface, cropInterface;
 
     SeekBar seekbar1, seekbar2, seekbar3, cropbar;
     TextView textsb1, textsb2, textsb3, valsb1, valsb2, valsb3, textCrop;
@@ -60,7 +58,7 @@ public class GeneralMenu extends AppCompatActivity {
     /**
      * statments of the fingers on the screen
      */
-    float mx, my;
+    float mx, my, curX, curY;
     int touchState;
     final int IDLE = 0;
     final int TOUCH = 1;
@@ -92,14 +90,14 @@ public class GeneralMenu extends AppCompatActivity {
         //Objects displayed in the menu
         img = (ImageView) findViewById(R.id.picture);
         img.setImageBitmap(current.bmp);
-        img.setOnTouchListener(ScrollListener);
+        img.setOnTouchListener(PinchZoomListener);
         Switch toggle = (Switch) findViewById(R.id.zoomswitch);
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     img.setOnTouchListener(PinchZoomListener);
                 } else {
-                    img.setOnTouchListener(ScrollListener); {
+                    img.setOnTouchListener(PinchZoomListener); {
                 }
             }
         }});
@@ -118,15 +116,23 @@ public class GeneralMenu extends AppCompatActivity {
         touchState = IDLE;
 
         //Sets buttons
+        original = (ImageButton) findViewById(R.id.original);
+        original.setOnClickListener(blistener);
+
+        gris = (ImageButton) findViewById(R.id.gray);
+        gris.setOnClickListener(blistener);
+
+        sepia = (ImageButton) findViewById(R.id.sepia);
+        sepia.setOnClickListener(blistener);
+
+        invert = (ImageButton) findViewById(R.id.invert);
+        invert.setOnClickListener(blistener);
 
         teinte = (ImageButton) findViewById(R.id.teinte);
         teinte.setOnClickListener(blistener);
 
         ppv = (Button) findViewById(R.id.ppv);
         ppv.setOnClickListener(blistener);
-
-        gris = (ImageButton) findViewById(R.id.gray);
-        gris.setOnClickListener(blistener);
 
         couleur = (Button) findViewById(R.id.color);
         couleur.setOnClickListener(blistener);
@@ -140,20 +146,23 @@ public class GeneralMenu extends AppCompatActivity {
         HE = (ImageButton) findViewById(R.id.HE);
         HE.setOnClickListener(blistener);
 
-        sepia = (ImageButton) findViewById(R.id.sepia);
-        sepia.setOnClickListener(blistener);
-
         moy = (ImageButton) findViewById(R.id.moy);
         moy.setOnClickListener(blistener);
-
-        gauss = (ImageButton) findViewById(R.id.gauss);
-        gauss.setOnClickListener(blistener);
 
         sobel = (ImageButton) findViewById(R.id.sobel);
         sobel.setOnClickListener(blistener);
 
         laplacien = (ImageButton) findViewById(R.id.laplacien);
         laplacien.setOnClickListener(blistener);
+
+        pencil1 = (ImageButton) findViewById(R.id.pencil1);
+        pencil1.setOnClickListener(blistener);
+
+        pencil2 = (ImageButton) findViewById(R.id.pencil2);
+        pencil2.setOnClickListener(blistener);
+
+        pencil3 = (ImageButton) findViewById(R.id.pencil3);
+        pencil3.setOnClickListener(blistener);
 
         test = (Button) findViewById(R.id.test);
         test.setOnClickListener(blistener);
@@ -245,6 +254,15 @@ public class GeneralMenu extends AppCompatActivity {
             switch (v.getId()) {
                 //Gets to chosen activity when clicking a button
 
+                case R.id.original:
+                    if (current.filter != 0) {
+                        pictureFromGallery = PhotoLoading.scaleImage();
+                        current = new MyBitmap(pictureFromGallery.copy(Bitmap.Config.ARGB_8888, true), 0);
+                        memory.setNext(current);
+                        img.setImageBitmap(current.bmp);
+                    }
+                    break;
+
                 case R.id.gray:
                     if (current.filter != 1) {
                         current = current.toGray();
@@ -261,29 +279,35 @@ public class GeneralMenu extends AppCompatActivity {
                     }
                     break;
 
+                case R.id.invert:
+                    current = current.inverted();
+                    memory.setNext(current);
+                    img.setImageBitmap(current.bmp);
+                    break;
+
                 case R.id.moy:
                     AlertDialog.Builder moyDialog = new AlertDialog.Builder(GeneralMenu.this);
-                    moyDialog.setTitle("Filtre moyenneur");
+                    moyDialog.setTitle("Flou");
                     final EditText input = new EditText(GeneralMenu.this);
                     input.setInputType(InputType.TYPE_CLASS_TEXT);
                     moyDialog.setView(input);
-                    moyDialog.setMessage("Entrez le paramètre du filtre moyenneur. Il doit être impair et au moins égal à 3. Un paramètre trop grand entraînera un ralentissement ou un échec.")
-                            .setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+                    moyDialog.setMessage("Flou moyenneur ou flou gaussien? Entrez le paramètre du filtre moyenneur si vous le choisissez. Il doit être impair et au moins égal à 3. Un paramètre trop grand entraînera un ralentissement ou un échec.")
+                            .setNeutralButton("Annuler", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.cancel();
                                 }
                             })
-                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            .setNegativeButton("Moyenneur", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     int param = Integer.valueOf(input.getText().toString());
                                     if ((param < 3)||(param%2==0)){
-                                        Toast incorrectParameter = Toast.makeText(getApplicationContext(), "Le paramètre du filtre moyenneur doit être impair et au moins égal à 3.", Toast.LENGTH_LONG);
+                                        Toast incorrectParameter = Toast.makeText(getApplicationContext(), "Le paramètre du filtre moyenneur doit être impair et au moins égal à 3.", Toast.LENGTH_SHORT);
                                         incorrectParameter.show();
                                     }
                                     else if (param>50){
-                                        Toast tooBigParameter = Toast.makeText(getApplicationContext(), "Le paramètre du filtre moyenneur est trop grand.", Toast.LENGTH_LONG);
+                                        Toast tooBigParameter = Toast.makeText(getApplicationContext(), "Le paramètre du filtre moyenneur est trop grand.", Toast.LENGTH_SHORT);
                                         tooBigParameter.show();
                                     }
                                     else{
@@ -292,15 +316,17 @@ public class GeneralMenu extends AppCompatActivity {
                                         img.setImageBitmap(current.bmp);
                                     }
                                 }
+                            })
+                            .setPositiveButton("Gauss", new DialogInterface.OnClickListener(){
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    current = current.gauss();
+                                    memory.setNext(current);
+                                    img.setImageBitmap(current.bmp);
+                                }
                             });
                     AlertDialog alert = moyDialog.create();
                     alert.show();
-                    break;
-
-                case R.id.gauss:
-                    current = current.gauss();
-                    memory.setNext(current);
-                    img.setImageBitmap(current.bmp);
                     break;
 
                 case R.id.sobel:
@@ -380,6 +406,30 @@ public class GeneralMenu extends AppCompatActivity {
                         memory.setNext(current);
                         img.setImageBitmap(current.bmp);
                     }
+                    break;
+
+                case R.id.pencil1:
+                    if (current.filter != 17) {
+                        current = current.pencilSketch();
+                        memory.setNext(current);
+                        img.setImageBitmap(current.bmp);
+                    }
+                    break;
+
+                case R.id.pencil2:
+                    current = current.laplacien();
+                    current = current.toGray();
+                    current = current.inverted();
+                    memory.setNext(current);
+                    img.setImageBitmap(current.bmp);
+                    break;
+
+                case R.id.pencil3:
+                    current = current.sobel();
+                    current = current.toGray();
+                    current = current.inverted();
+                    memory.setNext(current);
+                    img.setImageBitmap(current.bmp);
                     break;
 
                 case R.id.top:
@@ -519,7 +569,7 @@ public class GeneralMenu extends AppCompatActivity {
                     img.setImageBitmap(current.bmp);
                 }
                 else{
-                    Toast noprevious = Toast.makeText(getApplicationContext(), "Il n'y a pas de changement à annuler ou la mémoire a été effacée", Toast.LENGTH_LONG);
+                    Toast noprevious = Toast.makeText(getApplicationContext(), "Il n'y a pas de changement à annuler ou la mémoire a été effacée", Toast.LENGTH_SHORT);
                     noprevious.show();
                 }
                 return true;
@@ -578,8 +628,6 @@ public class GeneralMenu extends AppCompatActivity {
         @Override
         public boolean onTouch(View arg0, MotionEvent event) {
 
-            float curX, curY;
-
             switch (event.getAction()) {
 
                 case MotionEvent.ACTION_DOWN:
@@ -620,6 +668,12 @@ public class GeneralMenu extends AppCompatActivity {
                     dist0 = (float) Math.sqrt(distx * distx + disty * disty);
                     break;
 
+                case MotionEvent.ACTION_DOWN:
+                    touchState = TOUCH;
+                    mx = event.getX();
+                    my = event.getY();
+                    break;
+
                 // if the fingers move, the distances change and the factor of zoom is displayed
                 case MotionEvent.ACTION_MOVE:
                     if(touchState == PINCH) {
@@ -631,21 +685,36 @@ public class GeneralMenu extends AppCompatActivity {
                             img.setImageBitmap(current.scale(factor));
                         }
                     }
+                    else if (touchState == TOUCH){
+                        touchState = TOUCH;
+                        curX = event.getX();
+                        curY = event.getY();
+                        img.scrollBy((int) (mx - curX), (int) (my - curY));
+                        mx = curX;
+                        my = curY;
+                    }
                     break;
 
                 //if the fingers stop zooming the bitmap, the factor of zoom is displayed
-                case MotionEvent.ACTION_UP:touchState = IDLE;
-                    if (current.filter == 20) {
-                        current = new MyBitmap(current.scale(factor), 20);
+                case MotionEvent.ACTION_UP:
+                    if (touchState == PINCH) {
+                        if (current.filter == 20) {
+                            current = new MyBitmap(current.scale(factor), 20);
+                        } else {
+                            current = new MyBitmap(current.scale(factor), 20);
+                            memory.setNext(current);
+                        }
                     }
-                    else{
-                        current = new MyBitmap(current.scale(factor), 20);
-                        memory.setNext(current);
+                    else if (touchState == TOUCH){
+                        curX = event.getX();
+                        curY = event.getY();
+                        img.scrollBy((int) (mx - curX), (int) (my - curY));
                     }
+                    touchState = IDLE;
                     break;
 
                 //if one finger touches the screen, the factor of zoom is displayed
-                case MotionEvent.ACTION_POINTER_UP:touchState = TOUCH;
+                case MotionEvent.ACTION_POINTER_UP:touchState = IDLE;
                     break;
             }
             return true;

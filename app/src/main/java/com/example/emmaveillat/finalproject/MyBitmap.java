@@ -3,6 +3,8 @@ package com.example.emmaveillat.finalproject;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
+import java.nio.IntBuffer;
+
 public class MyBitmap {
     public Bitmap bmp;
     public int width;
@@ -58,6 +60,24 @@ public class MyBitmap {
         return gray;
     }
 
+    public MyBitmap inverted(){
+        int r, g, b, pixel;
+        int[] pixelsInv = new int[height * width];
+        //Applies the mask on the bitmap depending on its levels of red, blue and green
+        for (int i = 0; i < width * height; i++) {   /* boucles sur tout le tableau de pixels (bitmap initial) */
+            /* Je récupère les valeurs RGB du pixel dans le bitmap initial */
+            pixel = pixels[i];
+            r = 255 - Color.red(pixel);
+            g = 255 - Color.green(pixel);
+            b = 255 - Color.blue(pixel);
+            pixelsInv[i] = Color.rgb(r, g, b);
+        }
+        Bitmap bmpInv = bmp.copy(Bitmap.Config.ARGB_8888, true);
+        bmpInv.setPixels(pixelsInv, 0, width, 0, 0, width, height);
+        MyBitmap inverted = new MyBitmap(bmpInv, 13);
+        return inverted;
+    }
+
     public Bitmap scale(float factor){
         if (factor < 0.1){
             factor = 0.1f;
@@ -71,7 +91,6 @@ public class MyBitmap {
         if (histogram == null){findHistogram();}
         int r, g, lvl;
         int[] pixelsSepia = new int[height * width];
-        MyBitmap gray = this.toGray();
         int depth = 20;
         //Applies the mask on the bitmap depending on its levels of red, blue and green
         for (int i = 0; i < width * height; i++) {   /* boucles sur tout le tableau de pixels (bitmap initial) */
@@ -544,6 +563,66 @@ public class MyBitmap {
         Bitmap bmpCrop = Bitmap.createBitmap(bmp, toCropLeft,toCropUp,newWidth, newHeight);
         MyBitmap crop = new MyBitmap(bmpCrop, filter);
         return crop;
+    }
+
+    private MyBitmap colorDodgeBlend(MyBitmap layer) {
+        Bitmap base = bmp.copy(Bitmap.Config.ARGB_8888, true);
+        Bitmap blend = layer.bmp.copy(Bitmap.Config.ARGB_8888, false);
+
+        IntBuffer buffBase = IntBuffer.allocate(width * height);
+        base.copyPixelsToBuffer(buffBase);
+        buffBase.rewind();
+
+        IntBuffer buffBlend = IntBuffer.allocate(layer.width * layer.height);
+        blend.copyPixelsToBuffer(buffBlend);
+        buffBlend.rewind();
+
+        IntBuffer buffOut = IntBuffer.allocate(width * height);
+        buffOut.rewind();
+
+        while (buffOut.position() < buffOut.limit()) {
+
+            int filterInt = buffBlend.get();
+            int srcInt = buffBase.get();
+
+            int redValueFilter = Color.red(filterInt);
+            int greenValueFilter = Color.green(filterInt);
+            int blueValueFilter = Color.blue(filterInt);
+
+            int redValueSrc = Color.red(srcInt);
+            int greenValueSrc = Color.green(srcInt);
+            int blueValueSrc = Color.blue(srcInt);
+
+            int redValueFinal = colordodge(redValueFilter, redValueSrc);
+            int greenValueFinal = colordodge(greenValueFilter, greenValueSrc);
+            int blueValueFinal = colordodge(blueValueFilter, blueValueSrc);
+
+
+            int pixel = Color.argb(255, redValueFinal, greenValueFinal, blueValueFinal);
+
+
+            buffOut.put(pixel);
+        }
+
+        buffOut.rewind();
+
+        base.copyPixelsFromBuffer(buffOut);
+        blend.recycle();
+
+        return new MyBitmap(base, 17);
+    }
+
+    private int colordodge(int in1, int in2) {
+        float image = (float)in2;
+        float mask = (float)in1;
+        return ((int) ((image == 255) ? image:Math.min(255, (((long)mask << 8 ) / (255 - image)))));
+    }
+
+    public MyBitmap pencilSketch(){
+        MyBitmap gray = toGray();
+        MyBitmap inverted = gray.inverted();
+        MyBitmap gauss = inverted.gauss();
+        return gray.colorDodgeBlend(gauss);
     }
 
 }
