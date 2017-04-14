@@ -325,20 +325,28 @@
     </ImageView>
 
     <ImageButton
-        android:id="@+id/zoom"
+        android:id="@+id/finger"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:background="@android:drawable/ic_menu_zoom"/>
+        android:background="@mipmap/ic_fingerprint_black_24_dp"/>
 
     <Switch
         android:id="@+id/zoomswitch"
         android:layout_width="wrap_content"
         android:layout_height="35dip"
-        android:layout_toLeftOf="@id/zoom"
-        android:layout_toStartOf="@id/zoom"/>
+        android:layout_toLeftOf="@id/finger"
+        android:layout_toStartOf="@id/finger"/>
+
+    <ImageButton
+        android:id="@+id/zoom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/zoomswitch"
+        android:layout_toStartOf="@id/zoomswitch"
+        android:background="@android:drawable/ic_menu_zoom"/>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
