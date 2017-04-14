@@ -22,6 +22,8 @@ import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -312,7 +314,7 @@ public class GeneralMenu extends AppCompatActivity {
                                     }
                                     else{
                                         current = current.moyenne(param);
-                                        memory.setNext(current);;
+                                        memory.setNext(current);
                                         img.setImageBitmap(current.bmp);
                                     }
                                 }
@@ -353,11 +355,6 @@ public class GeneralMenu extends AppCompatActivity {
                     textsb1.setText("Teinte");
                     seekbarToColor = 1;
                     filterToUse = 2;
-                    break;
-
-                case R.id.ppv:
-                    Intent fifth = new Intent(GeneralMenu.this, ZoomMenu.class);
-                    startActivity(fifth);
                     break;
 
                 case R.id.ED:
@@ -617,6 +614,79 @@ public class GeneralMenu extends AppCompatActivity {
                 Arrays.fill(toCrop, 0);
                 cropdirection = 0;
                 break;
+
+            case R.id.ppv:
+                AlertDialog.Builder deformDialog = new AlertDialog.Builder(GeneralMenu.this);
+                deformDialog.setTitle("Changer les dimensions");
+
+                // A SUPPRIMER
+                final EditText input = new EditText(GeneralMenu.this);
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+
+                LinearLayout layout = new LinearLayout(GeneralMenu.this);
+                layout.setOrientation(LinearLayout.VERTICAL);
+
+                TextView widthText = new TextView(GeneralMenu.this);
+                widthText.setText("Largeur");
+                layout.addView(widthText);
+
+                final EditText widthBox = new EditText(GeneralMenu.this);
+                widthBox.setHint("Largeur");
+                widthBox.setText(String.valueOf(current.width));
+                layout.addView(widthBox);
+
+                TextView heightText = new TextView(GeneralMenu.this);
+                heightText.setText("Hauteur");
+                layout.addView(heightText);
+
+                final EditText heightBox = new EditText(GeneralMenu.this);
+                heightBox.setHint("Hauteur");
+                heightBox.setText(String.valueOf(current.height));
+                layout.addView(heightBox);
+
+                Button dimensions = new Button(GeneralMenu.this);
+                dimensions.setText("Garder rapport");
+                dimensions.setId(R.id.dimButton);
+                dimensions.setTextAppearance(GeneralMenu.this, android.R.style.TextAppearance_Small);
+                dimensions.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        switch (v.getId()) {
+                            case (R.id.dimButton):
+                                float factor;
+                                int newWidth = (Integer.valueOf(widthBox.getText().toString()));
+                                int newHeight = (Integer.valueOf(heightBox.getText().toString()));
+                                if (newWidth != current.width) {
+                                    newHeight = current.height * newWidth / current.width;
+                                    heightBox.setText(String.valueOf(newHeight));
+                                } else if (newHeight != current.width) {
+                                    newWidth = current.width * newHeight / current.height;
+                                    widthBox.setText(String.valueOf(newWidth));
+                                }
+                        }
+                    }
+                });
+                layout.addView(dimensions);
+
+                deformDialog.setView(layout)
+                        .setNeutralButton("Annuler", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        })
+                        .setPositiveButton("Appliquer", new DialogInterface.OnClickListener(){
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                int newWidth = (Integer.valueOf(widthBox.getText().toString()));
+                                int newHeight = (Integer.valueOf(heightBox.getText().toString()));
+                                current = current.closestNeighbor(newWidth, newHeight);
+                                memory.setNext(current);
+                                img.setImageBitmap(current.bmp);
+                            }
+                        });
+                AlertDialog alert = deformDialog.create();
+                alert.show();
 
             default:
                 return super.onOptionsItemSelected(item);

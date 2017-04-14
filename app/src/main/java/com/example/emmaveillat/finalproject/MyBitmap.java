@@ -565,6 +565,8 @@ public class MyBitmap {
         return crop;
     }
 
+
+    // Code de Pratik sur stackoverflow.com
     private MyBitmap colorDodgeBlend(MyBitmap layer) {
         Bitmap base = bmp.copy(Bitmap.Config.ARGB_8888, true);
         Bitmap blend = layer.bmp.copy(Bitmap.Config.ARGB_8888, false);
@@ -623,6 +625,21 @@ public class MyBitmap {
         MyBitmap inverted = gray.inverted();
         MyBitmap gauss = inverted.gauss();
         return gray.colorDodgeBlend(gauss);
+    }
+
+    public MyBitmap closestNeighbor(int newWidth, int newHeight){
+        float factX = (float) newWidth/width;
+        float factY = (float) newHeight/height;
+
+        int[] pixelsCN = new int [newWidth*newHeight];
+        for (int x = 0; x < newWidth; x++) {
+            for (int y = 0; y < newHeight; y++) {
+                pixelsCN[y * newWidth + x] = pixels[(int)(y / factY) * width + (int)(x / factX)];
+            }
+        }
+        Bitmap bmpCN = Bitmap.createBitmap(pixelsCN, newWidth, newHeight, Bitmap.Config.ARGB_8888);
+        MyBitmap cn = new MyBitmap(bmpCN, 19);
+        return cn;
     }
 
 }
