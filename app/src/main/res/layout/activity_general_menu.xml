@@ -286,17 +286,29 @@
                     android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="wrap_content">
+
+                <ImageButton
+                    android:layout_width="80dip"
+                    android:layout_height="80dip"
+                    android:id="@+id/cartoon"
+                    android:background="@drawable/cartoon"/>
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="80dip"
+                    android:text="Cartoon"
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:gravity="center"/>
+            </LinearLayout>
+
             <Button
                 android:text="HSV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/color" />
-
-            <Button
-                android:text="Déformer l'image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/ppv"/>
         </LinearLayout>
 
     </HorizontalScrollView>

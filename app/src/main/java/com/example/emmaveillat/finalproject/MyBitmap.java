@@ -1,9 +1,12 @@
 package com.example.emmaveillat.finalproject;
 
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
 
 import java.nio.IntBuffer;
+import java.util.Arrays;
 
 public class MyBitmap {
     public Bitmap bmp;
@@ -13,6 +16,8 @@ public class MyBitmap {
     public int filter;
     public int[] histogram = null;
     public int[] valMap = null;
+    public int[] borders = null;
+    public int[] mapSobel = null;
 
     public MyBitmap(Bitmap bitmap, int filt){
         bmp = bitmap;
@@ -436,6 +441,9 @@ public class MyBitmap {
         if (filterToUse == 2){
             return filterHue(v1);
         }
+        if (filterToUse == 3){
+            return cartoonBorders(1F - (float) v1/100);
+        }
         return null;
     }
 
@@ -640,6 +648,124 @@ public class MyBitmap {
         Bitmap bmpCN = Bitmap.createBitmap(pixelsCN, newWidth, newHeight, Bitmap.Config.ARGB_8888);
         MyBitmap cn = new MyBitmap(bmpCN, 19);
         return cn;
+    }
+
+    private void findAreaColor(int x, int y, int width, int height, int[] sumRGB){
+        int index = y*width+x;
+        borders[index]=1;
+        int pixel = pixels[index];
+        sumRGB[0] += Color.red(pixel);
+        sumRGB[1] += Color.green(pixel);
+        sumRGB[2] += Color.blue(pixel);
+        sumRGB[3] ++;
+        if ((x>0) && (borders[index-1]==0)){findAreaColor(x-1, y, width, height, sumRGB);}
+        if ((x<width-1)&&(borders[index+1]==0)){findAreaColor(x+1, y, width, height, sumRGB);}
+        if ((y>0)&&(borders[index-width]==0)){findAreaColor(x, y-1, width, height, sumRGB);}
+        if ((y<height-1)&&(borders[index+width]==0)){findAreaColor(x, y+1, width, height, sumRGB);}
+    }
+
+    private void paintArea(int x, int y, int width, int height, int color){
+        if (borders[y*width + x]==1){
+            pixels[y*width+x] = color;
+            borders[y*width + x] = 2;
+            if ((x>0)){paintArea(x-1, y, width, height, color);}
+            if (x<width-1){paintArea(x+1, y, width, height, color);}
+            if (y>0){paintArea(x, y-1, width, height, color);}
+            if (y<height-1){paintArea(x, y+1, width, height, color);}
+        }
+    }
+
+    private int[] sobelForCartoon() {
+        int r, g, b;
+        //applicates convolution with hx et hy matrix
+        int[][] hx = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+        int[][] Gx = convolutionBorders(hx);
+
+        int[][] hy = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+        int[][] Gy = convolutionBorders(hy);
+
+        int[] map = new int[width * height];
+
+        for (int i = 0; i < height * width; i++) {
+            r = (int) Math.sqrt(Math.pow(Gx[i][0], 2) + Math.pow(Gy[i][0], 2));
+            g = (int) Math.sqrt(Math.pow(Gx[i][1], 2) + Math.pow(Gy[i][1], 2));
+            b = (int) Math.sqrt(Math.pow(Gx[i][2], 2) + Math.pow(Gy[i][2], 2));
+
+            if (r < 0) {
+                r = 0;
+            } else if (r > 255) {
+                r = 255;
+            }
+
+            if (g < 0) {
+                g = 0;
+            } else if (g > 255) {
+                g = 255;
+            }
+
+            if (b < 0) {
+                b = 0;
+            } else if (b > 255) {
+                b = 255;
+            }
+            map[i] = Color.rgb(r, g, b);
+        }
+        return map;
+    }
+
+    public MyBitmap cartoon() {
+        borders = new int[width * height];
+        mapSobel = this.sobelForCartoon();
+        int pixel, r, g, b;
+        //Fills mapBorders with -1 at borders
+        for (int i = 0; i < width * height; i++) {
+            pixel = mapSobel[i];
+            r = Color.red(pixel);
+            g = Color.green(pixel);
+            b = Color.blue(pixel);
+            if (r + b + g > 50) {
+                borders[i] = -1;
+            }
+        }
+        int color;
+        int[] sumRGB = new int[4];
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (borders[y * width + x] == 0) {
+                    Arrays.fill(sumRGB, 0);
+                    findAreaColor(x, y, width, height, sumRGB);
+                    r = sumRGB[0] / sumRGB[3];
+                    g = sumRGB[1] / sumRGB[3];
+                    b = sumRGB[2] / sumRGB[3];
+                    color = Color.rgb(r, g, b);
+                    paintArea(x, y, width, height, color);
+                }
+            }
+        }
+        Bitmap bmpCartoon = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888);
+        MyBitmap cartoon = new MyBitmap(bmpCartoon, 14);
+        cartoon.borders = this.borders.clone();
+        cartoon.mapSobel = this.mapSobel.clone();
+        return cartoon;
+    }
+
+    public MyBitmap cartoonBorders(float lvl){
+        float[] hsv = new float[3];
+        int[] pixelsCartoon = pixels.clone();
+        for (int i = 0; i < width * height; i++) {
+            if (borders[i] == -1) {
+                Color.colorToHSV(mapSobel[i], hsv);
+                if (hsv[2] > lvl) {
+                    int v = (int) (100 * (1 - hsv[2]));
+                    pixelsCartoon[i] = Color.rgb(v, v, v);
+                }
+            }
+        }
+        Bitmap bmpCartoon = Bitmap.createBitmap(pixelsCartoon, width, height, Bitmap.Config.ARGB_8888);
+        MyBitmap cartoon = new MyBitmap(bmpCartoon, 14);
+        cartoon.borders = this.borders.clone();
+        cartoon.mapSobel = this.mapSobel.clone();
+        return cartoon;
     }
 
 }

@@ -45,11 +45,11 @@ public class GeneralMenu extends AppCompatActivity {
     BitmapList memory;
     MyBitmap current, bmpTest;
     Bitmap pictureFromGallery;
-    ImageButton original, gris, sepia, invert, moy, sobel, laplacien, filtre, ED, teinte, HE, pencil1, pencil2, pencil3;
+    ImageButton original, gris, sepia, invert, moy, sobel, laplacien, filtre, ED, teinte, HE, pencil1, pencil2, pencil3, cartoon;
     ImageButton top, left, right, bot;
     int[] toCrop;
     int cropdirection;
-    Button ppv, couleur, test, ok, cancel, crop;
+    Button couleur, test, ok, cancel, crop;
     HorizontalScrollView filtersBar;
     RelativeLayout seekbarsInterface, cropInterface;
     ImageView colorviewleft, colorviewmid, colorviewright;
@@ -142,9 +142,6 @@ public class GeneralMenu extends AppCompatActivity {
         teinte = (ImageButton) findViewById(R.id.teinte);
         teinte.setOnClickListener(blistener);
 
-        ppv = (Button) findViewById(R.id.ppv);
-        ppv.setOnClickListener(blistener);
-
         couleur = (Button) findViewById(R.id.color);
         couleur.setOnClickListener(blistener);
 
@@ -174,6 +171,9 @@ public class GeneralMenu extends AppCompatActivity {
 
         pencil3 = (ImageButton) findViewById(R.id.pencil3);
         pencil3.setOnClickListener(blistener);
+
+        cartoon = (ImageButton) findViewById(R.id.cartoon);
+        cartoon.setOnClickListener(blistener);
 
         test = (Button) findViewById(R.id.test);
         test.setOnClickListener(blistener);
@@ -329,22 +329,20 @@ public class GeneralMenu extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     int param = Integer.valueOf(input.getText().toString());
-                                    if ((param < 3)||(param%2==0)){
+                                    if ((param < 3) || (param % 2 == 0)) {
                                         Toast incorrectParameter = Toast.makeText(getApplicationContext(), "Le paramètre du filtre moyenneur doit être impair et au moins égal à 3.", Toast.LENGTH_SHORT);
                                         incorrectParameter.show();
-                                    }
-                                    else if (param>50){
+                                    } else if (param > 50) {
                                         Toast tooBigParameter = Toast.makeText(getApplicationContext(), "Le paramètre du filtre moyenneur est trop grand.", Toast.LENGTH_SHORT);
                                         tooBigParameter.show();
-                                    }
-                                    else{
+                                    } else {
                                         current = current.moyenne(param);
                                         memory.setNext(current);
                                         img.setImageBitmap(current.bmp);
                                     }
                                 }
                             })
-                            .setPositiveButton("Gauss", new DialogInterface.OnClickListener(){
+                            .setPositiveButton("Gauss", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     current = current.gauss();
@@ -460,6 +458,33 @@ public class GeneralMenu extends AppCompatActivity {
                     img.setImageBitmap(current.bmp);
                     break;
 
+                case R.id.cartoon:
+                    try {
+                        current = current.cartoon();
+                        img.setImageBitmap(current.bmp);
+                        setSeekbars(1);
+                        seekbar1.setProgress(0);
+                        seekbar1.setMax(100);
+                        textsb1.setText(null);
+                        filterToUse = 3;
+                        seekbar1.setOnSeekBarChangeListener(cartoonbarlistener);
+                    } catch (StackOverflowError e) {
+                        AlertDialog.Builder reducedialog = new AlertDialog.Builder(GeneralMenu.this);
+                        reducedialog.setTitle("Échec")
+                                .setMessage("Il se peut que la qualité de l'image soit trop élevée. Réduisez la qualité via l'outil DÉFORMER")
+                                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                        AlertDialog reducealert = reducedialog.create();
+                        reducealert.show();
+                    }
+                    break;
+
+
                 case R.id.top:
                     cropdirection = 0;
                     cropbar.setProgress(toCrop[0]);
@@ -559,6 +584,24 @@ public class GeneralMenu extends AppCompatActivity {
         public void onStopTrackingTouch(SeekBar seekBar) {
             editText();
             editGapColor();
+        }
+    };
+
+    SeekBar.OnSeekBarChangeListener cartoonbarlistener = new SeekBar.OnSeekBarChangeListener() {
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            editText();
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            editText();
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            editText();
         }
     };
 
@@ -799,45 +842,15 @@ public class GeneralMenu extends AppCompatActivity {
         return true;
     }
 
-    View.OnTouchListener ScrollListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View arg0, MotionEvent event) {
-
-            switch (event.getAction()) {
-
-                case MotionEvent.ACTION_DOWN:
-                    touchState = TOUCH;
-                    mx = event.getX();
-                    my = event.getY();
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    touchState = TOUCH;
-                    curX = event.getX();
-                    curY = event.getY();
-                    img.scrollBy((int) (mx - curX), (int) (my - curY));
-                    mx = curX;
-                    my = curY;
-                    break;
-                case MotionEvent.ACTION_UP:
-                    touchState = TOUCH;
-                    curX = event.getX();
-                    curY = event.getY();
-                    img.scrollBy((int) (mx - curX), (int) (my - curY));
-                    break;
-            }
-            return true;
-        }
-    };
-
     View.OnTouchListener PinchZoomListener = new View.OnTouchListener(){
         @Override
         public boolean onTouch(View view, MotionEvent event) {
-            // TODO Auto-generated method stub
             float distx, disty;
             switch(event.getAction() & MotionEvent.ACTION_MASK) {
 
                 //if the fingers pinch the bitmap, the distances change and the factor of zoom is displayed
-                case MotionEvent.ACTION_POINTER_DOWN:touchState = PINCH;
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    touchState = PINCH;
                     distx = event.getX(0) - event.getX(1);
                     disty = event.getY(0) - event.getY(1);
                     dist0 = (float) Math.sqrt(distx * distx + disty * disty);
@@ -851,7 +864,7 @@ public class GeneralMenu extends AppCompatActivity {
 
                 // if the fingers move, the distances change and the factor of zoom is displayed
                 case MotionEvent.ACTION_MOVE:
-                    if(touchState == PINCH) {
+                    if (touchState == PINCH) {
                         if (event.getPointerCount() >= 2) {
                             distx = event.getX(0) - event.getX(1);
                             disty = event.getY(0) - event.getY(1);
@@ -859,8 +872,7 @@ public class GeneralMenu extends AppCompatActivity {
                             factor = distCurrent / dist0;
                             img.setImageBitmap(current.scale(factor));
                         }
-                    }
-                    else if (touchState == TOUCH){
+                    } else if (touchState == TOUCH) {
                         touchState = TOUCH;
                         curX = event.getX();
                         curY = event.getY();
@@ -872,15 +884,7 @@ public class GeneralMenu extends AppCompatActivity {
 
                 //if the fingers stop zooming the bitmap, the factor of zoom is displayed
                 case MotionEvent.ACTION_UP:
-                    if (touchState == PINCH) {
-                        if (current.filter == 20) {
-                            current = new MyBitmap(current.scale(factor), 20);
-                        } else {
-                            current = new MyBitmap(current.scale(factor), 20);
-                            memory.setNext(current);
-                        }
-                    }
-                    else if (touchState == TOUCH){
+                    if (touchState == TOUCH) {
                         curX = event.getX();
                         curY = event.getY();
                         img.scrollBy((int) (mx - curX), (int) (my - curY));
@@ -890,6 +894,12 @@ public class GeneralMenu extends AppCompatActivity {
 
                 //if one finger touches the screen, the factor of zoom is displayed
                 case MotionEvent.ACTION_POINTER_UP:touchState = IDLE;
+                    if (current.filter == 20) {
+                        current = new MyBitmap(current.scale(factor), 20);
+                    } else {
+                        current = new MyBitmap(current.scale(factor), 20);
+                        memory.setNext(current);
+                    }
                     break;
             }
             return true;
