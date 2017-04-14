@@ -44,6 +44,7 @@ public class GeneralMenu extends AppCompatActivity {
 
     BitmapList memory;
     MyBitmap current, bmpTest;
+    MyBitmap toApplyFinger;
     Bitmap pictureFromGallery;
     ImageButton original, gris, sepia, invert, moy, sobel, laplacien, filtre, ED, teinte, HE, pencil1, pencil2, pencil3, cartoon;
     ImageButton top, left, right, bot;
@@ -63,6 +64,7 @@ public class GeneralMenu extends AppCompatActivity {
      * statments of the fingers on the screen
      */
     float mx, my, curX, curY;
+    int startX, startY, endX, endY;
     int touchState;
     final int IDLE = 0;
     final int TOUCH = 1;
@@ -95,16 +97,28 @@ public class GeneralMenu extends AppCompatActivity {
         img = (ImageView) findViewById(R.id.picture);
         img.setImageBitmap(current.bmp);
         img.setOnTouchListener(PinchZoomListener);
-        Switch toggle = (Switch) findViewById(R.id.zoomswitch);
+        final Switch toggle = (Switch) findViewById(R.id.zoomswitch);
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    img.setOnTouchListener(PinchZoomListener);
+                    if (memory.current == 0){
+                        Toast noFilter = Toast.makeText(getApplicationContext(), "Veuillez choisir un filtre.", Toast.LENGTH_SHORT);
+                        noFilter.show();
+                        toggle.setChecked(false);
+                    }
+                    else {
+                        toApplyFinger = current.copy();
+                        current = memory.getPrevious();
+                        img.setImageBitmap(current.bmp);
+                        img.setOnTouchListener(ApplyWithFingerListener);
+                    }
+
                 } else {
                     img.setOnTouchListener(PinchZoomListener); {
                 }
             }
         }});
+        toggle.setChecked(false);
 
         filtersBar = (HorizontalScrollView) findViewById(R.id.filterscrollview);
         seekbarsInterface = (RelativeLayout) findViewById(R.id.seekbars_interface);
@@ -901,6 +915,41 @@ public class GeneralMenu extends AppCompatActivity {
                         memory.setNext(current);
                     }
                     break;
+            }
+            return true;
+        }
+
+    };
+
+    View.OnTouchListener ApplyWithFingerListener = new View.OnTouchListener(){
+        @Override
+        public boolean onTouch(View view, MotionEvent event) {
+            int[] viewCoords = new int[2];
+            img.getLocationOnScreen(viewCoords);
+            int touchX, touchY;
+
+            switch(event.getAction() & MotionEvent.ACTION_MASK) {
+
+                case MotionEvent.ACTION_DOWN:
+                    touchX = (int) event.getX();
+                    touchY = (int) event.getY();
+
+                    startX = touchX - viewCoords[0];
+                    startY = touchY - viewCoords[1];
+                    break;
+
+                case MotionEvent.ACTION_UP:
+                    touchX = (int) event.getX();
+                    touchY = (int) event.getY();
+
+                    endX = touchX - viewCoords[0];
+                    endY = touchY - viewCoords[1];
+
+                    current = current.fingerApply(toApplyFinger, startX, startY, endX, endY);
+                    memory.setNext(current);
+                    img.setImageBitmap(current.bmp);
+                    break;
+
             }
             return true;
         }

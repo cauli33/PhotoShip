@@ -768,4 +768,56 @@ public class MyBitmap {
         return cartoon;
     }
 
+    public MyBitmap fingerApply(MyBitmap toApply, int startX, int startY, int endX, int endY){
+        if (startX < endX){
+            return fingerApply(toApply, endX, endY, startX, startY);
+        }
+        int range = Math.min(width,height)/10;
+        int[] pixelsFinger = pixels.clone();
+        int x = startX;
+        int y = startY;
+        int startI, startJ;
+        if (endX == startX){
+            if (x<range){
+                startI = x - range;
+            }
+            else{startI = -range;}
+            if (y<range){
+                startJ = y - range;
+            }
+            else{startJ = -range;}
+            for (int i=startI; i<Math.min(range,width - x); i++){
+                for (int j=startJ; j<Math.min(range, height - y); j++){
+                    pixelsFinger[(y+j) * width + (x+i)] = toApply.pixels[(y+j) * width + (x+i)];
+                }
+            }
+        }
+        else {
+            int step = (endY - startY) * range / (endX - startX);
+            int maxX = Math.min(width, endX);
+            boolean resume = true;
+            while (x < maxX) {
+                if (x < range) {
+                    startI = x - range;
+                } else {
+                    startI = -range;
+                }
+                if (y < range) {
+                    startJ = y - range;
+                } else {
+                    startJ = -range;
+                }
+                for (int i = startI; i < Math.min(range, width - x); i++) {
+                    for (int j = startJ; j < Math.min(range, height - y); j++) {
+                        pixelsFinger[(y + j) * width + (x + i)] = toApply.pixels[(y + j) * width + (x + i)];
+                    }
+                }
+                x += range;
+                y += step;
+            }
+        }
+        Bitmap bmpFinger = Bitmap.createBitmap(pixelsFinger, width, height, Bitmap.Config.ARGB_8888);
+        MyBitmap finger = new MyBitmap(bmpFinger, 18);
+        return finger;
+    }
 }

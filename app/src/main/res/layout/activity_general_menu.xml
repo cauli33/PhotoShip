@@ -331,7 +331,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:background="@mipmap/ic_fingerprint_black_24_dp"/>
+        android:layout_marginTop="5dip"
+        android:background="@mipmap/ic_fingerprint"/>
 
     <Switch
         android:id="@+id/zoomswitch"
@@ -346,6 +347,7 @@
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@id/zoomswitch"
         android:layout_toStartOf="@id/zoomswitch"
+        android:layout_marginTop="2dip"
         android:background="@android:drawable/ic_menu_zoom"/>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
