@@ -195,7 +195,7 @@ public class MyBitmap {
                 pixelsFlip[(y+1) * width - x - 1] = pixels[y * width + x];
             }
         }
-        Bitmap bmpFliplr = Bitmap.createBitmap(pixelsFlip, height, width, Bitmap.Config.ARGB_8888);
+        Bitmap bmpFliplr = Bitmap.createBitmap(pixelsFlip, width, height, Bitmap.Config.ARGB_8888);
         MyBitmap fliplr = new MyBitmap(bmpFliplr, filter);
         return fliplr;
     }
@@ -207,7 +207,7 @@ public class MyBitmap {
                 pixelsFlip[(height - y - 1) * width + x] = pixels[y * width + x];
             }
         }
-        Bitmap bmpFlipud = Bitmap.createBitmap(pixelsFlip, height, width, Bitmap.Config.ARGB_8888);
+        Bitmap bmpFlipud = Bitmap.createBitmap(pixelsFlip, width, height, Bitmap.Config.ARGB_8888);
         MyBitmap flipud = new MyBitmap(bmpFlipud, filter);
         return flipud;
     }
