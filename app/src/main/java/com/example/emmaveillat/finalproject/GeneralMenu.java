@@ -475,6 +475,7 @@ public class GeneralMenu extends AppCompatActivity {
                 case R.id.cartoon:
                     try {
                         current = current.cartoon();
+                        memory.setNext(current);
                         img.setImageBitmap(current.bmp);
                         setSeekbars(1);
                         seekbar1.setProgress(0);
