@@ -16,8 +16,8 @@ public class MonBitmap {
     public int[] valMap = null;
     public int[] borders = null;
     public int[] mapSobel = null;
-    public int[] basicColors = null;
-    public int[] colors = null;
+    //public int[] basicColors = null;
+    //public int[] colors = null;
 
     public MonBitmap(Bitmap bitmap, int filt){
         bmp = bitmap;
@@ -444,6 +444,9 @@ public class MonBitmap {
         if (filterToUse == 3){
             return cartoonBorders(1F - (float)v1/100F);
         }
+        if (filterToUse == 4){
+            return changeHSV(v1, v2, v3);
+        }
         return null;
     }
 
@@ -522,6 +525,38 @@ public class MonBitmap {
             int pixel = pixels[i];
             Color.colorToHSV(pixel, pixelHSV);
             pixelHSV[0] = hue;
+            pixelsFilter[i] = Color.HSVToColor(pixelHSV);
+        }
+        Bitmap bmpFilter = Bitmap.createBitmap(pixelsFilter, width, height, Bitmap.Config.ARGB_8888);
+        MonBitmap filter = new MonBitmap(bmpFilter, 11);
+        return filter;
+    }
+
+    public MonBitmap changeHSV(int hue, int sat, int val){
+        int[] pixelsFilter = new int[width * height];
+        float[] pixelHSV = new float[3];
+        for (int i = 0; i < width*height; ++i) {
+            int pixel = pixels[i];
+            Color.colorToHSV(pixel, pixelHSV);
+            pixelHSV[0] = pixelHSV[0] + hue;
+            if (pixelHSV[0] < 0.0f) {
+                pixelHSV[0] += 360.0f;
+            } else if (pixelHSV[0] > 360.0f) {
+                pixelHSV[0] -= 360.0f;
+            }
+
+            pixelHSV[1] = pixelHSV[1] + sat;
+            if (pixelHSV[1] < 0.0f) {
+                pixelHSV[1] += 1.0f;
+            } else if (pixelHSV[1] > 1.0f) {
+                pixelHSV[1] -= 1.0f;
+            }
+             pixelHSV[2] = pixelHSV[2] + val;
+            if (pixelHSV[2] < 0.0f) {
+                pixelHSV[2] += 1.0f;
+            } else if (pixelHSV[2] > 1.0f) {
+                pixelHSV[2] -= 1.0f;
+            }
             pixelsFilter[i] = Color.HSVToColor(pixelHSV);
         }
         Bitmap bmpFilter = Bitmap.createBitmap(pixelsFilter, width, height, Bitmap.Config.ARGB_8888);

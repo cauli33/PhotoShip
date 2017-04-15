@@ -43,11 +43,11 @@ public class MenuGeneral extends AppCompatActivity {
     MonBitmap current, bmpTest;
     MonBitmap toApplyFinger;
     Bitmap pictureFromGallery;
-    ImageButton original, gris, sepia, invert, moy, sobel, laplacien, filtre, ED, teinte, HE, pencil1, pencil2, pencil3, cartoon;
+    ImageButton original, gris, sepia, invert, moy, sobel, laplacien, filtre, ED, teinte, HE, pencil1, pencil2, pencil3, cartoon, color;
     ImageButton top, left, right, bot;
     int[] toCrop;
     int cropdirection;
-    Button couleur, test, ok, cancel, crop;
+    Button test, ok, cancel, crop;
     HorizontalScrollView filtersBar;
     RelativeLayout seekbarsInterface, cropInterface;
     ImageView colorviewleft, colorviewmid, colorviewright;
@@ -55,7 +55,7 @@ public class MenuGeneral extends AppCompatActivity {
     SeekBar seekbar1, seekbar2, seekbar3, cropbar;
     TextView textsb1, textsb2, textsb3, valsb1, valsb2, valsb3, textCrop;
 
-    int filterToUse, seekbarsDisplayed, huebar, gapbar, val1, val2, val3;
+    int filterToUse, seekbarsDisplayed, huebar, satbar, valbar, gapbar, val1, val2, val3;
 
     /**
      * statments of the fingers on the screen
@@ -75,13 +75,13 @@ public class MenuGeneral extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
+        //TODO what ?
         inflater.inflate(R.menu.general_menu, menu);
         return true;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu_general);
@@ -153,8 +153,8 @@ public class MenuGeneral extends AppCompatActivity {
         teinte = (ImageButton) findViewById(R.id.teinte);
         teinte.setOnClickListener(blistener);
 
-        couleur = (Button) findViewById(R.id.color);
-        couleur.setOnClickListener(blistener);
+        color = (ImageButton) findViewById(R.id.color);
+        color.setOnClickListener(blistener);
 
         filtre = (ImageButton) findViewById(R.id.filtre);
         filtre.setOnClickListener(blistener);
@@ -389,6 +389,28 @@ public class MenuGeneral extends AppCompatActivity {
                     filterToUse = 2;
                     break;
 
+                case R.id.color:
+                    setSeekbars(3);
+                    seekbar1.setProgress(0);
+                    seekbar1.setMax(360);
+                    seekbar1.setOnSeekBarChangeListener(huebarlistener);
+                    textsb1.setText("Teinte");
+                    seekbar2.setProgress(0);
+                    seekbar2.setMax(360);
+                    seekbar2.setOnSeekBarChangeListener(satbarlistener);
+                    textsb2.setText("Saturation");
+                    seekbar3.setProgress(0);
+                    seekbar3.setMax(360);
+                    seekbar3.setOnSeekBarChangeListener(valbarlistener);
+                    textsb3.setText("Valeur");
+                    huebar = 1;
+                    valbar = 2;
+                    satbar = 3;
+                    colorviewmid.setVisibility(View.VISIBLE);
+                    editHueColor();
+                    filterToUse = 4;
+                    break;
+
                 case R.id.ED:
                     if (current.filter != 4) {
                         current = current.dynamicExtension();
@@ -575,6 +597,42 @@ public class MenuGeneral extends AppCompatActivity {
         public void onStopTrackingTouch(SeekBar seekBar) {
             editText();
             editHueColor();
+        }
+    };
+
+    SeekBar.OnSeekBarChangeListener satbarlistener = new SeekBar.OnSeekBarChangeListener() {
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            editText();
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            editText();
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            editText();
+        }
+    };
+
+    SeekBar.OnSeekBarChangeListener valbarlistener = new SeekBar.OnSeekBarChangeListener() {
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            editText();
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            editText();
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            editText();
         }
     };
 
@@ -933,15 +991,16 @@ public class MenuGeneral extends AppCompatActivity {
                 case MotionEvent.ACTION_DOWN:
                     touchX = (int) event.getX();
                     touchY = (int) event.getY();
-
                     startX = touchX - viewCoords[0];
                     startY = touchY - viewCoords[1];
+                    break;
+
+                case MotionEvent.ACTION_MOVE:
                     break;
 
                 case MotionEvent.ACTION_UP:
                     touchX = (int) event.getX();
                     touchY = (int) event.getY();
-
                     endX = touchX - viewCoords[0];
                     endY = touchY - viewCoords[1];
 
@@ -953,64 +1012,6 @@ public class MenuGeneral extends AppCompatActivity {
             }
             return true;
 
-            /*float distx, disty;
-            switch(event.getAction() & MotionEvent.ACTION_MASK) {
-
-                //if the fingers pinch the bitmap, the distances change and the factor of zoom is displayed
-                case MotionEvent.ACTION_POINTER_DOWN:
-                    touchState = PINCH;
-                    distx = event.getX(0) - event.getX(1);
-                    disty = event.getY(0) - event.getY(1);
-                    dist0 = (float) Math.sqrt(distx * distx + disty * disty);
-                    break;
-
-                case MotionEvent.ACTION_DOWN:
-                    touchState = TOUCH;
-                    mx = event.getX();
-                    my = event.getY();
-                    break;
-
-                // if the fingers move, the distances change and the factor of zoom is displayed
-                case MotionEvent.ACTION_MOVE:
-                    if (touchState == PINCH) {
-                        if (event.getPointerCount() >= 2) {
-                            distx = event.getX(0) - event.getX(1);
-                            disty = event.getY(0) - event.getY(1);
-                            distCurrent = (float) Math.sqrt(distx * distx + disty * disty);
-                            factor = distCurrent / dist0;
-                            img.setImageBitmap(current.scale(factor));
-                        }
-                    } else if (touchState == TOUCH) {
-                        touchState = TOUCH;
-                        curX = event.getX();
-                        curY = event.getY();
-                        img.scrollBy((int) (mx - curX), (int) (my - curY));
-                        mx = curX;
-                        my = curY;
-                    }
-                    break;
-
-                //if the fingers stop zooming the bitmap, the factor of zoom is displayed
-                case MotionEvent.ACTION_UP:
-                    if (touchState == TOUCH) {
-                        curX = event.getX();
-                        curY = event.getY();
-                        img.scrollBy((int) (mx - curX), (int) (my - curY));
-                    }
-                    touchState = IDLE;
-                    break;
-
-                //if one finger touches the screen, the factor of zoom is displayed
-                case MotionEvent.ACTION_POINTER_UP:touchState = IDLE;
-                    if (current.filter == 20) {
-                        current = new MonBitmap(current.scale(factor), 20);
-                    } else {
-                        current = new MonBitmap(current.scale(factor), 20);
-                        memory.setSuivant(current);
-                    }
-                    break;
-            }
-            return true;*/
         }
 
     };
