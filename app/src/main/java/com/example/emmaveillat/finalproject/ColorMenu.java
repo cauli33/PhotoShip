@@ -55,7 +55,7 @@ public class ColorMenu extends AppCompatActivity {
         setContentView(R.layout.activity_color_menu);
 
         //Gets picture Bitmap chosen in the gallery
-        pictureToUse = PhotoLoading.scaleImage();
+        pictureToUse = ChargementPhoto.scaleImage();
 
         //copies the original bitmap to be mutable
         picture = pictureToUse.copy(Bitmap.Config.ARGB_8888, true);
@@ -195,8 +195,8 @@ public class ColorMenu extends AppCompatActivity {
                 //Saves image in the gallery
                 case R.id.save:
                     Bitmap pictureFinal = (updateHSV(picture, hue, satur, value)).copy(Bitmap.Config.ARGB_8888, true);
-                    MediaStore.Images.Media.insertImage(getContentResolver(), pictureFinal, PhotoLoading.imgDecodableString + "_couleur" , "");
-                    Intent second = new Intent(ColorMenu.this, PhotoLoading.class);
+                    MediaStore.Images.Media.insertImage(getContentResolver(), pictureFinal, ChargementPhoto.cheminImg + "_couleur" , "");
+                    Intent second = new Intent(ColorMenu.this, ChargementPhoto.class);
                     startActivity(second);
                     break;
                 default:

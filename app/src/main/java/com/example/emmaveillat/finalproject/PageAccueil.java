@@ -5,28 +5,32 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
-//Code de Lost in Bielefeld sur stackoverflow
+/**
+ * La classe PageAccueil sert de page de présentation à l'application. L'utilisateur voit ainsi le
+ * nom et le logo de l'application durant un cours laps de temps.
+ * Il s'agit du code de Lost in Bielefeld, trouvé sur le forum Stackoverflow, et adapté à notre
+ * application.
+ */
+
 public class PageAccueil extends Activity {
 
-    /** Duration of wait **/
-    private final int SPLASH_DISPLAY_LENGTH = 1000;
+    //Durée d'affichage de la page d'accueil
+    private final int dureeAffichage = 1000;
 
-    /** Called when the activity is first created. */
     @Override
-    public void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
-        setContentView(R.layout.activity_homepage);
+    public void onCreate(Bundle accueil) {
+        super.onCreate(accueil);
+        setContentView(R.layout.activity_page_accueil);
 
-        /* New Handler to start the Menu-Activity
-         * and close this Splash-Screen after some seconds.*/
+        //Démarrage de la page d'accueil et fermeture après un temps limité.
         new Handler().postDelayed(new Runnable(){
             @Override
             public void run() {
-                /* Create an Intent that will start the Menu-Activity. */
-                Intent photoLoading = new Intent(PageAccueil.this,ChargementPhoto.class);
-                PageAccueil.this.startActivity(photoLoading);
+                //Lien entre la page d'accueile et la page de chargement d'images.
+                Intent photo = new Intent(PageAccueil.this,ChargementPhoto.class);
+                PageAccueil.this.startActivity(photo);
                 PageAccueil.this.finish();
             }
-        }, SPLASH_DISPLAY_LENGTH);
+        }, dureeAffichage);
     }
 }

@@ -40,8 +40,8 @@ public class MenuGeneral extends AppCompatActivity {
      */
 
     BitmapListe memory;
-    MyBitmap current, bmpTest;
-    MyBitmap toApplyFinger;
+    MonBitmap current, bmpTest;
+    MonBitmap toApplyFinger;
     Bitmap pictureFromGallery;
     ImageButton original, gris, sepia, invert, moy, sobel, laplacien, filtre, ED, teinte, HE, pencil1, pencil2, pencil3, cartoon;
     ImageButton top, left, right, bot;
@@ -84,12 +84,12 @@ public class MenuGeneral extends AppCompatActivity {
 
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_general_menu);
+        setContentView(R.layout.activity_menu_general);
 
-        pictureFromGallery = PhotoLoading.scaleImage();
+        pictureFromGallery = ChargementPhoto.scaleImage();
         //copies the original bitmap to be mutable
 
-        current = new MyBitmap(pictureFromGallery.copy(Bitmap.Config.ARGB_8888, true), 0);
+        current = new MonBitmap(pictureFromGallery.copy(Bitmap.Config.ARGB_8888, true), 0);
         //Objects displayed in the menu
         img = (ImageView) findViewById(R.id.picture);
         img.setImageBitmap(current.bmp);
@@ -294,8 +294,8 @@ public class MenuGeneral extends AppCompatActivity {
 
                 case R.id.original:
                     if (current.filter != 0) {
-                        pictureFromGallery = PhotoLoading.scaleImage();
-                        current = new MyBitmap(pictureFromGallery.copy(Bitmap.Config.ARGB_8888, true), 0);
+                        pictureFromGallery = ChargementPhoto.scaleImage();
+                        current = new MonBitmap(pictureFromGallery.copy(Bitmap.Config.ARGB_8888, true), 0);
                         memory.setSuivant(current);
                         img.setImageBitmap(current.bmp);
                     }
@@ -712,8 +712,8 @@ public class MenuGeneral extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.save:
                 try {
-                    MediaStore.Images.Media.insertImage(getContentResolver(), current.bmp, PhotoLoading.imgDecodableString + "_photoship", "");
-                    Intent picturechoice = new Intent(MenuGeneral.this, PhotoLoading.class);
+                    MediaStore.Images.Media.insertImage(getContentResolver(), current.bmp, ChargementPhoto.cheminImg + "_photoship", "");
+                    Intent picturechoice = new Intent(MenuGeneral.this, ChargementPhoto.class);
                     startActivity(picturechoice);
                     break;
                 } catch (Exception e){
@@ -909,9 +909,9 @@ public class MenuGeneral extends AppCompatActivity {
                 //if one finger touches the screen, the factor of zoom is displayed
                 case MotionEvent.ACTION_POINTER_UP:touchState = IDLE;
                     if (current.filter == 20) {
-                        current = new MyBitmap(current.scale(factor), 20);
+                        current = new MonBitmap(current.scale(factor), 20);
                     } else {
-                        current = new MyBitmap(current.scale(factor), 20);
+                        current = new MonBitmap(current.scale(factor), 20);
                         memory.setSuivant(current);
                     }
                     break;

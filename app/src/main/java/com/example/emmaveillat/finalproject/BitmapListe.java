@@ -26,7 +26,7 @@ public class BitmapListe {
     /**
      * liste de bitmaps de taille maixesize = 64.
      */
-    MyBitmap [] liste = new MyBitmap[tailleMax];
+    MonBitmap [] liste = new MonBitmap[tailleMax];
 
     /**
      * maximum d'images stockées dans la liste actuellement. Cela correspond aux modifications
@@ -45,7 +45,7 @@ public class BitmapListe {
      * modifiée antérieurement par l'utilisateur.
      * @param bmp la première image stockée dans la liste
      */
-    public BitmapListe(MyBitmap bmp){
+    public BitmapListe(MonBitmap bmp){
         liste[0] = bmp;
         courant = 0;
         maxNbImgConnu = 0;
@@ -71,7 +71,7 @@ public class BitmapListe {
      * correspondante.
      * @return l'image contenant les modifications précédentes
      */
-    public MyBitmap getPrecedent(){
+    public MonBitmap getPrecedent(){
         courant--;
         return liste[courant];
     }
@@ -80,7 +80,7 @@ public class BitmapListe {
      * fonction qui donne l'image vue actuellement par l'utilisateur.
      * @return l'image actuelle
      */
-    public MyBitmap getCourant(){
+    public MonBitmap getCourant(){
         return liste[courant];
     }
 
@@ -89,7 +89,7 @@ public class BitmapListe {
      * modifications plus récentes que celle actuellement vue par l'utilisateur.
      * @return l'image suivante dans la liste
      */
-    public MyBitmap getSuivant(){
+    public MonBitmap getSuivant(){
         courant++;
         return liste[courant];
     }
@@ -101,7 +101,7 @@ public class BitmapListe {
      * le curseur prennent leur valeur +1.
      * @param bmp l'image à ajouter dans la liste
      */
-    public void setSuivant(MyBitmap bmp){
+    public void setSuivant(MonBitmap bmp){
         if (courant == tailleMax){
             liberationMemoire();
         }

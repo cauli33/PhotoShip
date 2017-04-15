@@ -16,111 +16,117 @@ import android.widget.Toast;
 import static com.example.emmaveillat.finalproject.R.id.imgView;
 
 /**
- * This class helps the user to take a image from the galery or from the camera. Then it displays it to confirm his choice.
- * @author emmaveillat
+ * La classe ChargementPhoto aide l'utilisateur à choisir l'image qu'il veut transformer. Il peut
+ * ainsi accéder à sa galerie d'images ou à l'appareil photo de son appareil. Dans ce cas-là, la
+ * prise de photo l'entraîne dans la galerie où il pourra trouver la photo qu'il a prise dans un
+ * dossier dédié à l'application
  */
 public class ChargementPhoto extends Activity {
 
     /**
-     * integer to access the galery
+     * Résultat pour sélectionner l'appareil photo ou la galerie
      */
-    private static int RESULT_LOAD_IMG = 1;
+    private static int tmp_resultat = 1;
 
     /**
-     * Path of the chosen bitmap
+     * Chemin d'accès de l'image choisie
      */
-    static String imgDecodableString;
+    static String cheminImg;
 
     /**
-     * Button to confirm the choice
+     * Bouton pour confirmer le choix de l'image
      */
-    Button choice;
+    Button choix;
 
     /**
-     * The chosen bitmap
+     * l'image choisie à modifier
      */
-    public Bitmap pictureToUse;
+    public Bitmap imgUtilisee;
 
     /**
-     * The bitmap displayed
+     * Vue de l'image choisie par l'utilisateur
      */
     public ImageView imageView;
 
     /**
-     * integer to access the camera
+     * Entier pour accéder à la caméra
      */
-    private static final int CAMERA_REQUEST = 1888;
-
-
-
+    private static final int accesCamera = 1888;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_photo_loading);
+        setContentView(R.layout.activity_chargement_photo);
 
-        choice = (Button) findViewById(R.id.choice);
-        choice.setOnClickListener(blistener);
-        choice.setActivated(false);
-        choice.setVisibility(View.INVISIBLE);
+        //Vue du bouton pour valider son choix invisible lors du premier accès à l'application.
+        choix = (Button) findViewById(R.id.choix);
+        choix.setOnClickListener(blistener);
+        choix.setActivated(false);
+        choix.setVisibility(View.INVISIBLE);
 
-        //Starts camera
-        Button photoButton = (Button) this.findViewById(R.id.camera);
-        photoButton.setOnClickListener(new View.OnClickListener() {
+        //Accès à la caméra si appui sur le bouton correspondant.
+        Button boutonCamera = (Button) this.findViewById(R.id.camera);
+        boutonCamera.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                startActivityForResult(cameraIntent, accesCamera);
             }
         });
     }
 
     /**
-     * fucntion to access the galery with a new view
-     * @param view view used for the galery
+     * fonction pour accéder à la galerie d'images grâce à une nouvelle vue.
+     * @param view la nouvelle vue utilisée pour la galerie
      */
     public void chargementImage(View view) {
         Intent galerie = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(galerie, RESULT_LOAD_IMG);
+        startActivityForResult(galerie, tmp_resultat);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    protected void onActivityResult(int codeRequis, int resultat, Intent data) {
+        super.onActivityResult(codeRequis, resultat, data);
         try {
-            // if the user wants to access the galery
-            if (requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK && null != data) {
-                //gets the bitmaps he chooses in touching it
-                Uri selectedImage = data.getData();
-                pictureToUse = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                String[] filePathColumn = { MediaStore.Images.Media.DATA };
+            //pour l'accès à la galerie
+            if (codeRequis == tmp_resultat && resultat == RESULT_OK && null != data) {
+                //on récupère l'image et ses informations comme le chemin lors de sa sélection par
+                // toucher.
+                Uri imgSelec = data.getData();
+                imgUtilisee = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgSelec);
+                String[] donneesChemin = { MediaStore.Images.Media.DATA };
 
-                Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                cursor.moveToFirst();
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                Cursor curseur = getContentResolver().query(imgSelec, donneesChemin, null, null, null);
+                curseur.moveToFirst();
+                int indexColonne = curseur.getColumnIndex(donneesChemin[0]);
 
-                //gets the path of the bitmap
-                imgDecodableString = cursor.getString(columnIndex);
-                cursor.close();
+                //Récupération du chemin de l'image.
+                cheminImg = curseur.getString(indexColonne);
+                curseur.close();
 
+                //Affichage de l'image choisie et du bouton pour valider le choix.
                 imageView = (ImageView) findViewById(imgView);
-                imageView.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
-
-                choice.setActivated(true);
-                choice.setVisibility(View.VISIBLE);
+                imageView.setImageBitmap(BitmapFactory.decodeFile(cheminImg));
+                choix.setActivated(true);
+                choix.setVisibility(View.VISIBLE);
 
             }
-            // if the user wants to access the camera
-            else if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK && null != data) {
-                //saves the photo in the galery and access to it
+
+            //pour l'accès à la caméra.
+            else if (codeRequis == accesCamera && resultat == Activity.RESULT_OK && null != data) {
+                //l'image prise via la caméra est stockée dans la galerie et l'utilisateur y est
+                // envoyé
                 Bitmap photo = (Bitmap) data.getExtras().get("data");
-                imgDecodableString = "newPhoto" + Math.random();
-                MediaStore.Images.Media.insertImage(getContentResolver(), photo, imgDecodableString, "photo from camera");
+                cheminImg = "newPhoto" + Math.random();
+                MediaStore.Images.Media.insertImage(getContentResolver(), photo, cheminImg, "photo from camera");
 
                 chargementImage(imageView);
 
-            } else {
+
+            }
+            //Affichage messages d'erreurs
+            else {
                 Toast.makeText(this, "Vous n'avez pas choisi d'image", Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
@@ -130,11 +136,11 @@ public class ChargementPhoto extends Activity {
     }
 
     /**
-     * function which allows the others classes to pick the bitmap thanks to its path
-     * @return the chosen bitmap
+     * fonction permettant de récupérer l'image choisie dans une autre activité grâce à son chemin.
+     * @return l'image choisie précédemment
      */
     protected static Bitmap scaleImage() {
-        Bitmap nad = BitmapFactory.decodeFile(imgDecodableString);
+        Bitmap nad = BitmapFactory.decodeFile(cheminImg);
         return nad;
     }
 
@@ -142,9 +148,10 @@ public class ChargementPhoto extends Activity {
     private View.OnClickListener blistener = new View.OnClickListener(){
         public void onClick(View v){
             switch (v.getId()) {
-                // If a picture has been chosen in the gallery, opens general menu
-                case R.id.choice :
-                    if (pictureToUse != null){
+                //dans le cas où l'image a été choisie, cela permet l'accès au menu general de
+                //l'application.
+                case R.id.choix:
+                    if (imgUtilisee != null){
                         Intent second = new Intent(ChargementPhoto.this, MenuGeneral.class);
                         startActivity(second);}
                     break;
