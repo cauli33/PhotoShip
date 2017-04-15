@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 
 //Code de Lost in Bielefeld sur stackoverflow
-public class Homepage extends Activity {
+public class PageAccueil extends Activity {
 
     /** Duration of wait **/
     private final int SPLASH_DISPLAY_LENGTH = 1000;
@@ -23,9 +23,9 @@ public class Homepage extends Activity {
             @Override
             public void run() {
                 /* Create an Intent that will start the Menu-Activity. */
-                Intent photoLoading = new Intent(Homepage.this,PhotoLoading.class);
-                Homepage.this.startActivity(photoLoading);
-                Homepage.this.finish();
+                Intent photoLoading = new Intent(PageAccueil.this,ChargementPhoto.class);
+                PageAccueil.this.startActivity(photoLoading);
+                PageAccueil.this.finish();
             }
         }, SPLASH_DISPLAY_LENGTH);
     }

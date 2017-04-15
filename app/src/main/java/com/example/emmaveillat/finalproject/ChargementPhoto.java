@@ -19,7 +19,7 @@ import static com.example.emmaveillat.finalproject.R.id.imgView;
  * This class helps the user to take a image from the galery or from the camera. Then it displays it to confirm his choice.
  * @author emmaveillat
  */
-public class PhotoLoading extends Activity {
+public class ChargementPhoto extends Activity {
 
     /**
      * integer to access the galery
@@ -145,7 +145,7 @@ public class PhotoLoading extends Activity {
                 // If a picture has been chosen in the gallery, opens general menu
                 case R.id.choice :
                     if (pictureToUse != null){
-                        Intent second = new Intent(PhotoLoading.this, GeneralMenu.class);
+                        Intent second = new Intent(ChargementPhoto.this, MenuGeneral.class);
                         startActivity(second);}
                     break;
 

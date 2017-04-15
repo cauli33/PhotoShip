@@ -5,10 +5,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.media.Image;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
@@ -24,7 +22,6 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -35,14 +32,14 @@ import java.util.Arrays;
 /**
  * This class is a general menu where the user can choose the transformation he wants to apply to his bitmap.
  */
-public class GeneralMenu extends AppCompatActivity {
+public class MenuGeneral extends AppCompatActivity {
 
     ImageView img;
     /**
      * Buttons to access the menus
      */
 
-    BitmapList memory;
+    BitmapListe memory;
     MyBitmap current, bmpTest;
     MyBitmap toApplyFinger;
     Bitmap pictureFromGallery;
@@ -101,14 +98,14 @@ public class GeneralMenu extends AppCompatActivity {
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    if (memory.current == 0){
+                    if (memory.courant == 0){
                         Toast noFilter = Toast.makeText(getApplicationContext(), "Veuillez choisir un filtre.", Toast.LENGTH_SHORT);
                         noFilter.show();
                         toggle.setChecked(false);
                     }
                     else {
                         toApplyFinger = current.copy();
-                        current = memory.getPrevious();
+                        current = memory.getPrecedent();
                         img.setImageBitmap(current.bmp);
                         img.setOnTouchListener(ApplyWithFingerListener);
                     }
@@ -131,7 +128,7 @@ public class GeneralMenu extends AppCompatActivity {
         colorviewright = (ImageView) findViewById(R.id.color_right);
         colorviewright.setVisibility(View.INVISIBLE);
 
-        memory = new BitmapList(current);
+        memory = new BitmapListe(current);
 
 
         //initialization of the distances
@@ -299,7 +296,7 @@ public class GeneralMenu extends AppCompatActivity {
                     if (current.filter != 0) {
                         pictureFromGallery = PhotoLoading.scaleImage();
                         current = new MyBitmap(pictureFromGallery.copy(Bitmap.Config.ARGB_8888, true), 0);
-                        memory.setNext(current);
+                        memory.setSuivant(current);
                         img.setImageBitmap(current.bmp);
                     }
                     break;
@@ -307,7 +304,7 @@ public class GeneralMenu extends AppCompatActivity {
                 case R.id.gray:
                     if (current.filter != 1) {
                         current = current.toGray();
-                        memory.setNext(current);
+                        memory.setSuivant(current);
                         img.setImageBitmap(current.bmp);
                     }
                     break;
@@ -315,21 +312,21 @@ public class GeneralMenu extends AppCompatActivity {
                 case R.id.sepia:
                     if (current.filter != 2) {
                         current = current.sepia();
-                        memory.setNext(current);
+                        memory.setSuivant(current);
                         img.setImageBitmap(current.bmp);
                     }
                     break;
 
                 case R.id.invert:
                     current = current.inverted();
-                    memory.setNext(current);
+                    memory.setSuivant(current);
                     img.setImageBitmap(current.bmp);
                     break;
 
                 case R.id.moy:
-                    AlertDialog.Builder moyDialog = new AlertDialog.Builder(GeneralMenu.this);
+                    AlertDialog.Builder moyDialog = new AlertDialog.Builder(MenuGeneral.this);
                     moyDialog.setTitle("Flou");
-                    final EditText input = new EditText(GeneralMenu.this);
+                    final EditText input = new EditText(MenuGeneral.this);
                     input.setInputType(InputType.TYPE_CLASS_TEXT);
                     moyDialog.setView(input);
                     moyDialog.setMessage("Flou moyenneur ou flou gaussien? Entrez le paramètre du filtre moyenneur si vous le choisissez. Il doit être impair et au moins égal à 3. Un paramètre trop grand entraînera un ralentissement ou un échec.")
@@ -351,7 +348,7 @@ public class GeneralMenu extends AppCompatActivity {
                                         tooBigParameter.show();
                                     } else {
                                         current = current.moyenne(param);
-                                        memory.setNext(current);
+                                        memory.setSuivant(current);
                                         img.setImageBitmap(current.bmp);
                                     }
                                 }
@@ -360,7 +357,7 @@ public class GeneralMenu extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     current = current.gauss();
-                                    memory.setNext(current);
+                                    memory.setSuivant(current);
                                     img.setImageBitmap(current.bmp);
                                 }
                             });
@@ -370,13 +367,13 @@ public class GeneralMenu extends AppCompatActivity {
 
                 case R.id.sobel:
                     current = current.sobel();
-                    memory.setNext(current);
+                    memory.setSuivant(current);
                     img.setImageBitmap(current.bmp);
                     break;
 
                 case R.id.laplacien:
                     current = current.laplacien();
-                    memory.setNext(current);
+                    memory.setSuivant(current);
                     img.setImageBitmap(current.bmp);
                     break;
 
@@ -395,7 +392,7 @@ public class GeneralMenu extends AppCompatActivity {
                 case R.id.ED:
                     if (current.filter != 4) {
                         current = current.dynamicExtension();
-                        memory.setNext(current);
+                        memory.setSuivant(current);
                         img.setImageBitmap(current.bmp);
                     }
                     break;
@@ -430,7 +427,7 @@ public class GeneralMenu extends AppCompatActivity {
 
                 case R.id.ok:
                     current = current.applyFilter(filterToUse, val1, val2, val3);
-                    memory.setNext(current);
+                    memory.setSuivant(current);
                     img.setImageBitmap(current.bmp);
                     delSeekbars();
                     break;
@@ -443,7 +440,7 @@ public class GeneralMenu extends AppCompatActivity {
                 case R.id.HE:
                     if (current.filter != 3) {
                         current = current.histogramEqualization();
-                        memory.setNext(current);
+                        memory.setSuivant(current);
                         img.setImageBitmap(current.bmp);
                     }
                     break;
@@ -451,7 +448,7 @@ public class GeneralMenu extends AppCompatActivity {
                 case R.id.pencil1:
                     if (current.filter != 17) {
                         current = current.pencilSketch();
-                        memory.setNext(current);
+                        memory.setSuivant(current);
                         img.setImageBitmap(current.bmp);
                     }
                     break;
@@ -460,7 +457,7 @@ public class GeneralMenu extends AppCompatActivity {
                     current = current.laplacien();
                     current = current.toGray();
                     current = current.inverted();
-                    memory.setNext(current);
+                    memory.setSuivant(current);
                     img.setImageBitmap(current.bmp);
                     break;
 
@@ -468,14 +465,14 @@ public class GeneralMenu extends AppCompatActivity {
                     current = current.sobel();
                     current = current.toGray();
                     current = current.inverted();
-                    memory.setNext(current);
+                    memory.setSuivant(current);
                     img.setImageBitmap(current.bmp);
                     break;
 
                 case R.id.cartoon:
                     try {
                         current = current.cartoon();
-                        memory.setNext(current);
+                        memory.setSuivant(current);
                         img.setImageBitmap(current.bmp);
                         setSeekbars(1);
                         seekbar1.setProgress(0);
@@ -484,7 +481,7 @@ public class GeneralMenu extends AppCompatActivity {
                         filterToUse = 3;
                         seekbar1.setOnSeekBarChangeListener(cartoonbarlistener);
                     } catch (StackOverflowError e) {
-                        AlertDialog.Builder reducedialog = new AlertDialog.Builder(GeneralMenu.this);
+                        AlertDialog.Builder reducedialog = new AlertDialog.Builder(MenuGeneral.this);
                         reducedialog.setTitle("Échec")
                                 .setMessage("Il se peut que la qualité de l'image soit trop élevée. Réduisez la qualité via l'outil DÉFORMER")
                                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -522,7 +519,7 @@ public class GeneralMenu extends AppCompatActivity {
 
                 case R.id.crop:
                     current = current.crop(toCrop);
-                    memory.setNext(current);
+                    memory.setSuivant(current);
                     img.setImageBitmap(current.bmp);
                     cropInterface.setVisibility(View.INVISIBLE);
                     cropInterface.setActivated(false);
@@ -716,7 +713,7 @@ public class GeneralMenu extends AppCompatActivity {
             case R.id.save:
                 try {
                     MediaStore.Images.Media.insertImage(getContentResolver(), current.bmp, PhotoLoading.imgDecodableString + "_photoship", "");
-                    Intent picturechoice = new Intent(GeneralMenu.this, PhotoLoading.class);
+                    Intent picturechoice = new Intent(MenuGeneral.this, PhotoLoading.class);
                     startActivity(picturechoice);
                     break;
                 } catch (Exception e){
@@ -724,8 +721,8 @@ public class GeneralMenu extends AppCompatActivity {
                 }
                 return true;
             case R.id.previous:
-                if (memory.current > 0) {
-                    current = memory.getPrevious();
+                if (memory.courant > 0) {
+                    current = memory.getPrecedent();
                     img.setImageBitmap(current.bmp);
                 }
                 else{
@@ -734,33 +731,33 @@ public class GeneralMenu extends AppCompatActivity {
                 }
                 return true;
             case R.id.next:
-                if (memory.current < memory.maxknown) {
-                    current = memory.getNext();
+                if (memory.courant < memory.maxNbImgConnu) {
+                    current = memory.getSuivant();
                     img.setImageBitmap(current.bmp);
                 }
                 return true;
 
             case R.id.rotateleft:
                 current = current.rotateLeft();
-                memory.setNext(current);
+                memory.setSuivant(current);
                 img.setImageBitmap(current.bmp);
                 return true;
 
             case R.id.rotateright:
                 current = current.rotateRight();
-                memory.setNext(current);
+                memory.setSuivant(current);
                 img.setImageBitmap(current.bmp);
                 return true;
 
             case R.id.fliplr:
                 current = current.fliplr();
-                memory.setNext(current);
+                memory.setSuivant(current);
                 img.setImageBitmap(current.bmp);
                 return true;
 
             case R.id.flipud:
                 current = current.flipud();
-                memory.setNext(current);
+                memory.setSuivant(current);
                 img.setImageBitmap(current.bmp);
                 return true;
 
@@ -781,38 +778,38 @@ public class GeneralMenu extends AppCompatActivity {
                 break;
 
             case R.id.ppv:
-                AlertDialog.Builder deformDialog = new AlertDialog.Builder(GeneralMenu.this);
+                AlertDialog.Builder deformDialog = new AlertDialog.Builder(MenuGeneral.this);
                 deformDialog.setTitle("Changer les dimensions");
 
                 // A SUPPRIMER
-                final EditText input = new EditText(GeneralMenu.this);
+                final EditText input = new EditText(MenuGeneral.this);
                 input.setInputType(InputType.TYPE_CLASS_TEXT);
 
-                LinearLayout layout = new LinearLayout(GeneralMenu.this);
+                LinearLayout layout = new LinearLayout(MenuGeneral.this);
                 layout.setOrientation(LinearLayout.VERTICAL);
 
-                TextView widthText = new TextView(GeneralMenu.this);
+                TextView widthText = new TextView(MenuGeneral.this);
                 widthText.setText("Largeur");
                 layout.addView(widthText);
 
-                final EditText widthBox = new EditText(GeneralMenu.this);
+                final EditText widthBox = new EditText(MenuGeneral.this);
                 widthBox.setHint("Largeur");
                 widthBox.setText(String.valueOf(current.width));
                 layout.addView(widthBox);
 
-                TextView heightText = new TextView(GeneralMenu.this);
+                TextView heightText = new TextView(MenuGeneral.this);
                 heightText.setText("Hauteur");
                 layout.addView(heightText);
 
-                final EditText heightBox = new EditText(GeneralMenu.this);
+                final EditText heightBox = new EditText(MenuGeneral.this);
                 heightBox.setHint("Hauteur");
                 heightBox.setText(String.valueOf(current.height));
                 layout.addView(heightBox);
 
-                Button dimensions = new Button(GeneralMenu.this);
+                Button dimensions = new Button(MenuGeneral.this);
                 dimensions.setText("Garder rapport");
                 dimensions.setId(R.id.dimButton);
-                dimensions.setTextAppearance(GeneralMenu.this, android.R.style.TextAppearance_Small);
+                dimensions.setTextAppearance(MenuGeneral.this, android.R.style.TextAppearance_Small);
                 dimensions.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -846,7 +843,7 @@ public class GeneralMenu extends AppCompatActivity {
                                 int newWidth = (Integer.valueOf(widthBox.getText().toString()));
                                 int newHeight = (Integer.valueOf(heightBox.getText().toString()));
                                 current = current.closestNeighbor(newWidth, newHeight);
-                                memory.setNext(current);
+                                memory.setSuivant(current);
                                 img.setImageBitmap(current.bmp);
                             }
                         });
@@ -915,7 +912,7 @@ public class GeneralMenu extends AppCompatActivity {
                         current = new MyBitmap(current.scale(factor), 20);
                     } else {
                         current = new MyBitmap(current.scale(factor), 20);
-                        memory.setNext(current);
+                        memory.setSuivant(current);
                     }
                     break;
             }
@@ -949,7 +946,7 @@ public class GeneralMenu extends AppCompatActivity {
                     endY = touchY - viewCoords[1];
 
                     current = current.fingerApply(toApplyFinger, startX, startY, endX, endY);
-                    memory.setNext(current);
+                    memory.setSuivant(current);
                     img.setImageBitmap(current.bmp);
                     break;
 

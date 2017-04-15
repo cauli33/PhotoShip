@@ -1,14 +1,12 @@
 package com.example.emmaveillat.finalproject;
 
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.support.v7.app.AlertDialog;
 
 import java.nio.IntBuffer;
 import java.util.Arrays;
 
-public class MyBitmap {
+public class MonBitmap {
     public Bitmap bmp;
     public int width;
     public int height;
@@ -21,7 +19,7 @@ public class MyBitmap {
     public int[] basicColors = null;
     public int[] colors = null;
 
-    public MyBitmap(Bitmap bitmap, int filt){
+    public MonBitmap(Bitmap bitmap, int filt){
         bmp = bitmap;
         width = bmp.getWidth();
         height = bmp.getHeight();
@@ -30,8 +28,8 @@ public class MyBitmap {
         filter = filt;
     }
 
-    public MyBitmap copy(){
-        return new MyBitmap(bmp, filter);
+    public MonBitmap copy(){
+        return new MonBitmap(bmp, filter);
     }
 
     public void findHistogram() {
@@ -51,7 +49,7 @@ public class MyBitmap {
         }
     }
 
-    public MyBitmap toGray(){
+    public MonBitmap toGray(){
         if (histogram == null){findHistogram();}
         int[] pixelsGray = new int[height * width];
         Bitmap bmpGray = bmp.copy(Bitmap.Config.ARGB_8888, true); /* Je copie la bitmap en entrée (ce sera la bitmap initial) et la fait modifiable */
@@ -61,13 +59,13 @@ public class MyBitmap {
             pixelsGray[i] = Color.rgb(lvl,lvl,lvl);
         }
         bmpGray.setPixels(pixelsGray, 0, width, 0, 0, width, height);
-        MyBitmap gray = new MyBitmap(bmpGray, 1);
+        MonBitmap gray = new MonBitmap(bmpGray, 1);
         gray.histogram = histogram;
         gray.valMap = valMap;
         return gray;
     }
 
-    public MyBitmap inverted(){
+    public MonBitmap inverted(){
         int r, g, b, pixel;
         int[] pixelsInv = new int[height * width];
         //Applies the mask on the bitmap depending on its levels of red, blue and green
@@ -81,7 +79,7 @@ public class MyBitmap {
         }
         Bitmap bmpInv = bmp.copy(Bitmap.Config.ARGB_8888, true);
         bmpInv.setPixels(pixelsInv, 0, width, 0, 0, width, height);
-        MyBitmap inverted = new MyBitmap(bmpInv, 13);
+        MonBitmap inverted = new MonBitmap(bmpInv, 13);
         return inverted;
     }
 
@@ -94,7 +92,7 @@ public class MyBitmap {
         return Bitmap.createScaledBitmap(bmp, newWidth, newHeight, false);
     }
 
-    public MyBitmap sepia(){
+    public MonBitmap sepia(){
         if (histogram == null){findHistogram();}
         int r, g, lvl;
         int[] pixelsSepia = new int[height * width];
@@ -115,11 +113,11 @@ public class MyBitmap {
         }
         Bitmap bmpSepia = bmp.copy(Bitmap.Config.ARGB_8888, true);
         bmpSepia.setPixels(pixelsSepia, 0, width, 0, 0, width, height);
-        MyBitmap sepia = new MyBitmap(bmpSepia, 2);
+        MonBitmap sepia = new MonBitmap(bmpSepia, 2);
         return sepia;
     }
 
-    public MyBitmap histogramEqualization(){
+    public MonBitmap histogramEqualization(){
         if (histogram == null){findHistogram();}
         int[] pixelsEqualized = new int[height * width];
         for (int i = 1; i < 256; i++) {
@@ -137,11 +135,11 @@ public class MyBitmap {
         }
         Bitmap bmpEqualized = bmp.copy(Bitmap.Config.ARGB_8888, true);
         bmpEqualized.setPixels(pixelsEqualized, 0, width, 0, 0, width, height);
-        MyBitmap equalized = new MyBitmap(bmpEqualized, 3);
+        MonBitmap equalized = new MonBitmap(bmpEqualized, 3);
         return equalized;
     }
 
-    public MyBitmap dynamicExtension(){
+    public MonBitmap dynamicExtension(){
         if (histogram == null){findHistogram();}
         int[] pixelsExtension = new int[height * width];
         int k = 0;
@@ -167,11 +165,11 @@ public class MyBitmap {
         }
         Bitmap bmpExtension = bmp.copy(Bitmap.Config.ARGB_8888, true);
         bmpExtension.setPixels(pixelsExtension, 0, width, 0, 0, width, height);
-        MyBitmap extension = new MyBitmap(bmpExtension, 4);
+        MonBitmap extension = new MonBitmap(bmpExtension, 4);
         return extension;
     }
 
-    public MyBitmap rotateLeft(){
+    public MonBitmap rotateLeft(){
         int[] pixelsLeft = new int[height * width];
         for (int y = 0; y < height; ++y) {
             for (int x = 0 ; x < width ; ++x) {
@@ -179,11 +177,11 @@ public class MyBitmap {
             }
         }
         Bitmap bmpLeft = Bitmap.createBitmap(pixelsLeft, height, width, Bitmap.Config.ARGB_8888);
-        MyBitmap left = new MyBitmap(bmpLeft, filter);
+        MonBitmap left = new MonBitmap(bmpLeft, filter);
         return left;
     }
 
-    public MyBitmap rotateRight(){
+    public MonBitmap rotateRight(){
         int[] pixelsRight = new int[height * width];
         for (int y = 0; y < height; ++y) {
             for (int x = 0 ; x < width ; ++x) {
@@ -191,11 +189,11 @@ public class MyBitmap {
             }
         }
         Bitmap bmpRight = Bitmap.createBitmap(pixelsRight, height, width, Bitmap.Config.ARGB_8888);
-        MyBitmap right = new MyBitmap(bmpRight, filter);
+        MonBitmap right = new MonBitmap(bmpRight, filter);
         return right;
     }
 
-    public MyBitmap fliplr(){
+    public MonBitmap fliplr(){
         int[] pixelsFlip = new int[width * height];
         for (int y = 0; y < height; ++y) {
             for (int x = 0 ; x < width ; ++x) {
@@ -203,11 +201,11 @@ public class MyBitmap {
             }
         }
         Bitmap bmpFliplr = Bitmap.createBitmap(pixelsFlip, width, height, Bitmap.Config.ARGB_8888);
-        MyBitmap fliplr = new MyBitmap(bmpFliplr, filter);
+        MonBitmap fliplr = new MonBitmap(bmpFliplr, filter);
         return fliplr;
     }
 
-    public MyBitmap flipud(){
+    public MonBitmap flipud(){
         int[] pixelsFlip = new int[width * height];
         for (int y = 0; y < height; ++y) {
             for (int x = 0 ; x < width ; ++x) {
@@ -215,11 +213,11 @@ public class MyBitmap {
             }
         }
         Bitmap bmpFlipud = Bitmap.createBitmap(pixelsFlip, width, height, Bitmap.Config.ARGB_8888);
-        MyBitmap flipud = new MyBitmap(bmpFlipud, filter);
+        MonBitmap flipud = new MonBitmap(bmpFlipud, filter);
         return flipud;
     }
 
-    public MyBitmap lowerRes() {
+    public MonBitmap lowerRes() {
         if (width * height > 1000000) {
             int newWidth, newHeight;
             float fact;
@@ -243,12 +241,12 @@ public class MyBitmap {
             }
             Bitmap bmpLower = Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888);
             bmpLower.setPixels(pixelsLower, 0, newWidth, 0, 0, newWidth, newHeight);
-            MyBitmap lower = new MyBitmap(bmpLower, filter);
+            MonBitmap lower = new MonBitmap(bmpLower, filter);
         }
         return this;
     }
 
-    private MyBitmap convolutionBlur(int[][] mask, int factor, int filter) {
+    private MonBitmap convolutionBlur(int[][] mask, int factor, int filter) {
         int n = mask.length / 2;
         int[] pixelsConv = new int[height * width];
         int white = Color.rgb(255,255,255);
@@ -292,11 +290,11 @@ public class MyBitmap {
             }
         }
         Bitmap bmpConv = Bitmap.createBitmap(pixelsConv, width, height, Bitmap.Config.ARGB_8888);
-        MyBitmap conv = new MyBitmap(bmpConv, filter);
+        MonBitmap conv = new MonBitmap(bmpConv, filter);
         return conv;
     }
 
-    public MyBitmap moyenne(int n) {
+    public MonBitmap moyenne(int n) {
         //Creates a matrix full of ones and applicates convolution (and divides by the number of pixels used)
         int[][] mask = new int[n][n];
         for (int i = 0; i < n; i++) {
@@ -307,7 +305,7 @@ public class MyBitmap {
         return convolutionBlur(mask, n*n, 5);
     }
 
-    public MyBitmap gauss(){
+    public MonBitmap gauss(){
         //Creates gaussian matrix and applicates convolution
         int[][] mask ={{1,2,3,2,1},{2,6,8,6,2},{3,8,10,8,3},{2,6,8,6,2},{1,2,3,2,1}};
         return convolutionBlur(mask, 98, 6);
@@ -376,7 +374,7 @@ public class MyBitmap {
     }
 
 
-    public MyBitmap sobel(){
+    public MonBitmap sobel(){
         int R,G,B;
         //applicates convolution with hx et hy matrix
         int[][] hx = {{-1,0,1},{-2,0,2},{-1,0,1}};
@@ -406,11 +404,11 @@ public class MyBitmap {
             }
         }
         Bitmap bmpSobel = Bitmap.createBitmap(pixelsSobel, width, height, Bitmap.Config.ARGB_8888);
-        MyBitmap sobel = new MyBitmap(bmpSobel, 7);
+        MonBitmap sobel = new MonBitmap(bmpSobel, 7);
         return sobel;
     }
 
-    public MyBitmap laplacien(){
+    public MonBitmap laplacien(){
         int R,G,B;
         //applicates convolution with hx et hy matrix
         int[][] mask = {{1,1,1},{1,-8,1},{1,1,1}};
@@ -432,11 +430,11 @@ public class MyBitmap {
             }
         }
         Bitmap bmpLapla = Bitmap.createBitmap(pixelsLapla, width, height, Bitmap.Config.ARGB_8888);
-        MyBitmap laplacien = new MyBitmap(bmpLapla, 8);
+        MonBitmap laplacien = new MonBitmap(bmpLapla, 8);
         return laplacien;
     }
 
-    public MyBitmap applyFilter(int filterToUse, int v1, int v2, int v3){
+    public MonBitmap applyFilter(int filterToUse, int v1, int v2, int v3){
         if (filterToUse == 1){
             return selectHue(v1, v2);
         }
@@ -449,7 +447,7 @@ public class MyBitmap {
         return null;
     }
 
-    private MyBitmap selectHue(int gap, int hue){
+    private MonBitmap selectHue(int gap, int hue){
         int[] pixelsSelect = pixels.clone();
         //Array to stock pixel hsv values
         float[] pixelHSV = new float[3];
@@ -512,11 +510,11 @@ public class MyBitmap {
             }
         }
         Bitmap bmpSelect = Bitmap.createBitmap(pixelsSelect, width, height, Bitmap.Config.ARGB_8888);
-        MyBitmap select = new MyBitmap(bmpSelect, 10);
+        MonBitmap select = new MonBitmap(bmpSelect, 10);
         return select;
     }
 
-    public MyBitmap filterHue(int hue){
+    public MonBitmap filterHue(int hue){
         int[] pixelsFilter = new int[width * height];
         float[] pixelHSV = new float[3];
 
@@ -527,11 +525,11 @@ public class MyBitmap {
             pixelsFilter[i] = Color.HSVToColor(pixelHSV);
         }
         Bitmap bmpFilter = Bitmap.createBitmap(pixelsFilter, width, height, Bitmap.Config.ARGB_8888);
-        MyBitmap filter = new MyBitmap(bmpFilter, 11);
+        MonBitmap filter = new MonBitmap(bmpFilter, 11);
         return filter;
     }
 
-    public MyBitmap visualCrop(int[] toCrop){
+    public MonBitmap visualCrop(int[] toCrop){
         int[] pixelsCrop = pixels.clone();
         int toCropUp = toCrop[0] * height / 100;
         int toCropDown = height - toCrop[1] * height / 100;
@@ -559,11 +557,11 @@ public class MyBitmap {
             }
         }
         Bitmap bmpCrop = Bitmap.createBitmap(pixelsCrop, width, height, Bitmap.Config.ARGB_8888);
-        MyBitmap crop = new MyBitmap(bmpCrop, filter);
+        MonBitmap crop = new MonBitmap(bmpCrop, filter);
         return crop;
     }
 
-    public MyBitmap crop(int[] toCrop){
+    public MonBitmap crop(int[] toCrop){
         int toCropUp = toCrop[0] * height / 100;
         int toCropDown = height - toCrop[1] * height / 100;
         int toCropLeft = toCrop[2] * width / 100;
@@ -571,13 +569,13 @@ public class MyBitmap {
         int newWidth = toCropRight - toCropLeft;
         int newHeight = toCropDown - toCropUp;
         Bitmap bmpCrop = Bitmap.createBitmap(bmp, toCropLeft,toCropUp,newWidth, newHeight);
-        MyBitmap crop = new MyBitmap(bmpCrop, filter);
+        MonBitmap crop = new MonBitmap(bmpCrop, filter);
         return crop;
     }
 
 
     // Code de Pratik sur stackoverflow.com
-    private MyBitmap colorDodgeBlend(MyBitmap layer) {
+    private MonBitmap colorDodgeBlend(MonBitmap layer) {
         Bitmap base = bmp.copy(Bitmap.Config.ARGB_8888, true);
         Bitmap blend = layer.bmp.copy(Bitmap.Config.ARGB_8888, false);
 
@@ -621,7 +619,7 @@ public class MyBitmap {
         base.copyPixelsFromBuffer(buffOut);
         blend.recycle();
 
-        return new MyBitmap(base, 17);
+        return new MonBitmap(base, 17);
     }
 
     private int colordodge(int in1, int in2) {
@@ -630,14 +628,14 @@ public class MyBitmap {
         return ((int) ((image == 255) ? image:Math.min(255, (((long)mask << 8 ) / (255 - image)))));
     }
 
-    public MyBitmap pencilSketch(){
-        MyBitmap gray = toGray();
-        MyBitmap inverted = gray.inverted();
-        MyBitmap gauss = inverted.gauss();
+    public MonBitmap pencilSketch(){
+        MonBitmap gray = toGray();
+        MonBitmap inverted = gray.inverted();
+        MonBitmap gauss = inverted.gauss();
         return gray.colorDodgeBlend(gauss);
     }
 
-    public MyBitmap closestNeighbor(int newWidth, int newHeight){
+    public MonBitmap closestNeighbor(int newWidth, int newHeight){
         float factX = (float) newWidth/width;
         float factY = (float) newHeight/height;
 
@@ -648,7 +646,7 @@ public class MyBitmap {
             }
         }
         Bitmap bmpCN = Bitmap.createBitmap(pixelsCN, newWidth, newHeight, Bitmap.Config.ARGB_8888);
-        MyBitmap cn = new MyBitmap(bmpCN, 19);
+        MonBitmap cn = new MonBitmap(bmpCN, 19);
         return cn;
     }
 
@@ -666,7 +664,7 @@ public class MyBitmap {
         if ((y<height-1)&&(borders[index+width]==0)){findAreaColor(x, y+1, width, height, sumRGB, countcolors);}
     }
 
-    public MyBitmap cartoon() {
+    public MonBitmap cartoon() {
         borders = new int[width * height];
         mapSobel = this.sobel().pixels.clone();
         int pixel, r, g, b;
@@ -781,13 +779,13 @@ public class MyBitmap {
             }
         }*/
         Bitmap bmpCartoon = Bitmap.createBitmap(pixelsCartoon, width, height, Bitmap.Config.ARGB_8888);
-        MyBitmap cartoon = new MyBitmap(bmpCartoon, 14);
+        MonBitmap cartoon = new MonBitmap(bmpCartoon, 14);
         cartoon.borders = this.borders.clone();
         cartoon.mapSobel = this.mapSobel.clone();
         return cartoon;
     }
 
-    public MyBitmap cartoonBorders(float lvl){
+    public MonBitmap cartoonBorders(float lvl){
         float[] hsv = new float[3];
         int[] pixelsCartoon = pixels.clone();
         for (int i = 0; i < width * height; i++) {
@@ -800,13 +798,13 @@ public class MyBitmap {
             }
         }
         Bitmap bmpCartoon = Bitmap.createBitmap(pixelsCartoon, width, height, Bitmap.Config.ARGB_8888);
-        MyBitmap cartoon = new MyBitmap(bmpCartoon, 14);
+        MonBitmap cartoon = new MonBitmap(bmpCartoon, 14);
         cartoon.borders = this.borders.clone();
         cartoon.mapSobel = this.mapSobel.clone();
         return cartoon;
     }
 
-    public MyBitmap fingerApply(MyBitmap toApply, int startX, int startY, int endX, int endY){
+    public MonBitmap fingerApply(MonBitmap toApply, int startX, int startY, int endX, int endY){
         if (startX < endX){
             return fingerApply(toApply, endX, endY, startX, startY);
         }
@@ -855,7 +853,7 @@ public class MyBitmap {
             }
         }
         Bitmap bmpFinger = Bitmap.createBitmap(pixelsFinger, width, height, Bitmap.Config.ARGB_8888);
-        MyBitmap finger = new MyBitmap(bmpFinger, 18);
+        MonBitmap finger = new MonBitmap(bmpFinger, 18);
         return finger;
     }
 }
