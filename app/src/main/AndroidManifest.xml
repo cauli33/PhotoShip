@@ -14,15 +14,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:hardwareAccelerated="false">
-        <activity android:name=".Homepage">
+        <activity android:name=".PageAccueil">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PhotoLoading" />
-        <activity android:name=".GeneralMenu"/>
+        <activity android:name=".ChargementPhoto" />
+        <activity android:name=".MenuGeneral"/>
     </application>
 
 </manifest>

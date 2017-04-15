@@ -952,6 +952,65 @@ public class MenuGeneral extends AppCompatActivity {
 
             }
             return true;
+
+            /*float distx, disty;
+            switch(event.getAction() & MotionEvent.ACTION_MASK) {
+
+                //if the fingers pinch the bitmap, the distances change and the factor of zoom is displayed
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    touchState = PINCH;
+                    distx = event.getX(0) - event.getX(1);
+                    disty = event.getY(0) - event.getY(1);
+                    dist0 = (float) Math.sqrt(distx * distx + disty * disty);
+                    break;
+
+                case MotionEvent.ACTION_DOWN:
+                    touchState = TOUCH;
+                    mx = event.getX();
+                    my = event.getY();
+                    break;
+
+                // if the fingers move, the distances change and the factor of zoom is displayed
+                case MotionEvent.ACTION_MOVE:
+                    if (touchState == PINCH) {
+                        if (event.getPointerCount() >= 2) {
+                            distx = event.getX(0) - event.getX(1);
+                            disty = event.getY(0) - event.getY(1);
+                            distCurrent = (float) Math.sqrt(distx * distx + disty * disty);
+                            factor = distCurrent / dist0;
+                            img.setImageBitmap(current.scale(factor));
+                        }
+                    } else if (touchState == TOUCH) {
+                        touchState = TOUCH;
+                        curX = event.getX();
+                        curY = event.getY();
+                        img.scrollBy((int) (mx - curX), (int) (my - curY));
+                        mx = curX;
+                        my = curY;
+                    }
+                    break;
+
+                //if the fingers stop zooming the bitmap, the factor of zoom is displayed
+                case MotionEvent.ACTION_UP:
+                    if (touchState == TOUCH) {
+                        curX = event.getX();
+                        curY = event.getY();
+                        img.scrollBy((int) (mx - curX), (int) (my - curY));
+                    }
+                    touchState = IDLE;
+                    break;
+
+                //if one finger touches the screen, the factor of zoom is displayed
+                case MotionEvent.ACTION_POINTER_UP:touchState = IDLE;
+                    if (current.filter == 20) {
+                        current = new MonBitmap(current.scale(factor), 20);
+                    } else {
+                        current = new MonBitmap(current.scale(factor), 20);
+                        memory.setSuivant(current);
+                    }
+                    break;
+            }
+            return true;*/
         }
 
     };
