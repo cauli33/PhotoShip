@@ -61,6 +61,8 @@ public class PhotoLoading extends Activity {
 
         choice = (Button) findViewById(R.id.choice);
         choice.setOnClickListener(blistener);
+        choice.setActivated(false);
+        choice.setVisibility(View.INVISIBLE);
 
         //Starts camera
         Button photoButton = (Button) this.findViewById(R.id.camera);
@@ -105,6 +107,8 @@ public class PhotoLoading extends Activity {
                 imageView = (ImageView) findViewById(imgView);
                 imageView.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
 
+                choice.setActivated(true);
+                choice.setVisibility(View.VISIBLE);
 
             }
             // if the user wants to access the camera

@@ -9,8 +9,8 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:icon="@mipmap/logo_photoship"
+        android:label="PhotoShip"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:hardwareAccelerated="false">
@@ -22,12 +22,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".PhotoLoading" />
-        <activity android:name=".GeneralMenu" />
-        <activity android:name=".ChoiceMenu" />
-        <activity android:name=".ColorMenu" />
-        <activity android:name=".FilterMenu" />
-        <activity android:name=".ZoomMenu" />
-        <activity android:name=".CropMenu"></activity>
+        <activity android:name=".GeneralMenu"/>
     </application>
 
 </manifest>

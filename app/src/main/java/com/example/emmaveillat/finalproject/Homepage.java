@@ -1,45 +1,32 @@
 package com.example.emmaveillat.finalproject;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
+import android.os.Handler;
 
-/**
- * This class is the homepage of the application.
- * @author emmaveillat
- */
-public class Homepage extends AppCompatActivity {
+//Code de Lost in Bielefeld sur stackoverflow
+public class Homepage extends Activity {
 
-    /**
-     * Button to access the PhotoLoading
-     */
-    Button go;
+    /** Duration of wait **/
+    private final int SPLASH_DISPLAY_LENGTH = 1000;
 
+    /** Called when the activity is first created. */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle icicle) {
+        super.onCreate(icicle);
         setContentView(R.layout.activity_homepage);
 
-        go = (Button) findViewById(R.id.go);
-        go.setOnClickListener(blistener);
-    }
-
-
-    private View.OnClickListener blistener = new View.OnClickListener(){
-        public void onClick(View v){
-            switch (v.getId()) {
-
-                //Button to start and go to Photoloading
-                case R.id.go:
-                    Intent second = new Intent(Homepage.this, PhotoLoading.class);
-                    startActivity(second);
-                    break;
-
-                default:
-                    break;
+        /* New Handler to start the Menu-Activity
+         * and close this Splash-Screen after some seconds.*/
+        new Handler().postDelayed(new Runnable(){
+            @Override
+            public void run() {
+                /* Create an Intent that will start the Menu-Activity. */
+                Intent photoLoading = new Intent(Homepage.this,PhotoLoading.class);
+                Homepage.this.startActivity(photoLoading);
+                Homepage.this.finish();
             }
-        }
-    };
+        }, SPLASH_DISPLAY_LENGTH);
+    }
 }
