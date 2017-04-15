@@ -773,6 +773,8 @@ public class GeneralMenu extends AppCompatActivity {
                 filtersBar.setActivated(false);
                 cropInterface.setActivated(true);
                 cropInterface.setVisibility(View.VISIBLE);
+                cropbar.setProgress(0);
+                textCrop.setText("");
                 bmpTest = current.copy();
                 Arrays.fill(toCrop, 0);
                 cropdirection = 0;
