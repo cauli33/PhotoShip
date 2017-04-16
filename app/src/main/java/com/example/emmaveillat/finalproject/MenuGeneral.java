@@ -32,44 +32,117 @@ import android.widget.Toast;
 
 import java.util.Arrays;
 
-/**
+/**TODO
  * La classe MenuGeneral est le principal menu de l'application, à partir duquel l'utilisateur peut
  * accéder à toutes les transformations possibles pour ses images.
  */
 public class MenuGeneral extends AppCompatActivity {
-    
+
+    /**
+     * imageview de l'image à modifier
+     */
     ImageView img;
+
+    /**
+     * Liste d'images servant d'historique lors de l'ouverture de l'application
+     */
     BitmapListe memoire;
+
+    /**
+     * bitmaps utilisées lors des transformations
+     */
     MaBitmap courant, bmpTest;
+
+    /**
+     * bitmap spécifique à l'application des filtres au doigt
+     */
     MaBitmap appliquerDoigt;
+
+    /**
+     * TODO
+     */
     Bitmap imgGalerie;
+
+    /**
+     *
+     */
     ImageButton original, gris, sepia, invers, moy, sobel, laplacien, filtre, ED, teinte, HE,
             crayon1, crayon2, crayon3, cartoon, couleur;
+
+    /**
+     *
+     */
     ImageButton haut, gauche, droite, bas;
+
+    /**
+     *
+     */
     int[] aRogner;
+
+    /**
+     *
+     */
     int rogneDirection;
+
+    /**
+     *
+     */
     Button test, ok, annul, rogne;
+
+    /**
+     *
+     */
     HorizontalScrollView barImages;
+
+    /**
+     *
+     */
     RelativeLayout seekbarsInterface, cropInterface;
+
+    /**
+     *
+     */
     ImageView colorviewleft, colorviewmid, colorviewright;
 
+    /**
+     *
+     */
     SeekBar seekbar1, seekbar2, seekbar3, cropbar;
+
+    /**
+     *
+     */
     TextView textsb1, textsb2, textsb3, valsb1, valsb2, valsb3, textCrop;
 
+    /**
+     *
+     */
     int filterToUse, seekbarsDisplayed, huebar, satbar, valbar, gapbar, val1, val2, val3;
 
     /**
-     * statments of the fingers on the screen
+     *
      */
     float mx, my, curX, curY;
+
+    /**
+     *
+     */
     int startX, startY, endX, endY;
+
+    /**
+     *
+     */
     int touchState;
+
+    /**
+     *
+     */
     final int IDLE = 0;
     final int TOUCH = 1;
     final int PINCH = 2;
 
     /**
-     * distances from the fingers
+     *
      */
     float dist0, distCurrent, factor;
 
@@ -444,12 +517,12 @@ public class MenuGeneral extends AppCompatActivity {
                     break;
 
                 case R.id.test:
-                    bmpTest = courant.applyFilter(filterToUse, val1, val2, val3);
+                    bmpTest = courant.applicationFiltre(filterToUse, val1, val2, val3);
                     img.setImageBitmap(bmpTest.bmp);
                     break;
 
                 case R.id.ok:
-                    courant = courant.applyFilter(filterToUse, val1, val2, val3);
+                    courant = courant.applicationFiltre(filterToUse, val1, val2, val3);
                     memoire.setSuivant(courant);
                     img.setImageBitmap(courant.bmp);
                     delSeekbars();
@@ -470,7 +543,7 @@ public class MenuGeneral extends AppCompatActivity {
 
                 case R.id.pencil1:
                     if (courant.filtre != 17) {
-                        courant = courant.pencilSketch();
+                        courant = courant.dessinCrayon();
                         memoire.setSuivant(courant);
                         img.setImageBitmap(courant.bmp);
                     }
@@ -541,7 +614,7 @@ public class MenuGeneral extends AppCompatActivity {
                     break;
 
                 case R.id.crop:
-                    courant = courant.crop(aRogner);
+                    courant = courant.rognage(aRogner);
                     memoire.setSuivant(courant);
                     img.setImageBitmap(courant.bmp);
                     cropInterface.setVisibility(View.INVISIBLE);
@@ -726,7 +799,7 @@ public class MenuGeneral extends AppCompatActivity {
                 textCrop.setText("Rogner " + String.valueOf(aRogner[3]) + "% à droite");
                 break;
         }
-        img.setImageBitmap(bmpTest.visualCrop(aRogner).bmp);
+        img.setImageBitmap(bmpTest.affichageRogne(aRogner).bmp);
     }
 
     @Override
@@ -865,7 +938,7 @@ public class MenuGeneral extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 int newWidth = (Integer.valueOf(widthBox.getText().toString()));
                                 int newHeight = (Integer.valueOf(heightBox.getText().toString()));
-                                courant = courant.closestNeighbor(newWidth, newHeight);
+                                courant = courant.voisinLePlusProche(newWidth, newHeight);
                                 memoire.setSuivant(courant);
                                 img.setImageBitmap(courant.bmp);
                             }
@@ -977,7 +1050,7 @@ public class MenuGeneral extends AppCompatActivity {
                         }
                     }
 
-                    //courant = courant.fingerApply(appliquerDoigt, startX, startY, endX, endY);
+                    //courant = courant.applicationDoigt(appliquerDoigt, startX, startY, endX, endY);
                     canvas.setBitmap(courant.bmp);
 
             break;
@@ -989,7 +1062,7 @@ public class MenuGeneral extends AppCompatActivity {
                         touchY = (int) event.getY();
                         endX = touchX - viewCoords[0];
                         endY = touchY - viewCoords[1];
-                        //courant = courant.fingerApply(appliquerDoigt, startX, startY, endX, endY);
+                        //courant = courant.applicationDoigt(appliquerDoigt, startX, startY, endX, endY);
                         copy = courant.copie();//Copy if yourBMP is not mutable
                         canvas = new Canvas(copy.bmp);
                         paint = new Paint();
@@ -1004,7 +1077,7 @@ public class MenuGeneral extends AppCompatActivity {
                             }
                         }
 
-                        //courant = courant.fingerApply(appliquerDoigt, startX, startY, endX, endY);
+                        //courant = courant.applicationDoigt(appliquerDoigt, startX, startY, endX, endY);
                         canvas.setBitmap(courant.bmp);
                     }
                     break;
@@ -1037,7 +1110,7 @@ public class MenuGeneral extends AppCompatActivity {
 
             }
 
-            //courant = courant.fingerApply(appliquerDoigt, startX, startY, endX, endY);
+            //courant = courant.applicationDoigt(appliquerDoigt, startX, startY, endX, endY);
            // memoire.setSuivant(courant);
             //canvas.setBitmap(courant.bmp);
             //img.setImageBitmap(tra.bmp);

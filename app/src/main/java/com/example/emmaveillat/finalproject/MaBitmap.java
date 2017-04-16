@@ -90,13 +90,12 @@ public class MaBitmap {
         return new MaBitmap(bmp, filtre);
     }
 
-    //TODO changer nom fonction
     /**
      * fonction qui récupère l'histogramme de l'image que l'utilisateur manipule actuellement.
      * Pour cela, elle parcourt le tableau de pixels de l'image, et place, dans le tableau
      * histogram, à la position correspondante le niveau de gris des pixels lus dans le tableau.
      */
-    public void findHistogram() {
+    public void calculHistogramme() {
         //initialisation des tableaux valMap et histogram
         valMap = new int[largeur * hauteur];
         histogramme = new int[256];
@@ -123,8 +122,9 @@ public class MaBitmap {
      */
     public MaBitmap enGris(){
         //si l'histogramme n'est pas déjà défini dans le tableau histogram, il est calculé via la
-        //fonction findHistogram().
-        if (histogramme == null){findHistogram();}
+        //fonction calculHistogramme().
+        if (histogramme == null){
+            calculHistogramme();}
         int[] pixelsGray = new int[hauteur * largeur];
         //copie de l'image à transformer en la rendant "modifiable" grâce au booléen true.
         Bitmap bmpGray = bmp.copy(Bitmap.Config.ARGB_8888, true);
@@ -218,7 +218,8 @@ public class MaBitmap {
      */
     public MaBitmap egalisationHistogramme(){
         //si l'histogramme n'a pas déjà été trouvé, le calculer
-        if (histogramme == null){findHistogram();}
+        if (histogramme == null){
+            calculHistogramme();}
         int[] pixelsEqualized = new int[hauteur * largeur];
         //calcul de l'histogramme cumulé
         for (int i = 1; i < 256; i++) {
@@ -250,7 +251,8 @@ public class MaBitmap {
      */
     public MaBitmap extensionDynamiques(){
         //si l'histogramme n'a pas déjà été trouvé, le calculer.
-        if (histogramme == null){findHistogram();}
+        if (histogramme == null){
+            calculHistogramme();}
         int[] pixelsExtension = new int[hauteur * largeur];
 
         //détermination des valeurs min et max de l'histogramme
@@ -387,28 +389,39 @@ public class MaBitmap {
         return this;
     }
 
-    //TODO com + javadoc
+    /**
+     * fonction qui permet d'appliquer les filtres moyenneur, gaussien, laplacien et sobel  grâce à
+     * un masque de taille prédéfini. Pour ne pas avoir à gérer le problème des bords, toutes les
+     * bordures de l'image sont passées en blanc. L'utilisateur n'aura qu'à rogner ces bordures si
+     * celles-ci le dérangent grâce à l'outil de rognage.
+     * @param masque masque correspondant au filtre à appliquer à l'image
+     * @param fact facteur à appliquer aux canaux RGB
+     * @param filt entier correspondant au filtre que l'utilisateur veut appliquer
+     * @return l'image avec le filtre appliqué
+     */
     private MaBitmap convolution(int[][] masque, int fact, int filt) {
+        //initialisation de valeurs comme le masque, le tableau de pixels transformés ou les valeurs
+        //des canaux RGB
         int n = masque.length / 2;
         int[] pixelsConv = new int[hauteur * largeur];
         int blanc = Color.rgb(255,255,255);
         int R, G, B, sommeR, sommeG, sommeB, pixel;
         float coef_masque;
-        //Bordures haut et bas en blanc
+        //on transforme les bordures du haut et du bas de l'image en blanc
         for (int y = 0; y < n; y++) {
             for (int x = 0; x < largeur; x++) {
                 pixelsConv[y * largeur + x] = blanc;
                 pixelsConv[(hauteur - y - 1) * largeur + x] = blanc;
             }
         }
-        //Bordures gauche et droite en blanc
+        //on transforme les bordures de gauche et de droite de l'image en blanc
         for (int x = 0; x < n; x++) {
             for (int y = n; y < hauteur - n; y++) {
                 pixelsConv[y * largeur + x] = blanc;
                 pixelsConv[(y + 1) * largeur - x - 1] = blanc;
             }
         }
-        //Convolution
+        //on prépare la convolution avec le masque à appliquer à chaque pixel
         for (int y = n; y < hauteur - n; y++) {
             for (int x = n; x < largeur - n; x++) {
                 sommeR = 0;
@@ -418,7 +431,8 @@ public class MaBitmap {
                     for (int i = -n; i <= n; i++) {
                         coef_masque = masque[j + n][i + n];
                         pixel = pixels[(y + j) * largeur + x + i];
-                        //For every RGB componants, multiplies by convolution matrix coefficient
+                        //on multiplie chaque composante RGB par les coefficients du masque de
+                        //convolution
                         sommeR += coef_masque * Color.red(pixel);
                         sommeG += coef_masque * Color.green(pixel);
                         sommeB += coef_masque * Color.blue(pixel);
@@ -436,9 +450,6 @@ public class MaBitmap {
         return conv;
     }
 
-    //TODO com + javadoc
-
-    //TODO changer nom
     /**
      * fonction qui applique un filtre moyenneur via la fonction de convolution. On définit un
      * masque (matrice) entièrement à 1 qu'on applique à l'image dans la fonction de convolution.
@@ -463,7 +474,8 @@ public class MaBitmap {
         return convolution(masque, 98, 6);
     }
 
-    public int[][] convolutionBorders(int[][] masque) {
+    //TODO comms et javadoc
+    public int[][] borduresConvol(int[][] masque) {
         int n = masque.length / 2;
         int[][] pixelsConvRGB = new int[hauteur * largeur][3];
         int sommeR, sommeG, sommeB;
@@ -525,14 +537,15 @@ public class MaBitmap {
         return pixelsConvRGB;
     }
 
+    //TODO comms et javadoc
     public MaBitmap sobel(){
         int R,G,B;
         //applicates convolution with hx et hy matrix
         int[][] hx = {{-1,0,1},{-2,0,2},{-1,0,1}};
-        int[][] Gx = convolutionBorders(hx);
+        int[][] Gx = borduresConvol(hx);
 
         int[][] hy = {{-1,-2,-1},{0,0,0},{1,2,1}};
-        int[][] Gy = convolutionBorders(hy);
+        int[][] Gy = borduresConvol(hy);
 
         int[][] norme = new int[largeur*hauteur][3];
 
@@ -559,11 +572,12 @@ public class MaBitmap {
         return sobel;
     }
 
+    //TODO comms et javadoc
     public MaBitmap laplacien(){
         int R,G,B;
         //applicates convolution with hx et hy matrix
         int[][] masque = {{1,1,1},{1,-8,1},{1,1,1}};
-        int[][] Gl = convolutionBorders(masque);
+        int[][] Gl = borduresConvol(masque);
 
         int[] pixelsLapla = new int[largeur*hauteur];
         int max = 0;
@@ -585,23 +599,39 @@ public class MaBitmap {
         return laplacien;
     }
 
-    public MaBitmap applyFilter(int filtUtil, int v1, int v2, int v3){
+    /**
+     * fonction qui permet d'appliquer les filtres nécessitant 1 à 3 seekbars
+     * @param filtUtil le filtre à appliquer à l'image
+     * @param v1 valeur de la première seekbar
+     * @param v2 valeur de la deuxième seekbar
+     * @param v3 valeur de la troisième seekbar
+     * @return l'image après avoir passé dans un des filtres appelés dans la fonction
+     */
+    public MaBitmap applicationFiltre(int filtUtil, int v1, int v2, int v3){
+        //si l'utilisateur souhaite appliquer le filtre de sélection de teinte, il a les valeurs des
+        //deux seekbars nécessaires
         if (filtUtil == 1){
-            return selectHue(v1, v2);
+            return selectionTeinte(v1, v2);
         }
+        //si l'utilisateur souhaite appliquer le filtre de changement de teinte, il a la valeur de
+        //la seekbar nécessaire
         if (filtUtil == 2){
-            return filterHue(v1);
+            return changeTeinte(v1);
         }
+        //TODO comm
         if (filtUtil == 3){
-            return cartoonBorders(1F - (float)v1/100F);
+            return borduresCartoon(1F - (float)v1/100F);
         }
+        //si l'utilisateur souhaite appliquer le filtre pour changer l'espace HSV, il a alors les
+        //trois valeurs de teinte, saturation et valeur.
         if (filtUtil == 4){
             return changeHSV(v1, v2, v3);
         }
         return null;
     }
 
-    private MaBitmap selectHue(int pas, int teinte){
+    //TODO comms et javadoc
+    private MaBitmap selectionTeinte(int pas, int teinte){
         int[] pixelsSelect = pixels.clone();
         //Array to stock pixel hsv values
         float[] pixelHSV = new float[3];
@@ -668,7 +698,8 @@ public class MaBitmap {
         return select;
     }
 
-    public MaBitmap filterHue(int teinte){
+    //TODO javadoc et comms
+    public MaBitmap changeTeinte(int teinte){
         int[] pixelsFilt = new int[largeur * hauteur];
         float[] pixelHSV = new float[3];
 
@@ -683,6 +714,7 @@ public class MaBitmap {
         return filtre;
     }
 
+    //TODO javadoc et comms
     public MaBitmap changeHSV(int teinte, int sat, int val){
         int[] pixelsFilt = new int[largeur * hauteur];
         float[] pixelHSV = new float[3];
@@ -715,7 +747,8 @@ public class MaBitmap {
         return filtre;
     }
 
-    public MaBitmap visualCrop(int[] zone){
+    //TODO javadoc et comms
+    public MaBitmap affichageRogne(int[] zone){
         int[] pixelsRogne = pixels.clone();
         int RogneHaut = zone[0] * hauteur / 100;
         int RogneBas = hauteur - zone[1] * hauteur / 100;
@@ -747,7 +780,8 @@ public class MaBitmap {
         return rogne;
     }
 
-    public MaBitmap crop(int[] zone){
+    //TODO javadoc et comms
+    public MaBitmap rognage(int[] zone){
         int RogneHaut = zone[0] * hauteur / 100;
         int RogneBas = hauteur - zone[1] * hauteur / 100;
         int RogneGauche = zone[2] * largeur / 100;
@@ -759,7 +793,9 @@ public class MaBitmap {
         return rogne;
     }
 
+    //TODO change nom
     // Code de Pratik sur stackoverflow.com
+    //TODO javadoc et comms
     private MaBitmap colorDodgeBlend(MaBitmap calque) {
         Bitmap base = bmp.copy(Bitmap.Config.ARGB_8888, true);
         Bitmap mélange = calque.bmp.copy(Bitmap.Config.ARGB_8888, false);
@@ -807,6 +843,8 @@ public class MaBitmap {
         return new MaBitmap(base, 17);
     }
 
+    //TODO change nom
+    //TODO javadoc et comms
     private int colordodge(int in1, int in2) {
         float image = (float)in2;
         float masque = (float)in1;
@@ -819,14 +857,15 @@ public class MaBitmap {
      * On applique finalement la fonction TODO
      * @return l'image en effet crayon
      */
-    public MaBitmap pencilSketch(){
+    public MaBitmap dessinCrayon(){
         MaBitmap gris = enGris();
         MaBitmap inverse = gris.inverser();
         MaBitmap gauss = inverse.gauss();
         return gris.colorDodgeBlend(gauss);
     }
 
-    public MaBitmap closestNeighbor(int nl, int nh){
+    //TODO javadoc et comms
+    public MaBitmap voisinLePlusProche(int nl, int nh){
         float factX = (float) nl/largeur;
         float factY = (float) nh/hauteur;
 
@@ -841,6 +880,7 @@ public class MaBitmap {
         return cn;
     }
 
+    //TODO javadoc et comms
     private void findAreaColor(int x, int y, int l, int h, int[] sommeRGB, int cmpCouleur){
         int index = y*l+x;
         bordures[index]=cmpCouleur;
@@ -855,6 +895,7 @@ public class MaBitmap {
         if ((y<h-1)&&(bordures[index+l]==0)){findAreaColor(x, y+1, l, h, sommeRGB, cmpCouleur);}
     }
 
+    //TODO javadoc et comms
     public MaBitmap cartoon() {
         bordures = new int[largeur * hauteur];
         mapSobel = this.sobel().pixels.clone();
@@ -977,7 +1018,7 @@ public class MaBitmap {
     }
 
     //TODO javadoc et comms
-    public MaBitmap cartoonBorders(float lvl){
+    public MaBitmap borduresCartoon(float lvl){
         float[] hsv = new float[3];
         int[] pixelsCartoon = pixels.clone();
         for (int i = 0; i < largeur * hauteur; i++) {
@@ -998,9 +1039,9 @@ public class MaBitmap {
     }
 
     //TODO Finir application avec doigt
-    public MaBitmap fingerApply(MaBitmap applique, int departX, int departY, int finX, int finY){
+    public MaBitmap applicationDoigt(MaBitmap applique, int departX, int departY, int finX, int finY){
         if (departX < finX){
-            return fingerApply(applique, finX, finY, departX, departY);
+            return applicationDoigt(applique, finX, finY, departX, departY);
         }
         for (int i = departX*departY; i < finX * finY; i++ ) {
             applique.pixels[i] = Color.rgb(255, 255, 255);
