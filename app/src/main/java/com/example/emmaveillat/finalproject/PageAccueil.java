@@ -26,7 +26,7 @@ public class PageAccueil extends Activity {
         new Handler().postDelayed(new Runnable(){
             @Override
             public void run() {
-                //Lien entre la page d'accueile et la page de chargement d'images.
+                //Lien entre la page d'accueil et la page de chargement d'images.
                 Intent photo = new Intent(PageAccueil.this,ChargementPhoto.class);
                 PageAccueil.this.startActivity(photo);
                 PageAccueil.this.finish();

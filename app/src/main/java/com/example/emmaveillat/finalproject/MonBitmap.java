@@ -6,19 +6,72 @@ import android.graphics.Color;
 import java.nio.IntBuffer;
 import java.util.Arrays;
 
+/**
+ * La classe MonBitmap est une classe définissant le type d'image propre à l'application. Elle
+ * contient en paramètres l'image en elle-même, sa taille, la tableau de pixels correspondant,
+ * un témoin si un filtre est appliqué, son histogramme ainsi qu'une map à appliquer pour les
+ * convolutions. Elle permet également l'application de filtres simples (passage en niveaux de gris,
+ * filtre sépia ...), de convolutions (flou gaussien, filtre laplacien ...), de gestion
+ * d'histogramme ou encore de modification de l'image en elle-même comme le rognage.
+ */
 public class MonBitmap {
+
+    /**
+     * l'image utilisée.
+     */
     public Bitmap bmp;
+
+    /**
+     * la largeur de l'image.
+     */
     public int width;
+
+    /**
+     * la hauteur de l'image.
+     */
     public int height;
+
+    /**
+     * le tableau de pixels correspondants à l'image.
+     */
     public int[] pixels;
+
+    /**
+     * le filtre utilisé.
+     */
     public int filter;
+
+    /**
+     * l'histogramme de l'image, initialisé à null.
+     */
     public int[] histogram = null;
+
+    /**
+     * le tableau correspondant à celui des pixels une fois l'image passée en niveaus de gris,
+     * initialisé à null.
+     */
     public int[] valMap = null;
+
+    /**
+     * le tableau servant à gérer les bordures lors des calculs de convolution, initialisé à null.
+     */
     public int[] borders = null;
+
+    /**
+     * le tableau servant à calculer le filtre de Sobel, initialisé à null;
+     */
     public int[] mapSobel = null;
+
     //public int[] basicColors = null;
     //public int[] colors = null;
 
+    /**
+     * fonction qui crée une image utilisable par l'application à partir d'une bitmap classique et
+     * d'un filtre. Elle récupère donc sa hauteur, sa largeur et ses pixels dans un tableau et
+     * évidemment le filtre appliqué.
+     * @param bitmap l'image à manipuler
+     * @param filt le filtre utilisé
+     */
     public MonBitmap(Bitmap bitmap, int filt){
         bmp = bitmap;
         width = bmp.getWidth();
@@ -28,61 +81,93 @@ public class MonBitmap {
         filter = filt;
     }
 
+    /**
+     * fonction qui copie une image existante. Elle est ainsi créée en passant en paramètres dans le
+     * constructeur l'image à dupliquer avec son filtre.
+     * @return l'image copiée
+     */
     public MonBitmap copy(){
         return new MonBitmap(bmp, filter);
     }
 
+    /**
+     * fonction qui récupère l'histogramme de l'image que l'utilisateur manipule actuellement.
+     * Pour cela, elle parcourt le tableau de pixels de l'image, et place, dans le tableau
+     * histogram, à la position correspondante le niveau de gris des pixels lus dans le tableau.
+     */
     public void findHistogram() {
+        //initialisation des tableaux valMap et histogram
         valMap = new int[width * height];
         histogram = new int[256];
+        //initialisation des futures valeurs de rouge, vert et bleu du pixel, ainsi que du niveau de
+        //gris associé
         int pixel, r, g, b, lvl;
-        for (int i = 0; i < width * height; i++) {   /* boucles sur tout le tableau de pixels (bitmap initial) */
-            /* Je récupère les valeurs RGB du pixel dans le bitmap initial */
+        for (int i = 0; i < width * height; i++) {
+            //récupération des valeurs RGB du pixel dans l'image initiale
             pixel = pixels[i];
             r = Color.red(pixel);
             b = Color.blue(pixel);
             g = Color.green(pixel);
-            /* Je fais la moyenne de ces 3 valeurs et donne au pixel du bitmap de sortie le niveau de gris associé */
+            //moyenne des 3 valeurs et donne le niveau de gris associé
             lvl = (int) (0.299F * r + 0.587F * g + 0.114F * b);
             valMap[i] = lvl;
             histogram[lvl]++;
         }
     }
 
+    /**
+     * fonction qui transforme l'image en niveaux de gris associés. Elle parcourt chaque pixel de
+     * l'image à transformer, calcule la moyenne des canaux RGB et retourne l'image grisée.
+     * @return l'image en niveaux de gris
+     */
     public MonBitmap toGray(){
+        //si l'histogramme n'est pas déjà défini dans le tableau histogram, il est calculé via la
+        //fonction findHistogram().
         if (histogram == null){findHistogram();}
         int[] pixelsGray = new int[height * width];
-        Bitmap bmpGray = bmp.copy(Bitmap.Config.ARGB_8888, true); /* Je copie la bitmap en entrée (ce sera la bitmap initial) et la fait modifiable */
-        int lvl, pixel;
-        for (int i = 0; i < width * height; i++) {   /* boucles sur tout le tableau de pixels (bitmap initial) */
+        //copie de l'image à transformer en la rendant "modifiable" grâce au booléen true.
+        Bitmap bmpGray = bmp.copy(Bitmap.Config.ARGB_8888, true);
+        int lvl;
+        for (int i = 0; i < width * height; i++) {
+            //récupération des niveaux de gris à partir du tableau valMap
             lvl = valMap[i];
             pixelsGray[i] = Color.rgb(lvl,lvl,lvl);
         }
         bmpGray.setPixels(pixelsGray, 0, width, 0, 0, width, height);
+        //création d'une image utilisable par l'application grâce à l'image transformée en niveaux
+        //de gris et au filtre gris associé à l'entier 1.
         MonBitmap gray = new MonBitmap(bmpGray, 1);
         gray.histogram = histogram;
         gray.valMap = valMap;
         return gray;
     }
 
+    /**
+     * fonction qui permet d'inverser les couleurs 'une image (filtre négatif). En récupérant chaque
+     * valeur des canaux RGB, on effectue la différence de 255 par celles-ci afin d'obtenir les
+     * valeurs contraires.
+     * @return l'image avec ses couleurs inversées
+     */
     public MonBitmap inverted(){
         int r, g, b, pixel;
         int[] pixelsInv = new int[height * width];
-        //Applies the mask on the bitmap depending on its levels of red, blue and green
-        for (int i = 0; i < width * height; i++) {   /* boucles sur tout le tableau de pixels (bitmap initial) */
-            /* Je récupère les valeurs RGB du pixel dans le bitmap initial */
+        for (int i = 0; i < width * height; i++) {
+            //on soustrait à 255 chaque valeur de rouge, bleu et vert pour trouver leur valeur
+            // inverse, puis on les remet dans le pixel correspondant.
             pixel = pixels[i];
             r = 255 - Color.red(pixel);
             g = 255 - Color.green(pixel);
             b = 255 - Color.blue(pixel);
             pixelsInv[i] = Color.rgb(r, g, b);
         }
+        //ajout de la nouvelle image dans la liste servant d'historique de modifications.
         Bitmap bmpInv = bmp.copy(Bitmap.Config.ARGB_8888, true);
         bmpInv.setPixels(pixelsInv, 0, width, 0, 0, width, height);
         MonBitmap inverted = new MonBitmap(bmpInv, 13);
         return inverted;
     }
 
+    //TODO commentaire et javadoc
     public Bitmap scale(float factor){
         if (factor < 0.1){
             factor = 0.1f;
@@ -92,14 +177,20 @@ public class MonBitmap {
         return Bitmap.createScaledBitmap(bmp, newWidth, newHeight, false);
     }
 
+    /**
+     * fonction qui applique un filtre sépia sur toute l'image. À partir des valeurs de rouge et de
+     * vert de chaque pixel, elle calcule les valeurs équivalentes en sépia (la valeur de bleu est
+     * ainsi écrasée).
+     * @return l'image avec un filtre sépia
+     */
     public MonBitmap sepia(){
-        if (histogram == null){findHistogram();}
+        //initialisation d'entiers et du tableau contenant les pixels après application du filtre.
         int r, g, lvl;
         int[] pixelsSepia = new int[height * width];
         int depth = 20;
-        //Applies the mask on the bitmap depending on its levels of red, blue and green
-        for (int i = 0; i < width * height; i++) {   /* boucles sur tout le tableau de pixels (bitmap initial) */
-            /* Je récupère les valeurs RGB du pixel dans le bitmap initial */
+        //application du filtre sur chaque pixel suivant les valeurs de rouge, de vert, de valMap et
+        // de depth.
+        for (int i = 0; i < width * height; i++) {
             lvl = valMap[i];
             r = lvl + (depth *2);
             g = lvl + depth;
@@ -111,21 +202,31 @@ public class MonBitmap {
             }
             pixelsSepia[i] = Color.rgb(r, g, lvl);
         }
+        //copie de l'image dans la liste servant d'historique de modifications
         Bitmap bmpSepia = bmp.copy(Bitmap.Config.ARGB_8888, true);
         bmpSepia.setPixels(pixelsSepia, 0, width, 0, 0, width, height);
         MonBitmap sepia = new MonBitmap(bmpSepia, 2);
         return sepia;
     }
 
+    /**
+     * fonction qui égalise l'histogramme de l'image à transformer. En utilisant l'espace HSV, on
+     * peut ainsi améliorer les contrastes de l'image si celle-ci est trop sombre.
+     * @return l'image avec son histogramme égalisé
+     */
     public MonBitmap histogramEqualization(){
+        //si l'histogramme n'a pas déjà été trouvé, le calculer
         if (histogram == null){findHistogram();}
         int[] pixelsEqualized = new int[height * width];
+        //calcul de l'histogramme cumulé
         for (int i = 1; i < 256; i++) {
             histogram[i] += histogram[i - 1];
         }
         float[] pixelHSV = new float[3];
         int pixel;
         float newValue;
+        //calcul des valeurs de l'histogramme égalisé par rapport à son histogramme cumulé et à
+        // valMap
         for (int i = 0; i < width * height; i++) {
             pixel = pixels[i];
             newValue = (float) (histogram[valMap[i]]) / (width * height);
@@ -133,15 +234,24 @@ public class MonBitmap {
             pixelHSV[2] = newValue;
             pixelsEqualized[i] = Color.HSVToColor(pixelHSV);
         }
+        //copie de l'image dans la liste servant d'historique de modifications
         Bitmap bmpEqualized = bmp.copy(Bitmap.Config.ARGB_8888, true);
         bmpEqualized.setPixels(pixelsEqualized, 0, width, 0, 0, width, height);
         MonBitmap equalized = new MonBitmap(bmpEqualized, 3);
         return equalized;
     }
 
+    /**
+     * fonction qui calcule une extension linéaire de dynamiques de l'image. Cela équivaut à
+     * améliorer la luminosité de l'image grâce à la manipulation de son histogramme.
+     * @return l'image modifiée avec une extension linéaire de dynamiques
+     */
     public MonBitmap dynamicExtension(){
+        //si l'histogramme n'a pas déjà été trouvé, le calculer.
         if (histogram == null){findHistogram();}
         int[] pixelsExtension = new int[height * width];
+
+        //détermination des valeurs min et max de l'histogramme
         int k = 0;
         while (histogram[k] == 0) {
             k++;
@@ -153,9 +263,11 @@ public class MonBitmap {
             k--;
         }
         int max = k;
+
         float[] pixelHSV = new float[3];
         int pixel;
         float newValue;
+        //calcul pour chaque pixel de sa valeur après extension linéaire de dynamiques
         for (int i = 0; i < width * height; i++) {
             pixel = pixels[i];
             newValue = (float)(valMap[i] - min)/(max - min);
@@ -163,12 +275,18 @@ public class MonBitmap {
             pixelHSV[2] = newValue;
             pixelsExtension[i] = Color.HSVToColor(pixelHSV);
         }
+        //copie de l'image dans la liste servant d'historique de modifications
         Bitmap bmpExtension = bmp.copy(Bitmap.Config.ARGB_8888, true);
         bmpExtension.setPixels(pixelsExtension, 0, width, 0, 0, width, height);
         MonBitmap extension = new MonBitmap(bmpExtension, 4);
         return extension;
     }
 
+    /**
+     * fonction qui retourne l'image dans le sens contraire des aiguilles d'une montre. On
+     * réattribue chaque pixel à la position équivalente dans l'image retournée via leurs tableaux.
+     * @return l'image retournée vers la gauche
+     */
     public MonBitmap rotateLeft(){
         int[] pixelsLeft = new int[height * width];
         for (int y = 0; y < height; ++y) {
@@ -176,11 +294,17 @@ public class MonBitmap {
                 pixelsLeft[( width - x - 1) * height + y] = pixels[y * width + x];
             }
         }
+        //copie de l'image dans la liste servant d'historique de modifications
         Bitmap bmpLeft = Bitmap.createBitmap(pixelsLeft, height, width, Bitmap.Config.ARGB_8888);
         MonBitmap left = new MonBitmap(bmpLeft, filter);
         return left;
     }
 
+    /**
+     * fonction qui retourne l'image dans le sens des aiguilles d'une montre. On réattribue chaque
+     * pixel à la position correspondante dans l'image retournée via leurs tableaux.
+     * @return l'image retournée vers la droite
+     */
     public MonBitmap rotateRight(){
         int[] pixelsRight = new int[height * width];
         for (int y = 0; y < height; ++y) {
@@ -188,11 +312,17 @@ public class MonBitmap {
                 pixelsRight[(x+1)*height - y - 1] = pixels[y * width + x];
             }
         }
+        //copie de l'image dans la liste servant d'historique de modifications
         Bitmap bmpRight = Bitmap.createBitmap(pixelsRight, height, width, Bitmap.Config.ARGB_8888);
         MonBitmap right = new MonBitmap(bmpRight, filter);
         return right;
     }
 
+    /**
+     * fonction qui retourne l'image suivant un axe horizontal (reflet dans l'eau). On réattribue
+     * chaque pixel à la position correspondante dans l'image retournée via leurs tableaux.
+     * @return l'image retournée horizontalement
+     */
     public MonBitmap fliplr(){
         int[] pixelsFlip = new int[width * height];
         for (int y = 0; y < height; ++y) {
@@ -200,11 +330,17 @@ public class MonBitmap {
                 pixelsFlip[(y+1) * width - x - 1] = pixels[y * width + x];
             }
         }
+        //copie de l'image dans la liste servant d'historique de modifications
         Bitmap bmpFliplr = Bitmap.createBitmap(pixelsFlip, width, height, Bitmap.Config.ARGB_8888);
         MonBitmap fliplr = new MonBitmap(bmpFliplr, filter);
         return fliplr;
     }
 
+    /**
+     * fonction qui retourne l'image suivant un axe vertical (reflet dans un miroir). On réattribue
+     * chaque pixel à la position correspondante dans l'image retournée via leurs tableaux.
+     * @return l'image retournée verticalement
+     */
     public MonBitmap flipud(){
         int[] pixelsFlip = new int[width * height];
         for (int y = 0; y < height; ++y) {
@@ -212,11 +348,13 @@ public class MonBitmap {
                 pixelsFlip[(height - y - 1) * width + x] = pixels[y * width + x];
             }
         }
+        //copie de l'image dans la liste servant d'historique de modifications
         Bitmap bmpFlipud = Bitmap.createBitmap(pixelsFlip, width, height, Bitmap.Config.ARGB_8888);
         MonBitmap flipud = new MonBitmap(bmpFlipud, filter);
         return flipud;
     }
 
+    //TODO what x2 ?
     public MonBitmap lowerRes() {
         if (width * height > 1000000) {
             int newWidth, newHeight;
@@ -843,7 +981,10 @@ public class MonBitmap {
         if (startX < endX){
             return fingerApply(toApply, endX, endY, startX, startY);
         }
-        int range = Math.min(width,height)/10;
+        for (int i = startX*startY; i < endX * endY; i++ ) {
+            toApply.pixels[i] = Color.rgb(255, 255, 255);
+        }
+        /*int range = Math.min(width,height)/10;
         int[] pixelsFinger = pixels.clone();
         int x = startX;
         int y = startY;
@@ -889,6 +1030,7 @@ public class MonBitmap {
         }
         Bitmap bmpFinger = Bitmap.createBitmap(pixelsFinger, width, height, Bitmap.Config.ARGB_8888);
         MonBitmap finger = new MonBitmap(bmpFinger, 18);
-        return finger;
+        return finger;*/
+        return toApply;
     }
 }

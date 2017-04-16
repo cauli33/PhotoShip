@@ -996,6 +996,14 @@ public class MenuGeneral extends AppCompatActivity {
                     break;
 
                 case MotionEvent.ACTION_MOVE:
+                    if (touchState == TOUCH) {
+                        touchState = TOUCH;
+                        touchX = (int) event.getX();
+                        touchY = (int) event.getY();
+                        endX = touchX - viewCoords[0];
+                        endY = touchY - viewCoords[1];
+                        current = current.fingerApply(toApplyFinger, startX, startY, endX, endY);
+                    }
                     break;
 
                 case MotionEvent.ACTION_UP:
@@ -1007,6 +1015,9 @@ public class MenuGeneral extends AppCompatActivity {
                     current = current.fingerApply(toApplyFinger, startX, startY, endX, endY);
                     memory.setSuivant(current);
                     img.setImageBitmap(current.bmp);
+                    break;
+
+                case MotionEvent.ACTION_CANCEL:
                     break;
 
             }
