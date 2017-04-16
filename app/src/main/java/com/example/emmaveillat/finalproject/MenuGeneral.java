@@ -43,8 +43,8 @@ public class MenuGeneral extends AppCompatActivity {
      */
 
     BitmapListe memory;
-    MonBitmap current, bmpTest;
-    MonBitmap toApplyFinger;
+    MaBitmap current, bmpTest;
+    MaBitmap toApplyFinger;
     Bitmap pictureFromGallery;
     ImageButton original, gris, sepia, invert, moy, sobel, laplacien, filtre, ED, teinte, HE, pencil1, pencil2, pencil3, cartoon, color;
     ImageButton top, left, right, bot;
@@ -92,7 +92,7 @@ public class MenuGeneral extends AppCompatActivity {
         pictureFromGallery = ChargementPhoto.scaleImage();
         //copies the original bitmap to be mutable
 
-        current = new MonBitmap(pictureFromGallery.copy(Bitmap.Config.ARGB_8888, true), 0);
+        current = new MaBitmap(pictureFromGallery.copy(Bitmap.Config.ARGB_8888, true), 0);
         //Objects displayed in the menu
         img = (ImageView) findViewById(R.id.picture);
         img.setImageBitmap(current.bmp);
@@ -298,7 +298,7 @@ public class MenuGeneral extends AppCompatActivity {
                 case R.id.original:
                     if (current.filter != 0) {
                         pictureFromGallery = ChargementPhoto.scaleImage();
-                        current = new MonBitmap(pictureFromGallery.copy(Bitmap.Config.ARGB_8888, true), 0);
+                        current = new MaBitmap(pictureFromGallery.copy(Bitmap.Config.ARGB_8888, true), 0);
                         memory.setSuivant(current);
                         img.setImageBitmap(current.bmp);
                     }
@@ -400,11 +400,11 @@ public class MenuGeneral extends AppCompatActivity {
                     textsb1.setText("Teinte");
                     seekbar2.setProgress(0);
                     seekbar2.setMax(360);
-                    seekbar2.setOnSeekBarChangeListener(satbarlistener);
+                    seekbar2.setOnSeekBarChangeListener(seekBarChangeListener);
                     textsb2.setText("Saturation");
                     seekbar3.setProgress(0);
                     seekbar3.setMax(360);
-                    seekbar3.setOnSeekBarChangeListener(valbarlistener);
+                    seekbar3.setOnSeekBarChangeListener(seekBarChangeListener);
                     textsb3.setText("Valeur");
                     huebar = 1;
                     valbar = 2;
@@ -600,42 +600,6 @@ public class MenuGeneral extends AppCompatActivity {
         public void onStopTrackingTouch(SeekBar seekBar) {
             editText();
             editHueColor();
-        }
-    };
-
-    SeekBar.OnSeekBarChangeListener satbarlistener = new SeekBar.OnSeekBarChangeListener() {
-
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            editText();
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-            editText();
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-            editText();
-        }
-    };
-
-    SeekBar.OnSeekBarChangeListener valbarlistener = new SeekBar.OnSeekBarChangeListener() {
-
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            editText();
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-            editText();
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-            editText();
         }
     };
 
@@ -970,9 +934,9 @@ public class MenuGeneral extends AppCompatActivity {
                 //if one finger touches the screen, the factor of zoom is displayed
                 case MotionEvent.ACTION_POINTER_UP:touchState = IDLE;
                     if (current.filter == 20) {
-                        current = new MonBitmap(current.scale(factor), 20);
+                        current = new MaBitmap(current.scale(factor), 20);
                     } else {
-                        current = new MonBitmap(current.scale(factor), 20);
+                        current = new MaBitmap(current.scale(factor), 20);
                         memory.setSuivant(current);
                     }
                     break;
@@ -989,9 +953,9 @@ public class MenuGeneral extends AppCompatActivity {
             int[] viewCoords = new int[2];
             img.getLocationOnScreen(viewCoords);
             int touchX, touchY;
-            MonBitmap copy = current.copy();//Copy if yourBMP is not mutable
+            MaBitmap copy = current.copy();//Copy if yourBMP is not mutable
             Canvas canvas = new Canvas(copy.bmp);
-            MonBitmap transform = current.copy();
+            MaBitmap transform = current.copy();
             transform.toGray();
             int test = 0;
 

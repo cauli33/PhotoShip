@@ -81,7 +81,8 @@ public class ChargementPhoto extends Activity {
      * @param view la nouvelle vue utilisée pour la galerie
      */
     public void chargementImage(View view) {
-        Intent galerie = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent galerie = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.
+                EXTERNAL_CONTENT_URI);
         startActivityForResult(galerie, tmp_resultat);
     }
 
@@ -94,10 +95,12 @@ public class ChargementPhoto extends Activity {
                 //on récupère l'image et ses informations comme le chemin lors de sa sélection par
                 // toucher.
                 Uri imgSelec = data.getData();
-                imgUtilisee = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgSelec);
+                imgUtilisee = MediaStore.Images.Media.getBitmap(this.getContentResolver(),
+                        imgSelec);
                 String[] donneesChemin = { MediaStore.Images.Media.DATA };
 
-                Cursor curseur = getContentResolver().query(imgSelec, donneesChemin, null, null, null);
+                Cursor curseur = getContentResolver().query(imgSelec, donneesChemin, null, null,
+                        null);
                 curseur.moveToFirst();
                 int indexColonne = curseur.getColumnIndex(donneesChemin[0]);
 
@@ -119,7 +122,8 @@ public class ChargementPhoto extends Activity {
                 // envoyé
                 Bitmap photo = (Bitmap) data.getExtras().get("data");
                 cheminImg = "newPhoto" + Math.random();
-                MediaStore.Images.Media.insertImage(getContentResolver(), photo, cheminImg, "photo from camera");
+                MediaStore.Images.Media.insertImage(getContentResolver(), photo, cheminImg, "photo " +
+                        "from camera");
 
                 chargementImage(imageView);
 
@@ -130,7 +134,8 @@ public class ChargementPhoto extends Activity {
                 Toast.makeText(this, "Vous n'avez pas choisi d'image", Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
-            Toast.makeText(this, "Quelque chose a mal fonctionné, veuillez réessayer.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Quelque chose a mal fonctionné, veuillez réessayer.", Toast.
+                    LENGTH_LONG).show();
         }
 
     }
