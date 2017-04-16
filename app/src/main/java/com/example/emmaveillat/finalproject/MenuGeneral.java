@@ -3,7 +3,9 @@ package com.example.emmaveillat.finalproject;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -27,6 +29,7 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.Arrays;
 
 /**
@@ -980,11 +983,17 @@ public class MenuGeneral extends AppCompatActivity {
     };
 
     View.OnTouchListener ApplyWithFingerListener = new View.OnTouchListener(){
+
         @Override
         public boolean onTouch(View view, MotionEvent event) {
             int[] viewCoords = new int[2];
             img.getLocationOnScreen(viewCoords);
             int touchX, touchY;
+            MonBitmap copy = current.copy();//Copy if yourBMP is not mutable
+            Canvas canvas = new Canvas(copy.bmp);
+            MonBitmap transform = current.copy();
+            transform.toGray();
+            int test = 0;
 
             switch(event.getAction() & MotionEvent.ACTION_MASK) {
 
@@ -993,7 +1002,23 @@ public class MenuGeneral extends AppCompatActivity {
                     touchY = (int) event.getY();
                     startX = touchX - viewCoords[0];
                     startY = touchY - viewCoords[1];
-                    break;
+                    Paint paint = new Paint();
+                    paint.setAlpha(50); //Put a value between 0 and 255
+                    paint.setColor(Color.RED); //Put your line color
+                    paint.setStrokeWidth(5); //Choose the width of your line
+                    //canvas.drawCircle((float) startX, startY, 10, paint);
+                    canvas.drawLine (startX, startY, endX,  endY, paint);
+                    for (int i = 0; i<copy.width*copy.height; i++){
+                        if (copy.pixels[i] == Color.RED){
+                            current.pixels[i] = transform.pixels[i];
+                            test += 1;
+                        }
+                    }
+
+                    //current = current.fingerApply(toApplyFinger, startX, startY, endX, endY);
+                    canvas.setBitmap(current.bmp);
+
+            break;
 
                 case MotionEvent.ACTION_MOVE:
                     if (touchState == TOUCH) {
@@ -1002,7 +1027,23 @@ public class MenuGeneral extends AppCompatActivity {
                         touchY = (int) event.getY();
                         endX = touchX - viewCoords[0];
                         endY = touchY - viewCoords[1];
-                        current = current.fingerApply(toApplyFinger, startX, startY, endX, endY);
+                        //current = current.fingerApply(toApplyFinger, startX, startY, endX, endY);
+                        copy = current.copy();//Copy if yourBMP is not mutable
+                        canvas = new Canvas(copy.bmp);
+                        paint = new Paint();
+                        paint.setAlpha(50); //Put a value between 0 and 255
+                        paint.setColor(Color.RED); //Put your line color
+                        paint.setStrokeWidth(5); //Choose the width of your line
+                        canvas.drawCircle((float) endX, endY, 10, paint);
+                        for (int i = 0; i<copy.width*copy.height; i++){
+                            if (copy.pixels[i] == Color.RED){
+                                current.pixels[i] = transform.pixels[i];
+                                test += 1;
+                            }
+                        }
+
+                        //current = current.fingerApply(toApplyFinger, startX, startY, endX, endY);
+                        canvas.setBitmap(current.bmp);
                     }
                     break;
 
@@ -1012,16 +1053,35 @@ public class MenuGeneral extends AppCompatActivity {
                     endX = touchX - viewCoords[0];
                     endY = touchY - viewCoords[1];
 
-                    current = current.fingerApply(toApplyFinger, startX, startY, endX, endY);
-                    memory.setSuivant(current);
-                    img.setImageBitmap(current.bmp);
+                    copy = current.copy();//Copy if yourBMP is not mutable
+                    canvas = new Canvas(copy.bmp);
+                    paint = new Paint();
+                    paint.setAlpha(50); //Put a value between 0 and 255
+                    paint.setColor(Color.RED); //Put your line color
+                    paint.setStrokeWidth(5); //Choose the width of your line
+                    canvas.drawCircle((float) endX, endY, 10, paint);
+                    for (int i = 0; i<copy.width*copy.height; i++){
+                        if (copy.pixels[i] == Color.RED) {
+                            current.pixels[i] = transform.pixels[i];
+                        }
+                    }
+                    img.setImageBitmap(transform.bmp);
+
+
                     break;
 
                 case MotionEvent.ACTION_CANCEL:
                     break;
 
             }
+
+            //current = current.fingerApply(toApplyFinger, startX, startY, endX, endY);
+           // memory.setSuivant(current);
+            //canvas.setBitmap(current.bmp);
+            //img.setImageBitmap(tra.bmp);
+
             return true;
+
 
         }
 
