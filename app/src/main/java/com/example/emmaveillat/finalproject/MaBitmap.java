@@ -86,10 +86,11 @@ public class MaBitmap {
      * constructeur l'image à dupliquer avec son filtre.
      * @return l'image copiée
      */
-    public MaBitmap copy(){
+    public MaBitmap copie(){
         return new MaBitmap(bmp, filtre);
     }
 
+    //TODO changer nom fonction
     /**
      * fonction qui récupère l'histogramme de l'image que l'utilisateur manipule actuellement.
      * Pour cela, elle parcourt le tableau de pixels de l'image, et place, dans le tableau
@@ -108,7 +109,7 @@ public class MaBitmap {
             r = Color.red(pixel);
             b = Color.blue(pixel);
             g = Color.green(pixel);
-            //moyenne des 3 valeurs et donne le niveau de gris associé
+            //moyenneur des 3 valeurs et donne le niveau de gris associé
             lvl = (int) (0.299F * r + 0.587F * g + 0.114F * b);
             valMap[i] = lvl;
             histogramme[lvl]++;
@@ -117,10 +118,10 @@ public class MaBitmap {
 
     /**
      * fonction qui transforme l'image en niveaux de gris associés. Elle parcourt chaque pixel de
-     * l'image à transformer, calcule la moyenne des canaux RGB et retourne l'image grisée.
+     * l'image à transformer, calcule la moyenneur des canaux RGB et retourne l'image grisée.
      * @return l'image en niveaux de gris
      */
-    public MaBitmap toGray(){
+    public MaBitmap enGris(){
         //si l'histogramme n'est pas déjà défini dans le tableau histogram, il est calculé via la
         //fonction findHistogram().
         if (histogramme == null){findHistogram();}
@@ -148,7 +149,7 @@ public class MaBitmap {
      * valeurs contraires.
      * @return l'image avec ses couleurs inversées
      */
-    public MaBitmap inverted(){
+    public MaBitmap inverser(){
         int r, g, b, pixel;
         int[] pixelsInv = new int[hauteur * largeur];
         for (int i = 0; i < largeur * hauteur; i++) {
@@ -167,6 +168,7 @@ public class MaBitmap {
         return inverted;
     }
 
+    //TODO changer nom fonction
     //TODO commentaire et javadoc
     public Bitmap scale(float facteur){
         if (facteur < 0.1){
@@ -214,7 +216,7 @@ public class MaBitmap {
      * peut ainsi améliorer les contrastes de l'image si celle-ci est trop sombre.
      * @return l'image avec son histogramme égalisé
      */
-    public MaBitmap histogramEqualization(){
+    public MaBitmap egalisationHistogramme(){
         //si l'histogramme n'a pas déjà été trouvé, le calculer
         if (histogramme == null){findHistogram();}
         int[] pixelsEqualized = new int[hauteur * largeur];
@@ -246,7 +248,7 @@ public class MaBitmap {
      * améliorer la luminosité de l'image grâce à la manipulation de son histogramme.
      * @return l'image modifiée avec une extension linéaire de dynamiques
      */
-    public MaBitmap dynamicExtension(){
+    public MaBitmap extensionDynamiques(){
         //si l'histogramme n'a pas déjà été trouvé, le calculer.
         if (histogramme == null){findHistogram();}
         int[] pixelsExtension = new int[hauteur * largeur];
@@ -287,7 +289,7 @@ public class MaBitmap {
      * réattribue chaque pixel à la position équivalente dans l'image retournée via leurs tableaux.
      * @return l'image retournée vers la gauche
      */
-    public MaBitmap rotateLeft(){
+    public MaBitmap rotationGauche(){
         int[] pixelsGauche = new int[hauteur * largeur];
         for (int y = 0; y < hauteur; ++y) {
             for (int x = 0 ; x < largeur ; ++x) {
@@ -305,7 +307,7 @@ public class MaBitmap {
      * pixel à la position correspondante dans l'image retournée via leurs tableaux.
      * @return l'image retournée vers la droite
      */
-    public MaBitmap rotateRight(){
+    public MaBitmap rotationDroit(){
         int[] pixelsRight = new int[hauteur * largeur];
         for (int y = 0; y < hauteur; ++y) {
             for (int x = 0 ; x < largeur ; ++x) {
@@ -323,7 +325,7 @@ public class MaBitmap {
      * chaque pixel à la position correspondante dans l'image retournée via leurs tableaux.
      * @return l'image retournée horizontalement
      */
-    public MaBitmap fliplr(){
+    public MaBitmap miroirHorizontal(){
         int[] pixelsMH = new int[largeur * hauteur];
         for (int y = 0; y < hauteur; ++y) {
             for (int x = 0 ; x < largeur ; ++x) {
@@ -341,7 +343,7 @@ public class MaBitmap {
      * chaque pixel à la position correspondante dans l'image retournée via leurs tableaux.
      * @return l'image retournée verticalement
      */
-    public MaBitmap flipud(){
+    public MaBitmap miroirVertical(){
         int[] pixelsMV = new int[largeur * hauteur];
         for (int y = 0; y < hauteur; ++y) {
             for (int x = 0 ; x < largeur ; ++x) {
@@ -354,6 +356,7 @@ public class MaBitmap {
         return miroirV;
     }
 
+    //TODO changer nom
     //TODO what x2 ?
     public MaBitmap lowerRes() {
         if (largeur * hauteur > 1000000) {
@@ -385,7 +388,7 @@ public class MaBitmap {
     }
 
     //TODO com + javadoc
-    private MaBitmap convolutionBlur(int[][] masque, int fact, int filt) {
+    private MaBitmap convolution(int[][] masque, int fact, int filt) {
         int n = masque.length / 2;
         int[] pixelsConv = new int[hauteur * largeur];
         int blanc = Color.rgb(255,255,255);
@@ -434,25 +437,30 @@ public class MaBitmap {
     }
 
     //TODO com + javadoc
-    public MaBitmap moyenne(int n) {
-        //Creates a matrix full of ones and applicates convolution (and divides by the number of pixels used)
+
+    //TODO changer nom
+    /**
+     * fonction qui applique un filtre moyenneur via la fonction de convolution. On définit un
+     * masque (matrice) entièrement à 1 qu'on applique à l'image dans la fonction de convolution.
+     * @param n taille du masque à appliquer
+     * @return l'image avec le filtre moyenneur
+     */
+    public MaBitmap moyenneur(int n) {
         int[][] masque = new int[n][n];
         for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                masque[i][j] = 1;
-            }
+            for (int j = 0; j < n; j++) {masque[i][j] = 1;}
         }
-        return convolutionBlur(masque, n*n, 5);
+        return convolution(masque, n*n, 5);
     }
 
     /**
      * fonction qui applique un filtre gaussien sur l'image. Pour ce faire, on définit un masque
-     * précis à appliquer via la fonction de convolution
+     * (matrice) précis à appliquer via la fonction de convolution.
      * @return l'image avec un filtre gaussien
      */
     public MaBitmap gauss(){
         int[][] masque ={{1,2,3,2,1},{2,6,8,6,2},{3,8,10,8,3},{2,6,8,6,2},{1,2,3,2,1}};
-        return convolutionBlur(masque, 98, 6);
+        return convolution(masque, 98, 6);
     }
 
     public int[][] convolutionBorders(int[][] masque) {
@@ -516,7 +524,6 @@ public class MaBitmap {
         }
         return pixelsConvRGB;
     }
-
 
     public MaBitmap sobel(){
         int R,G,B;
@@ -806,117 +813,123 @@ public class MaBitmap {
         return ((int) ((image == 255) ? image:Math.min(255, (((long)masque << 8 ) / (255 - image)))));
     }
 
+    /**
+     * fonction qui applique un effet crayon sur l'image. On applique successivement les fonctions
+     * de niveaux de gris, la fonction pour inverser les couleurs et le filtre gaussien.
+     * On applique finalement la fonction TODO
+     * @return l'image en effet crayon
+     */
     public MaBitmap pencilSketch(){
-        MaBitmap gris = toGray();
-        MaBitmap inverse = gris.inverted();
+        MaBitmap gris = enGris();
+        MaBitmap inverse = gris.inverser();
         MaBitmap gauss = inverse.gauss();
         return gris.colorDodgeBlend(gauss);
     }
 
-    public MaBitmap closestNeighbor(int newWidth, int newHeight){
-        float factX = (float) newWidth/width;
-        float factY = (float) newHeight/height;
+    public MaBitmap closestNeighbor(int nl, int nh){
+        float factX = (float) nl/largeur;
+        float factY = (float) nh/hauteur;
 
-        int[] pixelsCN = new int [newWidth*newHeight];
-        for (int x = 0; x < newWidth; x++) {
-            for (int y = 0; y < newHeight; y++) {
-                pixelsCN[y * newWidth + x] = pixels[(int)(y / factY) * width + (int)(x / factX)];
+        int[] pixelsCN = new int [nl*nh];
+        for (int x = 0; x < nl; x++) {
+            for (int y = 0; y < nh; y++) {
+                pixelsCN[y * nl + x] = pixels[(int)(y / factY) * largeur + (int)(x / factX)];
             }
         }
-        Bitmap bmpCN = Bitmap.createBitmap(pixelsCN, newWidth, newHeight, Bitmap.Config.ARGB_8888);
+        Bitmap bmpCN = Bitmap.createBitmap(pixelsCN, nl, nh, Bitmap.Config.ARGB_8888);
         MaBitmap cn = new MaBitmap(bmpCN, 19);
         return cn;
     }
 
-    private void findAreaColor(int x, int y, int width, int height, int[] sumRGB, int countcolors){
-        int index = y*width+x;
-        borders[index]=countcolors;
+    private void findAreaColor(int x, int y, int l, int h, int[] sommeRGB, int cmpCouleur){
+        int index = y*l+x;
+        bordures[index]=cmpCouleur;
         int pixel = pixels[index];
-        sumRGB[0] += Color.red(pixel);
-        sumRGB[1] += Color.green(pixel);
-        sumRGB[2] += Color.blue(pixel);
-        sumRGB[3] ++;
-        if ((x>0) && (borders[index-1]==0)){findAreaColor(x-1, y, width, height, sumRGB, countcolors);}
-        if ((x<width-1)&&(borders[index+1]==0)){findAreaColor(x+1, y, width, height, sumRGB, countcolors);}
-        if ((y>0)&&(borders[index-width]==0)){findAreaColor(x, y-1, width, height, sumRGB, countcolors);}
-        if ((y<height-1)&&(borders[index+width]==0)){findAreaColor(x, y+1, width, height, sumRGB, countcolors);}
+        sommeRGB[0] += Color.red(pixel);
+        sommeRGB[1] += Color.green(pixel);
+        sommeRGB[2] += Color.blue(pixel);
+        sommeRGB[3] ++;
+        if ((x>0) && (bordures[index-1]==0)){findAreaColor(x-1, y, l, h, sommeRGB, cmpCouleur);}
+        if ((x<l-1)&&(bordures[index+1]==0)){findAreaColor(x+1, y, l, h, sommeRGB, cmpCouleur);}
+        if ((y>0)&&(bordures[index-l]==0)){findAreaColor(x, y-1, l, h, sommeRGB, cmpCouleur);}
+        if ((y<h-1)&&(bordures[index+l]==0)){findAreaColor(x, y+1, l, h, sommeRGB, cmpCouleur);}
     }
 
     public MaBitmap cartoon() {
-        borders = new int[width * height];
+        bordures = new int[largeur * hauteur];
         mapSobel = this.sobel().pixels.clone();
         int pixel, r, g, b;
         //Fills mapBorders with -1 at borders
-        for (int i=0; i<3*width; i ++){
-            borders[i] = -1;
-            borders[width*height - 1 - i] = -1;
+        for (int i=0; i<3*largeur; i ++){
+            bordures[i] = -1;
+            bordures[largeur*hauteur - 1 - i] = -1;
         }
-        for (int y=3; y<height -3; y++){
+        for (int y=3; y<hauteur -3; y++){
             for (int x=0; x<3; x++) {
-                borders[y * width + x] = -1;
-                borders[(y+1) * width - x - 1] = -1;
+                bordures[y * largeur + x] = -1;
+                bordures[(y+1) * largeur - x - 1] = -1;
             }
         }
-        for (int i = 0; i < width * height; i++) {
+        for (int i = 0; i < largeur * hauteur; i++) {
             pixel = mapSobel[i];
             r = Color.red(pixel);
             g = Color.green(pixel);
             b = Color.blue(pixel);
             if (r + b + g > 30) {
-                borders[i] = -1;
+                bordures[i] = -1;
             }
         }
-        int[] colors = new int[width*height];
-        int[] basicColors = new int[1000];
-        int countBasicColors = 0;
-        int countColors = 1;
-        int[] sumRGB = new int[4];
-        int color;
+        int[] couleurs = new int[largeur*hauteur];
+        int[] couleurBase = new int[1000];
+        int cmpBaseC = 0;
+        int cmpCouleur = 1;
+        int[] sommeRGB = new int[4];
+        int couleur;
         int i;
         int dr, dg, db;
         boolean resume;
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                if (borders[y * width + x] == 0) {
-                    Arrays.fill(sumRGB, 0);
-                    findAreaColor(x, y, width, height, sumRGB, countColors);
-                    r = sumRGB[0] / sumRGB[3];
-                    g = sumRGB[1] / sumRGB[3];
-                    b = sumRGB[2] / sumRGB[3];
-                    if (countBasicColors == 0){
-                        basicColors[countBasicColors] = Color.rgb(r, g, b);
-                        colors[countColors] = countBasicColors;
-                        countBasicColors++;
+        for (int y = 0; y < hauteur; y++) {
+            for (int x = 0; x < largeur; x++) {
+                if (bordures[y * largeur + x] == 0) {
+                    Arrays.fill(sommeRGB, 0);
+                    findAreaColor(x, y, largeur, hauteur, sommeRGB, cmpCouleur);
+                    r = sommeRGB[0] / sommeRGB[3];
+                    g = sommeRGB[1] / sommeRGB[3];
+                    b = sommeRGB[2] / sommeRGB[3];
+                    if (cmpBaseC == 0){
+                        couleurBase[cmpBaseC] = Color.rgb(r, g, b);
+                        couleurs[cmpCouleur] = cmpBaseC;
+                        cmpBaseC++;
                     }
                     else {
                         i = 0;
                         resume = true;
-                        while ((i < countBasicColors)&&(resume)){
-                            color = basicColors[i];
-                            dr = r - Color.red(color);
-                            dg = g - Color.green(color);
-                            db = b - Color.blue(color);
+                        while ((i < cmpBaseC)&&(resume)){
+                            couleur = couleurBase[i];
+                            dr = r - Color.red(couleur);
+                            dg = g - Color.green(couleur);
+                            db = b - Color.blue(couleur);
                             if (2*dr*dr + 4*dg*dg + 3*db*db < 5000) {
-                                colors[countColors] = i;
+                                couleurs[cmpCouleur] = i;
                                 resume = false;
                             }
                             i++;
                         }
                         if (resume) {
-                            basicColors[countBasicColors] = Color.rgb(r, g, b);
-                            colors[countColors] = countBasicColors;
-                            countBasicColors++;
+                            couleurBase[cmpBaseC] = Color.rgb(r, g, b);
+                            couleurs[cmpCouleur] = cmpBaseC;
+                            cmpBaseC++;
                         }
                     }
-                    countColors++;
+                    cmpCouleur++;
                 }
             }
         }
 
-        int[] pixelsCartoon = new int[width* height];
-        for (int j = 0; j < width * height; j++) {
-            if (borders[j] != -1) {
-                pixelsCartoon[j] = basicColors[colors[borders[j]]];
+        int[] pixelsCartoon = new int[largeur* hauteur];
+        for (int j = 0; j < largeur * hauteur; j++) {
+            if (bordures[j] != -1) {
+                pixelsCartoon[j] = couleurBase[couleurs[bordures[j]]];
             }
             else{
                 pixel = pixels[j];
@@ -925,13 +938,13 @@ public class MaBitmap {
                 b = Color.blue(pixel);
                 i = 0;
                 resume = true;
-                while ((i < countBasicColors)&&(resume)){
-                    color = basicColors[i];
-                    dr = r - Color.red(color);
-                    dg = g - Color.green(color);
-                    db = b - Color.blue(color);
+                while ((i < cmpBaseC)&&(resume)){
+                    couleur = couleurBase[i];
+                    dr = r - Color.red(couleur);
+                    dg = g - Color.green(couleur);
+                    db = b - Color.blue(couleur);
                     if (2*dr*dr + 4*dg*dg + 3*db*db < 5000) {
-                        pixelsCartoon[j] = color;
+                        pixelsCartoon[j] = couleur;
                         resume = false;
                     }
                     i++;
@@ -941,33 +954,34 @@ public class MaBitmap {
                 }
             }
         }
-        /*int color;
-        int[] sumRGB = new int[4];
+        /*int couleur;
+        int[] sommeRGB = new int[4];
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (borders[y * width + x] == 0) {
-                    Arrays.fill(sumRGB, 0);
-                    findAreaColor(x, y, width, height, sumRGB);
-                    r = sumRGB[0] / sumRGB[3];
-                    g = sumRGB[1] / sumRGB[3];
-                    b = sumRGB[2] / sumRGB[3];
-                    color = Color.rgb(r, g, b);
-                    paintArea(x, y, width, height, color);
+                    Arrays.fill(sommeRGB, 0);
+                    findAreaColor(x, y, width, height, sommeRGB);
+                    r = sommeRGB[0] / sommeRGB[3];
+                    g = sommeRGB[1] / sommeRGB[3];
+                    b = sommeRGB[2] / sommeRGB[3];
+                    couleur = Color.rgb(r, g, b);
+                    paintArea(x, y, width, height, couleur);
                 }
             }
         }*/
-        Bitmap bmpCartoon = Bitmap.createBitmap(pixelsCartoon, width, height, Bitmap.Config.ARGB_8888);
+        Bitmap bmpCartoon = Bitmap.createBitmap(pixelsCartoon, largeur, hauteur, Bitmap.Config.ARGB_8888);
         MaBitmap cartoon = new MaBitmap(bmpCartoon, 14);
-        cartoon.borders = this.borders.clone();
+        cartoon.bordures = this.bordures.clone();
         cartoon.mapSobel = this.mapSobel.clone();
         return cartoon;
     }
 
+    //TODO javadoc et comms
     public MaBitmap cartoonBorders(float lvl){
         float[] hsv = new float[3];
         int[] pixelsCartoon = pixels.clone();
-        for (int i = 0; i < width * height; i++) {
-            if (borders[i] == -1) {
+        for (int i = 0; i < largeur * hauteur; i++) {
+            if (bordures[i] == -1) {
                 Color.colorToHSV(mapSobel[i], hsv);
                 if (hsv[2] > lvl) {
                     int v = (int) (100 * (1 - hsv[2]));
@@ -975,27 +989,28 @@ public class MaBitmap {
                 }
             }
         }
-        Bitmap bmpCartoon = Bitmap.createBitmap(pixelsCartoon, width, height, Bitmap.Config.ARGB_8888);
+        Bitmap bmpCartoon = Bitmap.createBitmap(pixelsCartoon, largeur, hauteur, Bitmap.Config.
+                ARGB_8888);
         MaBitmap cartoon = new MaBitmap(bmpCartoon, 14);
-        cartoon.borders = this.borders.clone();
+        cartoon.bordures = this.bordures.clone();
         cartoon.mapSobel = this.mapSobel.clone();
         return cartoon;
     }
 
     //TODO Finir application avec doigt
-    public MaBitmap fingerApply(MaBitmap toApply, int startX, int startY, int endX, int endY){
-        if (startX < endX){
-            return fingerApply(toApply, endX, endY, startX, startY);
+    public MaBitmap fingerApply(MaBitmap applique, int departX, int departY, int finX, int finY){
+        if (departX < finX){
+            return fingerApply(applique, finX, finY, departX, departY);
         }
-        for (int i = startX*startY; i < endX * endY; i++ ) {
-            toApply.pixels[i] = Color.rgb(255, 255, 255);
+        for (int i = departX*departY; i < finX * finY; i++ ) {
+            applique.pixels[i] = Color.rgb(255, 255, 255);
         }
         /*int range = Math.min(width,height)/10;
         int[] pixelsFinger = pixels.clone();
-        int x = startX;
-        int y = startY;
+        int x = departX;
+        int y = departY;
         int startI, startJ;
-        if (endX == startX){
+        if (finX == departX){
             if (x<range){
                 startI = x - range;
             }
@@ -1006,13 +1021,13 @@ public class MaBitmap {
             else{startJ = -range;}
             for (int i=startI; i<Math.min(range,width - x); i++){
                 for (int j=startJ; j<Math.min(range, height - y); j++){
-                    pixelsFinger[(y+j) * width + (x+i)] = toApply.pixels[(y+j) * width + (x+i)];
+                    pixelsFinger[(y+j) * width + (x+i)] = applique.pixels[(y+j) * width + (x+i)];
                 }
             }
         }
         else {
-            int step = (endY - startY) * range / (endX - startX);
-            int maxX = Math.min(width, endX);
+            int step = (finY - departY) * range / (finX - departX);
+            int maxX = Math.min(width, finX);
             boolean resume = true;
             while (x < maxX) {
                 if (x < range) {
@@ -1027,7 +1042,7 @@ public class MaBitmap {
                 }
                 for (int i = startI; i < Math.min(range, width - x); i++) {
                     for (int j = startJ; j < Math.min(range, height - y); j++) {
-                        pixelsFinger[(y + j) * width + (x + i)] = toApply.pixels[(y + j) * width + (x + i)];
+                        pixelsFinger[(y + j) * width + (x + i)] = applique.pixels[(y + j) * width + (x + i)];
                     }
                 }
                 x += range;
@@ -1037,6 +1052,6 @@ public class MaBitmap {
         Bitmap bmpFinger = Bitmap.createBitmap(pixelsFinger, width, height, Bitmap.Config.ARGB_8888);
         MaBitmap finger = new MaBitmap(bmpFinger, 18);
         return finger;*/
-        return toApply;
+        return applique;
     }
 }
