@@ -32,10 +32,10 @@ import android.widget.Toast;
 
 import java.util.Arrays;
 
-//TODO
 /**
  * La classe MenuGeneral est le principal menu de l'application, à partir duquel l'utilisateur peut
- * accéder à toutes les transformations possibles pour ses images.
+ * accéder à toutes les transformations possibles pour ses images. Elle permet d'afficher les
+ * seeksbars si nécessaires ou certains boutons.
  */
 public class MenuGeneral extends AppCompatActivity {
 
@@ -76,10 +76,14 @@ public class MenuGeneral extends AppCompatActivity {
      */
     ImageButton haut, gauche, droite, bas;
 
-    //TODO
+    /**
+     * Taille de l'image à rogner
+     */
     int[] aRogner;
 
-    //TODO
+    /**
+     * entier allant de 0 à 3 indiquant la direction (gauche, droite, haut, bas) de l'image à rogner
+     */
     int rogneDirection;
 
     /**
@@ -97,50 +101,61 @@ public class MenuGeneral extends AppCompatActivity {
      * Seekbars et interface de rognage invisibles si l'utilisateur n'a pas choisi les
      * transformations correspondantes.
      */
-    RelativeLayout seekbarsInterface, cropInterface;
+    RelativeLayout interfaceSeekbar, interfaceRogne;
 
     /**
      * Échantillons de couleurs visibles par l'utilisateur lors de n'importe quelle modification de
      * le teinte par une seekbar
      */
-    ImageView colorviewleft, colorviewmid, colorviewright;
+    ImageView echantillonGauche, echantillonPrincipal, echantillonDroit;
 
     /**
      * Seekbars disponibles
      */
-    SeekBar seekbar1, seekbar2, seekbar3, cropbar;
+    SeekBar seekbar1, seekbar2, seekbar3, rognebar;
 
     /**
      * taille rognée affichée ou valeurs de teinte, saturation, etc affichées
      */
-    TextView textsb1, textsb2, textsb3, valsb1, valsb2, valsb3, textCrop;
+    TextView txt1, txt2, txt3, valsb1, valsb2, valsb3, txtRogne;
 
-    //TODO
-    int filterToUse, seekbarsDisplayed, huebar, satbar, valbar, gapbar, val1, val2, val3;
+    /**
+     * valeurs à transmettre lors de la manipulation de filtres ou de seekbars
+     */
+    int filtreAUtiliser, nbSeekbarAffichees, teinteBar, satBar, valBar, intervalleBar, val1, val2,
+            val3;
 
-    //TODO
-    float mx, my, curX, curY;
+    /**
+     * positions initiales et courantes du/doigt(s) sur l'écran
+     */
+    float x, y, courantX, courantY;
 
     /**
      * positions de départ et d'arrivée du doigt lors de l'application des filtres avec celui-ci
      */
-    int startX, startY, endX, endY;
+    int departX, departY, finX, finY;
 
-    //TODO
-    int touchState;
+    /**
+     * statut de l'action lors du zoom
+     */
+    int statut;
 
-    //TODO
-    final int IDLE = 0;
-    final int TOUCH = 1;
-    final int PINCH = 2;
+    /**
+     * statuts disponibles pour le zoom
+     */
+    final int IMMOBILE = 0;
+    final int TOUCHE = 1;
+    final int ZOOM = 2;
 
-    //TODO
-    float dist0, distCurrent, factor;
+    /**
+     * distances et facteur nécessaires au calcul du zoom de l'image
+     */
+    float distInitiale, distCourante, facteur;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        //TODO what ?
+        //affichage de l'actionBar dans le menu général avec les items nécessaires
         inflater.inflate(R.menu.general_menu, menu);
         return true;
     }
@@ -166,17 +181,17 @@ public class MenuGeneral extends AppCompatActivity {
 
         //Implémentation d'un bouton à switcher pour choisir l'application du filtre automatique sur
         // toute l'image ou partiellement au doigt par l'utilisateur
-        final Switch toggle = (Switch) findViewById(R.id.zoomswitch);
-        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        final Switch boutonDoigt = (Switch) findViewById(R.id.zoomswitch);
+        boutonDoigt.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 //si le bouton switch est enclenché, l'utilisateur ne peut plus zoomer
                 if (isChecked) {
                     //si aucun filtre n'est choisi, un message est affiché et le bouton ne
                     // s'enclenche pas
                     if (memoire.courant == 0){
-                        Toast noFilter = Toast.makeText(getApplicationContext(), "Veuillez choisir un filtre.", Toast.LENGTH_SHORT);
-                        noFilter.show();
-                        toggle.setChecked(false);
+                        Toast pasFiltre = Toast.makeText(getApplicationContext(), "Veuillez choisir un filtre.", Toast.LENGTH_SHORT);
+                        pasFiltre.show();
+                        boutonDoigt.setChecked(false);
                     }
                     else {
                         //si le filtre a été choisi précédemment, le bouton renvoie vers la méthode
@@ -195,44 +210,45 @@ public class MenuGeneral extends AppCompatActivity {
                 }
             }
         }});
-        toggle.setChecked(false);
+        boutonDoigt.setChecked(false);
 
-        //TODO
+        //Préparation à l'affichage des interfaces de rognage, des seekbars et de la barre de
+        //boutons-images
         barImages = (HorizontalScrollView) findViewById(R.id.filterscrollview);
-        seekbarsInterface = (RelativeLayout) findViewById(R.id.seekbars_interface);
-        cropInterface = (RelativeLayout) findViewById(R.id.crop_interface);
+        interfaceSeekbar = (RelativeLayout) findViewById(R.id.seekbars_interface);
+        interfaceRogne = (RelativeLayout) findViewById(R.id.crop_interface);
 
         //affichage des échantillons de couleurs en les rendant invisibles en temps normal
-        colorviewleft = (ImageView) findViewById(R.id.color_left);
-        colorviewleft.setVisibility(View.INVISIBLE);
-        colorviewmid = (ImageView) findViewById(R.id.color_mid);
-        colorviewmid.setVisibility(View.INVISIBLE);
-        colorviewright = (ImageView) findViewById(R.id.color_right);
-        colorviewright.setVisibility(View.INVISIBLE);
+        echantillonGauche = (ImageView) findViewById(R.id.color_left);
+        echantillonGauche.setVisibility(View.INVISIBLE);
+        echantillonPrincipal = (ImageView) findViewById(R.id.color_mid);
+        echantillonPrincipal.setVisibility(View.INVISIBLE);
+        echantillonDroit = (ImageView) findViewById(R.id.color_right);
+        echantillonDroit.setVisibility(View.INVISIBLE);
 
         //initialisation de l'historique d'images
         memoire = new BitmapListe(courant);
 
         //initialisation des distances
-        distCurrent = 1;
-        dist0 = 1;
+        distCourante = 1;
+        distInitiale = 1;
 
-        //TODO
-        touchState = IDLE;
+        //statut du zoom par défaut : immobile
+        statut = IMMOBILE;
 
         //Affichage des boutons-images représentant les différents filtres et disponibles dans
         // l'application
         original = (ImageButton) findViewById(R.id.original);
         original.setOnClickListener(blistener);
-        gris = (ImageButton) findViewById(R.id.gray);
+        gris = (ImageButton) findViewById(R.id.gris);
         gris.setOnClickListener(blistener);
         sepia = (ImageButton) findViewById(R.id.sepia);
         sepia.setOnClickListener(blistener);
-        invers = (ImageButton) findViewById(R.id.invert);
+        invers = (ImageButton) findViewById(R.id.invers);
         invers.setOnClickListener(blistener);
         teinte = (ImageButton) findViewById(R.id.teinte);
         teinte.setOnClickListener(blistener);
-        couleur = (ImageButton) findViewById(R.id.color);
+        couleur = (ImageButton) findViewById(R.id.couleur);
         couleur.setOnClickListener(blistener);
         filtre = (ImageButton) findViewById(R.id.filtre);
         filtre.setOnClickListener(blistener);
@@ -246,29 +262,29 @@ public class MenuGeneral extends AppCompatActivity {
         sobel.setOnClickListener(blistener);
         laplacien = (ImageButton) findViewById(R.id.laplacien);
         laplacien.setOnClickListener(blistener);
-        crayon1 = (ImageButton) findViewById(R.id.pencil1);
+        crayon1 = (ImageButton) findViewById(R.id.crayon1);
         crayon1.setOnClickListener(blistener);
-        crayon2 = (ImageButton) findViewById(R.id.pencil2);
+        crayon2 = (ImageButton) findViewById(R.id.crayon2);
         crayon2.setOnClickListener(blistener);
-        crayon3 = (ImageButton) findViewById(R.id.pencil3);
+        crayon3 = (ImageButton) findViewById(R.id.crayon3);
         crayon3.setOnClickListener(blistener);
         cartoon = (ImageButton) findViewById(R.id.cartoon);
         cartoon.setOnClickListener(blistener);
 
-        //TODO
+        //Affichage des boutons disponibles en cas de présence des seekbars
         test = (Button) findViewById(R.id.test);
         test.setOnClickListener(blistener);
         ok = (Button) findViewById(R.id.ok);
         ok.setOnClickListener(blistener);
-        annul = (Button) findViewById(R.id.cancel);
+        annul = (Button) findViewById(R.id.annul);
         annul.setOnClickListener(blistener);
 
         //Affichage des titres et des valeurs des seekbars
-        textsb1 = (TextView) findViewById(R.id.textsb1);
+        txt1 = (TextView) findViewById(R.id.textsb1);
         valsb1 = (TextView) findViewById(R.id.valsb1);
-        textsb2 = (TextView) findViewById(R.id.textsb2);
+        txt2 = (TextView) findViewById(R.id.textsb2);
         valsb2 = (TextView) findViewById(R.id.valsb2);
-        textsb3 = (TextView) findViewById(R.id.textsb3);
+        txt3 = (TextView) findViewById(R.id.textsb3);
         valsb3 = (TextView) findViewById(R.id.valsb3);
 
         //Affichage des seekbars et implémentation dans le listener correspondant.
@@ -280,27 +296,27 @@ public class MenuGeneral extends AppCompatActivity {
         seekbar1.setOnSeekBarChangeListener(seekBarChangeListener);
         seekbar2.setOnSeekBarChangeListener(seekBarChangeListener);
         seekbar3.setOnSeekBarChangeListener(seekBarChangeListener);
-        seekbarsInterface.setVisibility(View.INVISIBLE);
-        seekbarsInterface.setActivated(false);
+        interfaceSeekbar.setVisibility(View.INVISIBLE);
+        interfaceSeekbar.setActivated(false);
 
         //Affichage de l'interface de rognage (d'abord invisible par l'utilisateur) avec les boutons
         //indiquants la direction de rognage
-        rogne = (Button) findViewById(R.id.crop);
+        rogne = (Button) findViewById(R.id.rogne);
         rogne.setOnClickListener(blistener);
-        cropbar = (SeekBar) findViewById(R.id.seekbarcrop);
-        cropbar.setOnSeekBarChangeListener(seekBarChangeListenerCrop);
-        haut = (ImageButton) findViewById(R.id.top);
+        rognebar = (SeekBar) findViewById(R.id.seekbarcrop);
+        rognebar.setOnSeekBarChangeListener(seekBarChangeRogneListener);
+        haut = (ImageButton) findViewById(R.id.haut);
         haut.setOnClickListener(blistener);
-        gauche = (ImageButton) findViewById(R.id.left);
+        gauche = (ImageButton) findViewById(R.id.gauche);
         gauche.setOnClickListener(blistener);
-        droite = (ImageButton) findViewById(R.id.right);
+        droite = (ImageButton) findViewById(R.id.droite);
         droite.setOnClickListener(blistener);
-        bas = (ImageButton) findViewById(R.id.bot);
+        bas = (ImageButton) findViewById(R.id.bas);
         bas.setOnClickListener(blistener);
-        textCrop = (TextView) findViewById(R.id.textcrop);
+        txtRogne = (TextView) findViewById(R.id.textcrop);
         aRogner = new int[4];
-        cropInterface.setActivated(false);
-        cropInterface.setVisibility(View.INVISIBLE);
+        interfaceRogne.setActivated(false);
+        interfaceRogne.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -308,22 +324,22 @@ public class MenuGeneral extends AppCompatActivity {
      * demande
      * @param n le nombre de seekbars à afficher
      */
-    private void setSeekbars(int n){
+    private void affSeekbars(int n){
         //rend l'interface contenant les seekbars visible
-        seekbarsInterface.setVisibility(View.VISIBLE);
-        seekbarsInterface.setActivated(true);
+        interfaceSeekbar.setVisibility(View.VISIBLE);
+        interfaceSeekbar.setActivated(true);
 
         //s'il faut afficher moins de 3 seekbars, on fait disparaître au moins la troisième
         if (n<3) {
             seekbar3.setVisibility(View.INVISIBLE);
             seekbar3.setActivated(false);
             valsb3.setVisibility(View.INVISIBLE);
-            textsb3.setVisibility(View.INVISIBLE);
+            txt3.setVisibility(View.INVISIBLE);
             //s'il faut afficher moins de 2 seekbars, on fait disparaître la deuxième
             if (n<2){
                 seekbar2.setVisibility(View.INVISIBLE);
                 seekbar2.setActivated(false);
-                textsb2.setVisibility(View.INVISIBLE);
+                txt2.setVisibility(View.INVISIBLE);
                 valsb2.setVisibility(View.INVISIBLE);
             }
         }
@@ -332,13 +348,13 @@ public class MenuGeneral extends AppCompatActivity {
             seekbar3.setVisibility(View.VISIBLE);
             seekbar3.setActivated(true);
             valsb3.setVisibility(View.VISIBLE);
-            textsb3.setVisibility(View.VISIBLE);
+            txt3.setVisibility(View.VISIBLE);
         }
         //s'il faut 2 seekbars, on affiche la deuxième en plus
         if (n==2){
             seekbar2.setVisibility(View.VISIBLE);
             seekbar2.setActivated(true);
-            textsb2.setVisibility(View.VISIBLE);
+            txt2.setVisibility(View.VISIBLE);
             valsb2.setVisibility(View.VISIBLE);
         }
 
@@ -346,7 +362,7 @@ public class MenuGeneral extends AppCompatActivity {
         barImages.setVisibility(View.INVISIBLE);
         barImages.setActivated(false);
 
-        seekbarsDisplayed = n;
+        nbSeekbarAffichees = n;
         val1 = val2 = val3 = 0;
     }
 
@@ -354,17 +370,17 @@ public class MenuGeneral extends AppCompatActivity {
      * fonction qui fait disparaître toutes les seekbars et les échantillons de couleur lorsque que
      * la fermeture des interfaces correspondantes est appelée
      */
-    private void delSeekbars(){
-        seekbarsInterface.setActivated(false);
-        seekbarsInterface.setVisibility(View.INVISIBLE);
+    private void suppSeekbars(){
+        interfaceSeekbar.setActivated(false);
+        interfaceSeekbar.setVisibility(View.INVISIBLE);
         barImages.setVisibility(View.VISIBLE);
         barImages.setActivated(true);
-        seekbarsDisplayed = 0;
-        huebar = 0;
-        gapbar = 0;
-        colorviewleft.setVisibility(View.INVISIBLE);
-        colorviewmid.setVisibility(View.INVISIBLE);
-        colorviewright.setVisibility(View.INVISIBLE);
+        nbSeekbarAffichees = 0;
+        teinteBar = 0;
+        intervalleBar = 0;
+        echantillonGauche.setVisibility(View.INVISIBLE);
+        echantillonPrincipal.setVisibility(View.INVISIBLE);
+        echantillonDroit.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -388,7 +404,7 @@ public class MenuGeneral extends AppCompatActivity {
                     break;
 
                 //quand l'utilisateur appuie sur le bouton "Noir et Blanc"
-                case R.id.gray:
+                case R.id.gris:
                     if (courant.filtre != 1) {
                         //transformation de l'image et stockage de l'image dans l'historique
                         courant = courant.enGris();
@@ -410,7 +426,7 @@ public class MenuGeneral extends AppCompatActivity {
                     break;
 
                 //quand l'utilisateur appuie sur le bouton "Négatif"
-                case R.id.invert:
+                case R.id.invers:
                     //transformation de l'image et stockage dans l'historique
                     courant = courant.inverser();
                     memoire.setSuivant(courant);
@@ -444,18 +460,18 @@ public class MenuGeneral extends AppCompatActivity {
                                     //Si l'utilisateur ne fournit pas le bon paramètre, l'applicaion
                                     //lui envoie un message d'avertissement
                                     if ((param < 3) || (param % 2 == 0)) {
-                                        Toast incorrectParameter = Toast.makeText(
+                                        Toast paramIncorrect = Toast.makeText(
                                                 getApplicationContext(), "Le paramètre du filtre " +
                                                         "moyenneur doit être impair et au moins " +
                                                         "égal à 3.", Toast.LENGTH_SHORT);
-                                        incorrectParameter.show();
+                                        paramIncorrect.show();
                                     } else if (param > 50) {
                                         //pareil si le paramètre est trop grand
-                                        Toast tooBigParameter = Toast.makeText(
+                                        Toast paramGrand = Toast.makeText(
                                                 getApplicationContext(), "Le paramètre du filtre " +
                                                         "moyenneur est trop grand.", Toast.
                                                         LENGTH_SHORT);
-                                        tooBigParameter.show();
+                                        paramGrand.show();
                                     } else {
                                         //si le paramètre est ok, on applique le filtre avec le
                                         //paramètre fourni et on affiche l'image résultante après
@@ -475,8 +491,8 @@ public class MenuGeneral extends AppCompatActivity {
                                     img.setImageBitmap(courant.bmp);
                                 }
                             });
-                    AlertDialog alert = moyDialog.create();
-                    alert.show();
+                    AlertDialog alerte = moyDialog.create();
+                    alerte.show();
                     break;
 
                 //quand l'utilisateur appuie sur le bouton "Sobel"
@@ -500,41 +516,41 @@ public class MenuGeneral extends AppCompatActivity {
                 //quand l'utilisateur appuie sur le bouton "Filtre couleur"
                 case R.id.filtre:
                     //Affichage et initialisation de la seekbar nécessaire
-                    setSeekbars(1);
+                    affSeekbars(1);
                     seekbar1.setProgress(0);
                     seekbar1.setMax(360);
                     //implémentation des changements dans le listener dédié
-                    seekbar1.setOnSeekBarChangeListener(huebarlistener);
-                    textsb1.setText("Teinte");
-                    colorviewmid.setVisibility(View.VISIBLE);
-                    editHueColor();
-                    huebar = 1;
-                    filterToUse = 2;
+                    seekbar1.setOnSeekBarChangeListener(teintebarlistener);
+                    txt1.setText("Teinte");
+                    echantillonPrincipal.setVisibility(View.VISIBLE);
+                    changeTeinte();
+                    teinteBar = 1;
+                    filtreAUtiliser = 2;
                     break;
 
                 //quand l'utilisateur appuie sur le bouton "Choix couleur"
-                case R.id.color:
+                case R.id.couleur:
                     //Affichage et initialisation des 3 seekbars nécessaires
                     //Implémentation des changements dans le listener
-                    setSeekbars(3);
+                    affSeekbars(3);
                     seekbar1.setProgress(0);
                     seekbar1.setMax(360);
-                    seekbar1.setOnSeekBarChangeListener(huebarlistener);
-                    textsb1.setText("Teinte");
+                    seekbar1.setOnSeekBarChangeListener(teintebarlistener);
+                    txt1.setText("Teinte");
                     seekbar2.setProgress(0);
                     seekbar2.setMax(360);
                     seekbar2.setOnSeekBarChangeListener(seekBarChangeListener);
-                    textsb2.setText("Saturation");
+                    txt2.setText("Saturation");
                     seekbar3.setProgress(0);
                     seekbar3.setMax(360);
                     seekbar3.setOnSeekBarChangeListener(seekBarChangeListener);
-                    textsb3.setText("Valeur");
-                    huebar = 1;
-                    valbar = 2;
-                    satbar = 3;
-                    colorviewmid.setVisibility(View.VISIBLE);
-                    editHueColor();
-                    filterToUse = 4;
+                    txt3.setText("Valeur");
+                    teinteBar = 1;
+                    valBar = 2;
+                    satBar = 3;
+                    echantillonPrincipal.setVisibility(View.VISIBLE);
+                    changeTeinte();
+                    filtreAUtiliser = 4;
                     break;
 
                 //quand l'utilisateur appuie sur le bouton "Extension dynamiques"
@@ -548,34 +564,36 @@ public class MenuGeneral extends AppCompatActivity {
                     }
                     break;
 
-                //TODO
+                //quand l'utilisateur appuie sur le bouton "Choix couleur"
                 case R.id.teinte:
-                    setSeekbars(2);
+                    //apparition de deux seekbars pour la teinte et l'intervalle de tolérance
+                    //choisis et implémentation des changements dans les listeners dédiés
+                    affSeekbars(2);
                     seekbar1.setProgress(0);
                     seekbar1.setMax(180);
-                    textsb1.setText("Tolérance");
-                    seekbar1.setOnSeekBarChangeListener(gapbarlistener);
-
+                    txt1.setText("Tolérance");
+                    seekbar1.setOnSeekBarChangeListener(intervallebarlistener);
                     seekbar2.setProgress(0);
                     seekbar2.setMax(360);
-                    textsb2.setText("Teinte");
-                    seekbar2.setOnSeekBarChangeListener(huebarlistener);
-                    huebar = 2;
-                    gapbar = 1;
-                    colorviewleft.setVisibility(View.VISIBLE);
-                    colorviewmid.setVisibility(View.VISIBLE);
-                    colorviewright.setVisibility(View.VISIBLE);
-                    editGapColor();
-                    editHueColor();
+                    txt2.setText("Teinte");
+                    seekbar2.setOnSeekBarChangeListener(teintebarlistener);
+                    teinteBar = 2;
+                    intervalleBar = 1;
+                    //affichage des échantillons de couleur
+                    echantillonGauche.setVisibility(View.VISIBLE);
+                    echantillonPrincipal.setVisibility(View.VISIBLE);
+                    echantillonDroit.setVisibility(View.VISIBLE);
+                    changeIntervalle();
+                    changeTeinte();
 
-                    filterToUse = 1;
+                    filtreAUtiliser = 1;
                     break;
 
                 //quand l'utilisateur appuie sur le bouton "Test"
                 case R.id.test:
                     //transformation de l'image en fonction du filtre et des valeurs fournies par
                     //les seekbars
-                    bmpTest = courant.applicationFiltre(filterToUse, val1, val2, val3);
+                    bmpTest = courant.applicationFiltre(filtreAUtiliser, val1, val2, val3);
                     //Affichage de l'image dans l'application
                     img.setImageBitmap(bmpTest.bmp);
                     break;
@@ -583,21 +601,21 @@ public class MenuGeneral extends AppCompatActivity {
                 //quand l'utilisateur appuie sur le bouton "Valider"
                 case R.id.ok:
                     //Application définitive de la transformation
-                    courant = courant.applicationFiltre(filterToUse, val1, val2, val3);
+                    courant = courant.applicationFiltre(filtreAUtiliser, val1, val2, val3);
                     //stockage dans l'historique
                     memoire.setSuivant(courant);
                     //Affichage de l'image dans l'application
                     img.setImageBitmap(courant.bmp);
                     //Disparition des seekbars affichées
-                    delSeekbars();
+                    suppSeekbars();
                     break;
 
                 //quand l'utilisateur appuie sur le bouton "Annuler"
-                case R.id.cancel:
+                case R.id.annul:
                     //Réaffichage de l'image précédente
                     img.setImageBitmap(courant.bmp);
                     //Disparition des seekbars affichées
-                    delSeekbars();
+                    suppSeekbars();
                     break;
 
                 //quand l'utilisateur appuie sur le bouton "Egalisation histogramme"
@@ -612,7 +630,7 @@ public class MenuGeneral extends AppCompatActivity {
                     break;
 
                 //quand l'utilisateur appuie sur le bouton "Effet dessin 1"
-                case R.id.pencil1:
+                case R.id.crayon1:
                     if (courant.filtre != 17) {
                         //transformation de l'image et stockage dans l'historique
                         courant = courant.dessinCrayon();
@@ -623,7 +641,7 @@ public class MenuGeneral extends AppCompatActivity {
                     break;
 
                 //quand l'utilisateur appuie sur le bouton "Effet dessin 2"
-                case R.id.pencil2:
+                case R.id.crayon2:
                     //transformation de l'image par différents filtres successifs et stockage dans
                     //l'historique
                     courant = courant.laplacien();
@@ -635,7 +653,7 @@ public class MenuGeneral extends AppCompatActivity {
                     break;
 
                 //quand l'utilisateur appuie sur le bouton "Effet dessin 3"
-                case R.id.pencil3:
+                case R.id.crayon3:
                     //transformation de l'image par différents filtres successifs et stockage dans
                     //l'historique
                     courant = courant.sobel();
@@ -655,19 +673,19 @@ public class MenuGeneral extends AppCompatActivity {
                         memoire.setSuivant(courant);
                         img.setImageBitmap(courant.bmp);
                         //Affichage d'une seekbar pour régler l'effet cartoon
-                        setSeekbars(1);
+                        affSeekbars(1);
                         seekbar1.setProgress(0);
                         seekbar1.setMax(100);
-                        textsb1.setText(null);
-                        filterToUse = 3;
+                        txt1.setText(null);
+                        filtreAUtiliser = 3;
                         seekbar1.setOnSeekBarChangeListener(cartoonbarlistener);
                     }
                     //Message d'erreur si la qualité de l'image est trop élevée pour appliquer le
                     //filtre
                     catch (StackOverflowError e) {
-                        AlertDialog.Builder reducedialog = new AlertDialog.Builder(MenuGeneral.
+                        AlertDialog.Builder dialogueQualite = new AlertDialog.Builder(MenuGeneral.
                                 this);
-                        reducedialog.setTitle("Échec")
+                        dialogueQualite.setTitle("Échec")
                                 .setMessage("Il se peut que la qualité de l'image soit trop " +
                                         "élevée. " +
                                         "Réduisez la qualité via l'outil DÉFORMER")
@@ -678,49 +696,49 @@ public class MenuGeneral extends AppCompatActivity {
                                     }
                                 });
 
-                        AlertDialog reducealert = reducedialog.create();
-                        reducealert.show();
+                        AlertDialog alerteQualite = dialogueQualite.create();
+                        alerteQualite.show();
                     }
                     break;
 
                 //quand l'utilisateur appuie sur le bouton correspondant au haut de l'image, alors
                 //la fonction de rognage rogne l'image par le haut
-                case R.id.top:
+                case R.id.haut:
                     rogneDirection = 0;
-                    cropbar.setProgress(aRogner[0]);
+                    rognebar.setProgress(aRogner[0]);
                     break;
 
                 //quand l'utilisateur appuie sur le bouton correspondant au bas de l'image, alors
                 //la fonction de rognage rogne l'image par le bas
-                case R.id.bot:
+                case R.id.bas:
                     rogneDirection = 1;
-                    cropbar.setProgress(aRogner[1]);
+                    rognebar.setProgress(aRogner[1]);
                     break;
 
                 //quand l'utilisateur appuie sur le bouton correspondant à la gauche de l'image, alors
                 //la fonction de rognage rogne l'image par la gauche
-                case R.id.left:
+                case R.id.gauche:
                     rogneDirection = 2;
-                    cropbar.setProgress(aRogner[2]);
+                    rognebar.setProgress(aRogner[2]);
                     break;
 
                 //quand l'utilisateur appuie sur le bouton correspondant à la droite de l'image, alors
                 //la fonction de rognage rogne l'image par la droite
-                case R.id.right:
+                case R.id.droite:
                     rogneDirection = 3;
-                    cropbar.setProgress(aRogner[3]);
+                    rognebar.setProgress(aRogner[3]);
                     break;
 
                 //quand l'utilisateur appuie sur le bouton "Rogner", la transformation s'applique,
                 // l'image est stockée dans l'historique puis est affichée dans l'application
-                case R.id.crop:
+                case R.id.rogne:
                     courant = courant.rognage(aRogner);
                     memoire.setSuivant(courant);
                     img.setImageBitmap(courant.bmp);
                     //l'interface de rognage est désactivé et les boutons-images sont de nouveau
                     // visibles
-                    cropInterface.setVisibility(View.INVISIBLE);
-                    cropInterface.setActivated(false);
+                    interfaceRogne.setVisibility(View.INVISIBLE);
+                    interfaceRogne.setActivated(false);
                     barImages.setActivated(true);
                     barImages.setVisibility(View.VISIBLE);
                     break;
@@ -737,51 +755,55 @@ public class MenuGeneral extends AppCompatActivity {
      */
     SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {editText();}
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            changeTexte();}
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {}
         @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {editText();}
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            changeTexte();}
     };
 
     /**
      * listener définissant le comportement des seekbars pour le rognage, lors que l'utilisateur
      * commence à les bouger, les bouge ou finit de les bouger
      */
-    SeekBar.OnSeekBarChangeListener seekBarChangeListenerCrop = new SeekBar.OnSeekBarChangeListener() {
+    SeekBar.OnSeekBarChangeListener seekBarChangeRogneListener = new SeekBar.OnSeekBarChangeListener() {
 
         @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {updateCrop();}
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            actualiseRogne();}
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {}
 
         @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {updateCrop();}
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            actualiseRogne();}
     };
 
     /**
      * listener définissant le comportement des seekbars pour la modification de teinte, lors que
      * l'utilisateur commence à les bouger, les bouge ou finit de les bouger
      */
-    SeekBar.OnSeekBarChangeListener huebarlistener = new SeekBar.OnSeekBarChangeListener() {
+    SeekBar.OnSeekBarChangeListener teintebarlistener = new SeekBar.OnSeekBarChangeListener() {
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            editText();
-            editHueColor();
+            changeTexte();
+            changeTeinte();
         }
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-            editText();
-            editHueColor();
+            changeTexte();
+            changeTeinte();
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            editText();
-            editHueColor();
+            changeTexte();
+            changeTeinte();
         }
     };
 
@@ -789,24 +811,24 @@ public class MenuGeneral extends AppCompatActivity {
      * listener définissant le comportement des seekbars pour la modification d'intervalle, lors que
      * l'utilisateur commence à les bouger, les bouge ou finit de les bouger
      */
-    SeekBar.OnSeekBarChangeListener gapbarlistener = new SeekBar.OnSeekBarChangeListener() {
+    SeekBar.OnSeekBarChangeListener intervallebarlistener = new SeekBar.OnSeekBarChangeListener() {
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            editText();
-            editGapColor();
+            changeTexte();
+            changeIntervalle();
         }
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-            editText();
-            editGapColor();
+            changeTexte();
+            changeIntervalle();
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            editText();
-            editGapColor();
+            changeTexte();
+            changeIntervalle();
         }
     };
 
@@ -818,17 +840,17 @@ public class MenuGeneral extends AppCompatActivity {
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            editText();
+            changeTexte();
         }
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-            editText();
+            changeTexte();
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            editText();
+            changeTexte();
         }
     };
 
@@ -837,41 +859,47 @@ public class MenuGeneral extends AppCompatActivity {
      * l'utilisateur.
      * Cela dépend du nombre de seekbars nécessaires au filtre actuellement appliqué.
      */
-    private void editText(){
+    private void changeTexte(){
         val1 = seekbar1.getProgress();
         valsb1.setText("   " + String.valueOf(val1));
-        if (seekbarsDisplayed>1){
+        if (nbSeekbarAffichees >1){
             val2 = seekbar2.getProgress();
             valsb2.setText("   " + String.valueOf(val2));
-            if (seekbarsDisplayed>2){
+            if (nbSeekbarAffichees >2){
                 val3 = seekbar3.getProgress();
                 valsb3.setText("   " + String.valueOf(val3));
             }
         }
     }
 
-    //TODO
-    private void editHueColor(){
-        if (gapbar != 0){
-            editGapColor();
+    /**
+     * fonction qui change la teinte de l'image en fonction de la position de la seekbar et
+     * actualise l'échantillon disponible pour la fonction de filtre coloré.
+     */
+    private void changeTeinte(){
+        if (intervalleBar != 0){
+            changeIntervalle();
         }
         float[] hsv = new float[3];
-        if (huebar == 1){
+        if (teinteBar == 1){
             hsv[0] = (float) seekbar1.getProgress();
         }
         else{
             hsv[0] = (float) seekbar2.getProgress();
         }
         hsv[1] = hsv[2] = 0.5F;
-        colorviewmid.setImageDrawable(new ColorDrawable(Color.HSVToColor(hsv)));
+        echantillonPrincipal.setImageDrawable(new ColorDrawable(Color.HSVToColor(hsv)));
     }
 
-    //TODO
-    private void editGapColor(){
+    /**
+     * fonction qui change la teinte en fonction du seuil de tolérance utilisé et de la position de
+     * la seekbar de teinte.
+     */
+    private void changeIntervalle(){
         float[] hsvleft = new float[3];
         float[] hsvright = new float[3];
         float hue, gap;
-        if (huebar == 1){
+        if (teinteBar == 1){
             hue = (float) seekbar1.getProgress();
             gap = (float) seekbar2.getProgress();
         }
@@ -892,40 +920,46 @@ public class MenuGeneral extends AppCompatActivity {
         else{
             hsvright[0] = hue + gap;
         }
-        colorviewleft.setImageDrawable(new ColorDrawable(Color.HSVToColor(hsvleft)));
-        colorviewright.setImageDrawable(new ColorDrawable(Color.HSVToColor(hsvright)));
+        //Les échantillons de teinte sont également mis à jour.
+        echantillonGauche.setImageDrawable(new ColorDrawable(Color.HSVToColor(hsvleft)));
+        echantillonDroit.setImageDrawable(new ColorDrawable(Color.HSVToColor(hsvright)));
 
     }
 
-    //TODO
-    private void updateCrop(){
-        aRogner[rogneDirection] = cropbar.getProgress();
+    /**
+     * fonction qui actualise le rognage. En fonction de la direction donnée par l'entier
+     * correspondant, le tableau correspondant aux pixels à rogner s'actualise ainsi que le
+     * pourcentage de rognage.
+     */
+    private void actualiseRogne(){
+        aRogner[rogneDirection] = rognebar.getProgress();
         switch (rogneDirection){
             case 0:
                 if (aRogner[0] > 100 - aRogner[1]){
                     aRogner[0] = 100 - aRogner[1];
                 }
-                textCrop.setText("Rogner " + String.valueOf(aRogner[0]) + "% en haut");
+                txtRogne.setText("Rogner " + String.valueOf(aRogner[0]) + "% en haut");
                 break;
             case 1:
                 if (aRogner[1] > 100 - aRogner[0]){
                     aRogner[1] = 100 - aRogner[0];
                 }
-                textCrop.setText("Rogner " + String.valueOf(aRogner[1]) + "% en bas");
+                txtRogne.setText("Rogner " + String.valueOf(aRogner[1]) + "% en bas");
                 break;
             case 2:
                 if (aRogner[2] > 100 - aRogner[3]){
                     aRogner[2] = 100 - aRogner[3];
                 }
-                textCrop.setText("Rogner " + String.valueOf(aRogner[2]) + "% à gauche");
+                txtRogne.setText("Rogner " + String.valueOf(aRogner[2]) + "% à gauche");
                 break;
             case 3:
                 if (aRogner[3] > 100 - aRogner[2]){
                     aRogner[3] = 100 - aRogner[2];
                 }
-                textCrop.setText("Rogner " + String.valueOf(aRogner[3]) + "% à droite");
+                txtRogne.setText("Rogner " + String.valueOf(aRogner[3]) + "% à droite");
                 break;
         }
+        //Affichage de l'image de test corresondant au résultat après la fonction de rognage
         img.setImageBitmap(bmpTest.affichageRogne(aRogner).bmp);
     }
 
@@ -935,13 +969,13 @@ public class MenuGeneral extends AppCompatActivity {
         switch (item.getItemId()) {
 
             //quand l'utilisateur appuie sur le bouton de sauvegarde
-            case R.id.save:
+            case R.id.sauver:
                 try {
                     //sauvegarde de l'image finale dans la galerie et renvoie au menu de
                     //chargement d'images
                     MediaStore.Images.Media.insertImage(getContentResolver(), courant.bmp, ChargementPhoto.cheminImg + "_photoship", "");
-                    Intent picturechoice = new Intent(MenuGeneral.this, ChargementPhoto.class);
-                    startActivity(picturechoice);
+                    Intent choixImage = new Intent(MenuGeneral.this, ChargementPhoto.class);
+                    startActivity(choixImage);
                     break;
                 } catch (Exception e){
                     e.printStackTrace();
@@ -949,7 +983,7 @@ public class MenuGeneral extends AppCompatActivity {
                 return true;
 
             //quand l'utilisateur appuie sur le bouton de retour
-            case R.id.previous:
+            case R.id.precedent:
                 if (memoire.courant > 0) {
                     //l'image courante est remplacée par celle à la position précédente dans
                     //l'historique puis est affichée dans l'application
@@ -959,14 +993,14 @@ public class MenuGeneral extends AppCompatActivity {
                 else{
                     //s'il n'y a pas d'image précédent l'image courante, un message d'erreur est
                     //envoyé à l'utilisateur
-                    Toast noprevious = Toast.makeText(getApplicationContext(), "Il n'y a pas de " +
+                    Toast pasPrecedent = Toast.makeText(getApplicationContext(), "Il n'y a pas de " +
                             "changement à annuler ou la mémoire a été effacée", Toast.LENGTH_SHORT);
-                    noprevious.show();
+                    pasPrecedent.show();
                 }
                 return true;
 
             //quand l'utilisateur appuie sur le bouton suivant
-            case R.id.next:
+            case R.id.suivant:
                 if (memoire.courant < memoire.maxNbImgConnu) {
                     //si la position de l'image courante est bien inférieure au nombre d'images
                     // total connu par l'historique, l'application remplace l'image courante par
@@ -977,7 +1011,7 @@ public class MenuGeneral extends AppCompatActivity {
                 return true;
 
             //quand l'utilisateur appuie sur le bouton "Rotation à gauche"
-            case R.id.rotateleft:
+            case R.id.tournerGauche:
                 //transformation de l'image et stockage dans l'historique
                 courant = courant.rotationGauche();
                 memoire.setSuivant(courant);
@@ -986,7 +1020,7 @@ public class MenuGeneral extends AppCompatActivity {
                 return true;
 
             //quand l'utilisateur appuie sur le bouton "Rotation à droite"
-            case R.id.rotateright:
+            case R.id.tournerDroite:
                 //transformation de l'image et stockage dans l'historique
                 courant = courant.rotationDroit();
                 memoire.setSuivant(courant);
@@ -995,7 +1029,7 @@ public class MenuGeneral extends AppCompatActivity {
                 return true;
 
             //quand l'utilisateur appuie sur le bouton "Miroir horizontal"
-            case R.id.fliplr:
+            case R.id.miroirH:
                 //transformation de l'image et stockage dans l'historique
                 courant = courant.miroirHorizontal();
                 memoire.setSuivant(courant);
@@ -1004,7 +1038,7 @@ public class MenuGeneral extends AppCompatActivity {
                 return true;
 
             //quand l'utilisateur appuie sur le bouton "Miroir vertical"
-            case R.id.flipud:
+            case R.id.miroirV:
                 //transformation de l'image et stockage dans l'historique
                 courant = courant.miroirVertical();
                 memoire.setSuivant(courant);
@@ -1013,19 +1047,20 @@ public class MenuGeneral extends AppCompatActivity {
                 return true;
 
             //quand l'utilisateur appuie sur le bouton "Rogner"
-            case R.id.cropmenu:
+            case R.id.menuRogne:
                 //activation de l'interface nécessaire au rognage de l'image
-                if (seekbarsInterface.isActivated()){
+                if (interfaceSeekbar.isActivated()){
                     img.setImageBitmap(courant.bmp);
-                    delSeekbars();
+                    suppSeekbars();
                 }
-                //TODO
+                //affiche l'interface et la bar nécessaires au menu de rognage et fait disparaître
+                //la bar de boutons-images
                 barImages.setVisibility(View.INVISIBLE);
                 barImages.setActivated(false);
-                cropInterface.setActivated(true);
-                cropInterface.setVisibility(View.VISIBLE);
-                cropbar.setProgress(0);
-                textCrop.setText("");
+                interfaceRogne.setActivated(true);
+                interfaceRogne.setVisibility(View.VISIBLE);
+                rognebar.setProgress(0);
+                txtRogne.setText("");
                 bmpTest = courant.copie();
                 Arrays.fill(aRogner, 0);
                 rogneDirection = 0;
@@ -1112,66 +1147,78 @@ public class MenuGeneral extends AppCompatActivity {
         return true;
     }
 
-    //TODO
+    /**
+     * listener décrivant le comportement du zoom
+     */
     View.OnTouchListener PinchZoomListener = new View.OnTouchListener(){
         @Override
         public boolean onTouch(View view, MotionEvent event) {
             float distx, disty;
             switch(event.getAction() & MotionEvent.ACTION_MASK) {
 
-                //TODO
+                //dans le cas où le premier doigt touche l'écran, on actualise le statut de l'action
+                //et on récupère la position du doigt sur l'écran
+                case MotionEvent.ACTION_DOWN:
+                    statut = TOUCHE;
+                    x = event.getX();
+                    y = event.getY();
+                    break;
+
+                //dans le cas où on pose d'autres doigts sur l'écran, on actualise le statut de
+                //l'action et on récupère les distances des doigts par rapport aux autres
                 case MotionEvent.ACTION_POINTER_DOWN:
-                    touchState = PINCH;
+                    statut = ZOOM;
                     distx = event.getX(0) - event.getX(1);
                     disty = event.getY(0) - event.getY(1);
-                    dist0 = (float) Math.sqrt(distx * distx + disty * disty);
+                    distInitiale = (float) Math.sqrt(distx * distx + disty * disty);
                     break;
 
-                //TODO
-                case MotionEvent.ACTION_DOWN:
-                    touchState = TOUCH;
-                    mx = event.getX();
-                    my = event.getY();
-                    break;
-
-                //TODO
+                //dans le cas où les doigts bougent sur l'écran, suivant le statut de l'action
                 case MotionEvent.ACTION_MOVE:
-                    if (touchState == PINCH) {
+                    if (statut == ZOOM) {
+                        //dans le cas où le statut est "pinch", on actualise les distances et on
+                        //affiche l'image augmentée ou réduite suivant le facteur établi grâce aux
+                        //rapports des deux distances calculées.
                         if (event.getPointerCount() >= 2) {
                             distx = event.getX(0) - event.getX(1);
                             disty = event.getY(0) - event.getY(1);
-                            distCurrent = (float) Math.sqrt(distx * distx + disty * disty);
-                            factor = distCurrent / dist0;
-                            img.setImageBitmap(courant.scale(factor));
+                            distCourante = (float) Math.sqrt(distx * distx + disty * disty);
+                            facteur = distCourante / distInitiale;
+                            img.setImageBitmap(courant.scale(facteur));
                         }
-                    } else if (touchState == TOUCH) {
-                        touchState = TOUCH;
-                        curX = event.getX();
-                        curY = event.getY();
-                        img.scrollBy((int) (mx - curX), (int) (my - curY));
-                        mx = curX;
-                        my = curY;
+                    } else if (statut == TOUCHE) {
+                        //dans le cas où le statut est "touch", on récupère les positions du doigt
+                        //et on bouge l'image dans l'application.
+                        statut = TOUCHE;
+                        courantX = event.getX();
+                        courantY = event.getY();
+                        img.scrollBy((int) (x - courantX), (int) (y - courantY));
+                        x = courantX;
+                        y = courantY;
                     }
                     break;
 
-                //TODO
-                case MotionEvent.ACTION_UP:
-                    if (touchState == TOUCH) {
-                        curX = event.getX();
-                        curY = event.getY();
-                        img.scrollBy((int) (mx - curX), (int) (my - curY));
-                    }
-                    touchState = IDLE;
-                    break;
-
-                //TODO
-                case MotionEvent.ACTION_POINTER_UP:touchState = IDLE;
+                //quand on relâche un doigt, mais qu'il y en a toujours un qui touche l'écran, on
+                //stocke l'image zoomée dans l'historique d'image
+                case MotionEvent.ACTION_POINTER_UP:
+                    statut = IMMOBILE;
                     if (courant.filtre == 20) {
-                        courant = new MaBitmap(courant.scale(factor), 20);
+                        courant = new MaBitmap(courant.scale(facteur), 20);
                     } else {
-                        courant = new MaBitmap(courant.scale(factor), 20);
+                        courant = new MaBitmap(courant.scale(facteur), 20);
                         memoire.setSuivant(courant);
                     }
+                    break;
+
+                //quand plus aucun doigt ne touche l'écran, on récupère les dernières positions du
+                //doigt et on bouge l'image dans l'application
+                case MotionEvent.ACTION_UP:
+                    if (statut == TOUCHE) {
+                        courantX = event.getX();
+                        courantY = event.getY();
+                        img.scrollBy((int) (x - courantX), (int) (y - courantY));
+                    }
+                    statut = IMMOBILE;
                     break;
             }
             return true;
@@ -1185,11 +1232,11 @@ public class MenuGeneral extends AppCompatActivity {
         @Override
         public boolean onTouch(View view, MotionEvent event) {
             //TODO
-            int[] viewCoords = new int[2];
-            img.getLocationOnScreen(viewCoords);
+            int[] coordonnees = new int[2];
+            img.getLocationOnScreen(coordonnees);
             int touchX, touchY;
-            MaBitmap copy = courant.copie();//Copy if yourBMP is not mutable
-            Canvas canvas = new Canvas(copy.bmp);
+            MaBitmap copie = courant.copie();//Copy if yourBMP is not mutable
+            Canvas canvas = new Canvas(copie.bmp);
             MaBitmap transform = courant.copie();
             transform.enGris();
             int test = 0;
@@ -1200,50 +1247,50 @@ public class MenuGeneral extends AppCompatActivity {
                 case MotionEvent.ACTION_DOWN:
                     touchX = (int) event.getX();
                     touchY = (int) event.getY();
-                    startX = touchX - viewCoords[0];
-                    startY = touchY - viewCoords[1];
+                    departX = touchX - coordonnees[0];
+                    departY = touchY - coordonnees[1];
                     Paint paint = new Paint();
                     paint.setAlpha(50); //Put a value between 0 and 255
                     paint.setColor(Color.RED); //Put your line couleur
                     paint.setStrokeWidth(5); //Choose the width of your line
-                    //canvas.drawCircle((float) startX, startY, 10, paint);
-                    canvas.drawLine (startX, startY, endX,  endY, paint);
-                    for (int i = 0; i<copy.largeur*copy.hauteur; i++){
-                        if (copy.pixels[i] == Color.RED){
+                    //canvas.drawCircle((float) departX, departY, 10, paint);
+                    canvas.drawLine (departX, departY, finX, finY, paint);
+                    for (int i = 0; i<copie.largeur*copie.hauteur; i++){
+                        if (copie.pixels[i] == Color.RED){
                             courant.pixels[i] = transform.pixels[i];
                             test += 1;
                         }
                     }
 
-                    //courant = courant.applicationDoigt(appliquerDoigt, startX, startY, endX, endY);
+                    //courant = courant.applicationDoigt(appliquerDoigt, departX, departY, finX, finY);
                     canvas.setBitmap(courant.bmp);
 
             break;
 
                 //TODO
                 case MotionEvent.ACTION_MOVE:
-                    if (touchState == TOUCH) {
-                        touchState = TOUCH;
+                    if (statut == TOUCHE) {
+                        statut = TOUCHE;
                         touchX = (int) event.getX();
                         touchY = (int) event.getY();
-                        endX = touchX - viewCoords[0];
-                        endY = touchY - viewCoords[1];
-                        //courant = courant.applicationDoigt(appliquerDoigt, startX, startY, endX, endY);
-                        copy = courant.copie();//Copy if yourBMP is not mutable
-                        canvas = new Canvas(copy.bmp);
+                        finX = touchX - coordonnees[0];
+                        finY = touchY - coordonnees[1];
+                        //courant = courant.applicationDoigt(appliquerDoigt, departX, departY, finX, finY);
+                        copie = courant.copie();//Copy if yourBMP is not mutable
+                        canvas = new Canvas(copie.bmp);
                         paint = new Paint();
                         paint.setAlpha(50); //Put a value between 0 and 255
                         paint.setColor(Color.RED); //Put your line couleur
                         paint.setStrokeWidth(5); //Choose the width of your line
-                        canvas.drawCircle((float) endX, endY, 10, paint);
-                        for (int i = 0; i<copy.largeur*copy.hauteur; i++){
-                            if (copy.pixels[i] == Color.RED){
+                        canvas.drawCircle((float) finX, finY, 10, paint);
+                        for (int i = 0; i<copie.largeur*copie.hauteur; i++){
+                            if (copie.pixels[i] == Color.RED){
                                 courant.pixels[i] = transform.pixels[i];
                                 test += 1;
                             }
                         }
 
-                        //courant = courant.applicationDoigt(appliquerDoigt, startX, startY, endX, endY);
+                        //courant = courant.applicationDoigt(appliquerDoigt, departX, departY, finX, finY);
                         canvas.setBitmap(courant.bmp);
                     }
                     break;
@@ -1252,18 +1299,18 @@ public class MenuGeneral extends AppCompatActivity {
                 case MotionEvent.ACTION_UP:
                     touchX = (int) event.getX();
                     touchY = (int) event.getY();
-                    endX = touchX - viewCoords[0];
-                    endY = touchY - viewCoords[1];
+                    finX = touchX - coordonnees[0];
+                    finY = touchY - coordonnees[1];
 
-                    copy = courant.copie();//Copy if yourBMP is not mutable
-                    canvas = new Canvas(copy.bmp);
+                    copie = courant.copie();//Copy if yourBMP is not mutable
+                    canvas = new Canvas(copie.bmp);
                     paint = new Paint();
                     paint.setAlpha(50); //Put a value between 0 and 255
                     paint.setColor(Color.RED); //Put your line couleur
                     paint.setStrokeWidth(5); //Choose the width of your line
-                    canvas.drawCircle((float) endX, endY, 10, paint);
-                    for (int i = 0; i<copy.largeur*copy.hauteur; i++){
-                        if (copy.pixels[i] == Color.RED) {
+                    canvas.drawCircle((float) finX, finY, 10, paint);
+                    for (int i = 0; i<copie.largeur*copie.hauteur; i++){
+                        if (copie.pixels[i] == Color.RED) {
                             courant.pixels[i] = transform.pixels[i];
                         }
                     }
@@ -1277,7 +1324,7 @@ public class MenuGeneral extends AppCompatActivity {
 
             }
 
-            //courant = courant.applicationDoigt(appliquerDoigt, startX, startY, endX, endY);
+            //courant = courant.applicationDoigt(appliquerDoigt, departX, departY, finX, finY);
            // memoire.setSuivant(courant);
             //canvas.setBitmap(courant.bmp);
             //img.setImageBitmap(tra.bmp);

@@ -2,34 +2,34 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/previous"
+        android:id="@+id/precedent"
         android:icon="@mipmap/ic_undo_black_24dp"
-        android:title="Previous"
+        android:title="Precedent"
         app:showAsAction="always"/>
     <item
-        android:id="@+id/next"
+        android:id="@+id/suivant"
         android:icon="@mipmap/ic_redo_black_24dp"
-        android:title="Next"
+        android:title="Suivant"
         app:showAsAction="always" />
     <item
-        android:id="@+id/save"
+        android:id="@+id/sauver"
         android:icon="@mipmap/ic_save_black_24dp"
-        android:title="Save"
+        android:title="Sauver"
         app:showAsAction="always" />
     <item
-        android:id="@+id/rotateright"
+        android:id="@+id/tournerDroite"
         android:title="Rotation à droite" />
     <item
-        android:id="@+id/rotateleft"
+        android:id="@+id/tournerGauche"
         android:title="Rotation à gauche" />
     <item
         android:title="Miroir horizontal"
-        android:id="@+id/fliplr" />
+        android:id="@+id/miroirH" />
     <item
-        android:id="@+id/flipud"
+        android:id="@+id/miroirV"
         android:title="Miroir vertical" />
     <item
-        android:id="@+id/cropmenu"
+        android:id="@+id/menuRogne"
         android:title="Rogner" />
     <item
         android:id="@+id/ppv"
