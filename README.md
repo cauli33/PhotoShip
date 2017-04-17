@@ -36,16 +36,25 @@ L'utilisateur peut annuler ou rétablir les modifications grâce à l'implément
 # Quel est l'historique de développement ?
 Une première release de l'application a été déposée courant mars sur le dépôt. Elle comprenait une page d'accueil, un menu de chargement de photo (à partir de la galerie ou de la caméra de l'appareil) et un menu (très rudimentaire) comprenant autant de boutons que de transformations disponibles. Chacun de ses boutons mène à l'activité de transformation correspondante, où sont disponibles trois options : appliquer la modification, annuler la modification, sauvegarder l'image dans la galerie.
 
+La seconde release est celle actuellement disponible sur le dépôt. Le code y a été optimisé, ne laissant plus que 3 activités au total de disponible : la page d'accueil (qui ne laisse apparaître que le logo de l'application une fraction de secondes), le menu de chargement de photo et le menu principal de transformation. Dans ce dernier, toutes les modifications sont disponibles en temps réel, en faisant apparaître et disparaître certains éléments comme des seekbars.
 
+L'application a été développée grâce au logiciel Android Studio, et testée grâce à :
+- un portable Motorola G2
+- un portable Samsung S7
+- un émulateur Asus Zenfone 2
+- un émulateur Nexus S
+- l'émulateur proposé par défaut par Android Studio.
+
+L'API minimal utilisé pour tester l'application est l'API 22. Mais l'application fonctionne très bien pour toute API supérieure à 3.
 
 
 # Comment installer l'application ?
 Il suffit de cloner le repository git via la commande suivante: 
 
-# Comment utiliser l'application ?
+`git clone https://github.com/cauli33/PhotoShip.git`
 
 # Qui sont les auteurs ?
-Les auteures du code sont trois étudiantes de L3 Mathématiques-Informatique de l'Université de Bordeaux, Collège Sciences et Technologies. 
+Les auteurs du code sont trois étudiantes de L3 Mathématiques-Informatique de l'Université de Bordeaux, Collège Sciences et Technologies. 
 - VEILLAT Emma
 - HONORÉ Cauli
 - BESSE Emma
