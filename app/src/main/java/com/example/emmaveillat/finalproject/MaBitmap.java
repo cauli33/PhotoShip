@@ -362,8 +362,9 @@ public class MaBitmap {
         return miroirV;
     }
 
+    //TODO finir javadoc et comms
     /**
-     * fonction qui permet de baisser la résolution d'une image. TODO
+     * fonction qui permet de baisser la résolution d'une image.
      * @return l'image de qualité moindre
      */
     public MaBitmap sousRes() {
@@ -704,11 +705,17 @@ public class MaBitmap {
         return select;
     }
 
-    //TODO javadoc et comms
+    /**
+     * fonction qui permet de changer la teinte d'une image sans modifier la luminosité, les
+     * contrastes ou encore la saturation
+     * @param teinte la teinte à remplacer
+     * @return l'image ayant un filtre de couleur unie
+     */
     public MaBitmap changeTeinte(int teinte){
         int[] pixelsFilt = new int[largeur * hauteur];
         float[] pixelHSV = new float[3];
 
+        //pour chaque pixel on remplace la valeur de teinte dans l'espace HSV
         for (int i = 0; i < largeur*hauteur; ++i) {
             int pixel = pixels[i];
             Color.colorToHSV(pixel, pixelHSV);
@@ -720,26 +727,37 @@ public class MaBitmap {
         return filtre;
     }
 
-    //TODO javadoc et comms
+    /**
+     * fonction qui permet de changer indépendament les valeurs de l'espace HSV d'une image. Elle
+     * supporte même les dépassements d'intervalles.
+     * @param teinte la valeur à ajouter pour modifier la teinte
+     * @param sat la valeur à ajouter pour modifier la saturation
+     * @param val la valeur à ajouter pour modifier la luminosité
+     * @return l'image transformée
+     */
     public MaBitmap changeHSV(int teinte, int sat, int val){
+        //création d'un tableau de pixels pour y placer les pixels modifiés
         int[] pixelsFilt = new int[largeur * hauteur];
         float[] pixelHSV = new float[3];
         for (int i = 0; i < largeur*hauteur; ++i) {
+            //pour chaque pixel on passe dans l'espace HSV
             int pixel = pixels[i];
             Color.colorToHSV(pixel, pixelHSV);
+            //concernant la teinte
             pixelHSV[0] = pixelHSV[0] + teinte;
             if (pixelHSV[0] < 0.0f) {
                 pixelHSV[0] += 360.0f;
             } else if (pixelHSV[0] > 360.0f) {
                 pixelHSV[0] -= 360.0f;
             }
-
+            //concernant la saturation
             pixelHSV[1] = pixelHSV[1] + sat;
             if (pixelHSV[1] < 0.0f) {
                 pixelHSV[1] += 1.0f;
             } else if (pixelHSV[1] > 1.0f) {
                 pixelHSV[1] -= 1.0f;
             }
+            //concernant la luminosité
              pixelHSV[2] = pixelHSV[2] + val;
             if (pixelHSV[2] < 0.0f) {
                 pixelHSV[2] += 1.0f;
@@ -748,6 +766,7 @@ public class MaBitmap {
             }
             pixelsFilt[i] = Color.HSVToColor(pixelHSV);
         }
+        //création de la MaBitmap à partir du tableau de pixels précédent
         Bitmap bmpFilt = Bitmap.createBitmap(pixelsFilt, largeur, hauteur, Bitmap.Config.ARGB_8888);
         MaBitmap filtre = new MaBitmap(bmpFilt, 11);
         return filtre;
@@ -868,7 +887,12 @@ public class MaBitmap {
         return gris.melangeDensiteCouleur(gauss);
     }
 
-    //TODO javadoc et comms
+    /**
+     * fonction qui déforme l'image originale en fonction de deux entiers passés en paramètres.
+     * @param nl entier pour déterminer le facteur de modification de la largeur
+     * @param nh entier pour déterminer le facteur de modification de la hauteur
+     * @return l'image transformée
+     */
     public MaBitmap voisinLePlusProche(int nl, int nh){
         float factX = (float) nl/largeur;
         float factY = (float) nh/hauteur;
@@ -876,9 +900,11 @@ public class MaBitmap {
         int[] pixelsCN = new int [nl*nh];
         for (int x = 0; x < nl; x++) {
             for (int y = 0; y < nh; y++) {
+                //on réattribut la position de chaque pixel dans le nouveau tableau
                 pixelsCN[y * nl + x] = pixels[(int)(y / factY) * largeur + (int)(x / factX)];
             }
         }
+        //création de l'image de type MaBitmap à partir du tableau de pixels précédent
         Bitmap bmpCN = Bitmap.createBitmap(pixelsCN, nl, nh, Bitmap.Config.ARGB_8888);
         MaBitmap cn = new MaBitmap(bmpCN, 19);
         return cn;
