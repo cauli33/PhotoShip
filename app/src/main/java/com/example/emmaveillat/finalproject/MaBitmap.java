@@ -7,7 +7,7 @@ import java.nio.IntBuffer;
 import java.util.Arrays;
 
 /**
- * La classe MonBitmap est une classe définissant le type d'image propre à l'application. Elle
+ * La classe MaBitmap est une classe définissant le type d'image propre à l'application. Elle
  * contient en paramètres l'image en elle-même, sa taille, la tableau de pixels correspondant,
  * un témoin si un filtre est appliqué, son histogramme ainsi qu'une map à appliquer pour les
  * convolutions. Elle permet également l'application de filtres simples (passage en niveaux de gris,
@@ -168,9 +168,13 @@ public class MaBitmap {
         return inverted;
     }
 
-    //TODO changer nom fonction
-    //TODO commentaire et javadoc
-    public Bitmap scale(float facteur){
+    /**
+     * fonction qui recalcule la taille de l'image en fonction du facteur passé en paramètre et
+     * recrée une image à la taille adéquate
+     * @param facteur le facteur d'agrandissement ou de réduction de l'image
+     * @return l'image avec sa nouvelle taille
+     */
+    public Bitmap miseAEchelle(float facteur){
         if (facteur < 0.1){
             facteur = 0.1f;
         }
@@ -358,9 +362,11 @@ public class MaBitmap {
         return miroirV;
     }
 
-    //TODO changer nom
-    //TODO what x2 ?
-    public MaBitmap lowerRes() {
+    /**
+     * fonction qui permet de baisser la résolution d'une image. TODO
+     * @return l'image de qualité moindre
+     */
+    public MaBitmap sousRes() {
         if (largeur * hauteur > 1000000) {
             int nl, nh;
             float fact;
@@ -793,10 +799,9 @@ public class MaBitmap {
         return rogne;
     }
 
-    //TODO change nom
     // Code de Pratik sur stackoverflow.com
     //TODO javadoc et comms
-    private MaBitmap colorDodgeBlend(MaBitmap calque) {
+    private MaBitmap melangeDensiteCouleur(MaBitmap calque) {
         Bitmap base = bmp.copy(Bitmap.Config.ARGB_8888, true);
         Bitmap mélange = calque.bmp.copy(Bitmap.Config.ARGB_8888, false);
 
@@ -824,9 +829,9 @@ public class MaBitmap {
             int srcVert = Color.green(srcEntier);
             int srcBleu = Color.blue(srcEntier);
 
-            int finalRouge = colordodge(filtRouge, srcRouge);
-            int finalVert = colordodge(filtVert, srcVert);
-            int finalBleu = colordodge(filtBleu, srcBleu);
+            int finalRouge = densiteCouleur(filtRouge, srcRouge);
+            int finalVert = densiteCouleur(filtVert, srcVert);
+            int finalBleu = densiteCouleur(filtBleu, srcBleu);
 
 
             int pixel = Color.argb(255, finalRouge, finalVert, finalBleu);
@@ -843,9 +848,8 @@ public class MaBitmap {
         return new MaBitmap(base, 17);
     }
 
-    //TODO change nom
     //TODO javadoc et comms
-    private int colordodge(int in1, int in2) {
+    private int densiteCouleur(int in1, int in2) {
         float image = (float)in2;
         float masque = (float)in1;
         return ((int) ((image == 255) ? image:Math.min(255, (((long)masque << 8 ) / (255 - image)))));
@@ -861,7 +865,7 @@ public class MaBitmap {
         MaBitmap gris = enGris();
         MaBitmap inverse = gris.inverser();
         MaBitmap gauss = inverse.gauss();
-        return gris.colorDodgeBlend(gauss);
+        return gris.melangeDensiteCouleur(gauss);
     }
 
     //TODO javadoc et comms
@@ -881,7 +885,7 @@ public class MaBitmap {
     }
 
     //TODO javadoc et comms
-    private void findAreaColor(int x, int y, int l, int h, int[] sommeRGB, int cmpCouleur){
+    private void trouverAireCouleur(int x, int y, int l, int h, int[] sommeRGB, int cmpCouleur){
         int index = y*l+x;
         bordures[index]=cmpCouleur;
         int pixel = pixels[index];
@@ -889,10 +893,14 @@ public class MaBitmap {
         sommeRGB[1] += Color.green(pixel);
         sommeRGB[2] += Color.blue(pixel);
         sommeRGB[3] ++;
-        if ((x>0) && (bordures[index-1]==0)){findAreaColor(x-1, y, l, h, sommeRGB, cmpCouleur);}
-        if ((x<l-1)&&(bordures[index+1]==0)){findAreaColor(x+1, y, l, h, sommeRGB, cmpCouleur);}
-        if ((y>0)&&(bordures[index-l]==0)){findAreaColor(x, y-1, l, h, sommeRGB, cmpCouleur);}
-        if ((y<h-1)&&(bordures[index+l]==0)){findAreaColor(x, y+1, l, h, sommeRGB, cmpCouleur);}
+        if ((x>0) && (bordures[index-1]==0)){
+            trouverAireCouleur(x-1, y, l, h, sommeRGB, cmpCouleur);}
+        if ((x<l-1)&&(bordures[index+1]==0)){
+            trouverAireCouleur(x+1, y, l, h, sommeRGB, cmpCouleur);}
+        if ((y>0)&&(bordures[index-l]==0)){
+            trouverAireCouleur(x, y-1, l, h, sommeRGB, cmpCouleur);}
+        if ((y<h-1)&&(bordures[index+l]==0)){
+            trouverAireCouleur(x, y+1, l, h, sommeRGB, cmpCouleur);}
     }
 
     //TODO javadoc et comms
@@ -933,7 +941,7 @@ public class MaBitmap {
             for (int x = 0; x < largeur; x++) {
                 if (bordures[y * largeur + x] == 0) {
                     Arrays.fill(sommeRGB, 0);
-                    findAreaColor(x, y, largeur, hauteur, sommeRGB, cmpCouleur);
+                    trouverAireCouleur(x, y, largeur, hauteur, sommeRGB, cmpCouleur);
                     r = sommeRGB[0] / sommeRGB[3];
                     g = sommeRGB[1] / sommeRGB[3];
                     b = sommeRGB[2] / sommeRGB[3];
@@ -1001,7 +1009,7 @@ public class MaBitmap {
             for (int x = 0; x < width; x++) {
                 if (borders[y * width + x] == 0) {
                     Arrays.fill(sommeRGB, 0);
-                    findAreaColor(x, y, width, height, sommeRGB);
+                    trouverAireCouleur(x, y, width, height, sommeRGB);
                     r = sommeRGB[0] / sommeRGB[3];
                     g = sommeRGB[1] / sommeRGB[3];
                     b = sommeRGB[2] / sommeRGB[3];

@@ -200,7 +200,7 @@ public class MenuGeneral extends AppCompatActivity {
                         appliquerDoigt = courant.copie();
                         courant = memoire.getPrecedent();
                         img.setImageBitmap(courant.bmp);
-                        img.setOnTouchListener(ApplyWithFingerListener);
+                        img.setOnTouchListener(AppliAvecDoigtListener);
                     }
                 }
                 //si le bouton n'est plus enclenché, l'utilisateur a de nouveau la possibilité de
@@ -1184,7 +1184,7 @@ public class MenuGeneral extends AppCompatActivity {
                             disty = event.getY(0) - event.getY(1);
                             distCourante = (float) Math.sqrt(distx * distx + disty * disty);
                             facteur = distCourante / distInitiale;
-                            img.setImageBitmap(courant.scale(facteur));
+                            img.setImageBitmap(courant.miseAEchelle(facteur));
                         }
                     } else if (statut == TOUCHE) {
                         //dans le cas où le statut est "touch", on récupère les positions du doigt
@@ -1203,9 +1203,9 @@ public class MenuGeneral extends AppCompatActivity {
                 case MotionEvent.ACTION_POINTER_UP:
                     statut = IMMOBILE;
                     if (courant.filtre == 20) {
-                        courant = new MaBitmap(courant.scale(facteur), 20);
+                        courant = new MaBitmap(courant.miseAEchelle(facteur), 20);
                     } else {
-                        courant = new MaBitmap(courant.scale(facteur), 20);
+                        courant = new MaBitmap(courant.miseAEchelle(facteur), 20);
                         memoire.setSuivant(courant);
                     }
                     break;
@@ -1227,7 +1227,7 @@ public class MenuGeneral extends AppCompatActivity {
     };
 
     //TODO
-    View.OnTouchListener ApplyWithFingerListener = new View.OnTouchListener(){
+    View.OnTouchListener AppliAvecDoigtListener = new View.OnTouchListener(){
 
         @Override
         public boolean onTouch(View view, MotionEvent event) {
