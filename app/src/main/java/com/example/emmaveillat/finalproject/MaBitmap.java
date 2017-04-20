@@ -62,9 +62,6 @@ public class MaBitmap {
      */
     public int[] mapSobel = null;
 
-    //public int[] basicColors = null;
-    //public int[] colors = null;
-
     /**
      * fonction qui crée une image utilisable par l'application à partir d'une bitmap classique et
      * d'un filtre. Elle récupère donc sa hauteur, sa largeur et ses pixels dans un tableau et
@@ -365,11 +362,11 @@ public class MaBitmap {
     }
 
     /**
-     * fonction qui permet d'appliquer les filtres moyenneur, gaussien, laplacien et sobel  grâce à
+     * fonction qui permet d'appliquer les filtres moyenneur, gaussien grâce à
      * un masque de taille prédéfini. Pour ne pas avoir à gérer le problème des bords, toutes les
      * bordures de l'image sont passées en blanc. L'utilisateur n'aura qu'à rogner ces bordures si
      * celles-ci le dérangent grâce à l'outil de rognage.
-     * @param masque masque correspondant au filtre à appliquer à l'image
+     * @param masque matrice à appliquer
      * @param fact facteur à appliquer aux canaux RGB
      * @param filt entier correspondant au filtre que l'utilisateur veut appliquer
      * @return l'image avec le filtre appliqué
@@ -449,13 +446,20 @@ public class MaBitmap {
         return convolution(masque, 98, 6);
     }
 
-    //TODO comms et javadoc
+    /**
+     * fonction qui aide à appliquer les filtres laplacien et sobel grâce à
+     * un masque de taille prédéfini. Pour ne pas avoir à gérer le problème des bords, on garde les
+     * valeurs originelles des pixels.
+     * @param masque matrice à appliquer
+     * @return un tableau qui à chaque pixel donne un tableau de 3 cases pour les composantes RGB
+     * on a besoin de renvoyer de cette facon car les valeurs ne restent pas entre 0 et 255
+     */
     public int[][] borduresConvol(int[][] masque) {
         int n = masque.length / 2;
         int[][] pixelsConvRGB = new int[hauteur * largeur][3];
         int sommeR, sommeG, sommeB;
         int pixel;
-        //Keeps original values for the borders
+        //On garde les valeurs d'origine pour les bordures
         for (int y = 0; y < n; y++) {
             for (int x = 0; x < largeur; x++) {
                 pixel = pixels[y * largeur + x];
@@ -478,7 +482,7 @@ public class MaBitmap {
                 pixelsConvRGB[(y + 1) * largeur - x - 1][2] = Color.blue(pixel);
             }
         }
-        //Convolution avoiding borders
+        //Convolution classique
         float coef_masque;
         for (int y = n; y < hauteur - n; y++) {
             for (int x = n; x < largeur - n; x++) {
@@ -489,12 +493,13 @@ public class MaBitmap {
                     for (int i = -n; i <= n; i++) {
                         coef_masque = masque[j + n][i + n];
                         pixel = pixels[(y + j) * largeur + x + i];
-                        //For every RGB componants, multiplies by convolution matrix coefficient
                         sommeR += coef_masque * Color.red(pixel);
                         sommeG += coef_masque * Color.green(pixel);
                         sommeB += coef_masque * Color.blue(pixel);
                     }
                 }
+                //Pour les filtres laplacien et sobel, une valeur et son opposé sont aussi
+                //intéressantes
                 if (sommeR < 0) {
                     sommeR = -sommeR;
                 }
@@ -512,13 +517,16 @@ public class MaBitmap {
         return pixelsConvRGB;
     }
 
-    //TODO comms et javadoc
+    /**
+     * le filtre sobel permet d'afficher les contours à partir de deux convolutions permettant
+     * de faire la dérivée seconde horizontalement et verticalement. On fait la norme de ces deux
+     * résultats et enfin on revient à un espace de 0 à 255.
+     * @return l'image avec sobel appliqué
+     */
     public MaBitmap sobel(){
         int R,G,B;
-        //applicates convolution with hx et hy matrix
         int[][] hx = {{-1,0,1},{-2,0,2},{-1,0,1}};
         int[][] Gx = borduresConvol(hx);
-
         int[][] hy = {{-1,-2,-1},{0,0,0},{1,2,1}};
         int[][] Gy = borduresConvol(hy);
 
@@ -526,6 +534,8 @@ public class MaBitmap {
 
         int[] pixelsSobel = new int[largeur*hauteur];
         int max = 0;
+
+        //On fait la norme pour chaque valeur rgb et on cherche la valeur maximum
         for (int i=0; i<hauteur*largeur; i++) {
             norme[i][0] = (int) Math.sqrt(Math.pow(Gx[i][0], 2) + Math.pow(Gy[i][0], 2));
             norme[i][1] = (int) Math.sqrt(Math.pow(Gx[i][1], 2) + Math.pow(Gy[i][1], 2));
@@ -534,6 +544,7 @@ public class MaBitmap {
             if (norme[i][1] > max){max = norme[i][1];}
             if (norme[i][2] > max){max = norme[i][2];}
         }
+        //On revient dans l'espace de 0 à 255 grâce à la valeur maximum trouvée
         if (max!=0){
             for (int i=0; i<hauteur*largeur; i++) {
                 R = norme[i][0] * 255 / max;
@@ -547,7 +558,12 @@ public class MaBitmap {
         return sobel;
     }
 
-    //TODO comms et javadoc
+    /**
+     * le filtre laplacien permet d'afficher les contours.
+     * On doit faire attention à revenir entre 0 et 255 pour les valeurs rgb.
+     * La méthode est similaire à la deuxième partie de sobel.
+     * @return l'image avec laplacien appliqué
+     */
     public MaBitmap laplacien(){
         int R,G,B;
         //applicates convolution with hx et hy matrix
@@ -749,7 +765,12 @@ public class MaBitmap {
         return filtre;
     }
 
-    //TODO javadoc et comms
+    /**
+     * fonction qui permet d'afficher les traits noirs pour que l'utilisateur voit ce qu'il va
+     * rogner
+     * @param zone tableau des 4 valeurs haut, bas, gauche, droite de ce qu'on va rogner
+     * @return l'image avec les 4 barres d'indication en noir
+     */
     public MaBitmap affichageRogne(int[] zone){
         int[] pixelsRogne = pixels.clone();
         int RogneHaut = zone[0] * hauteur / 100;
@@ -782,7 +803,13 @@ public class MaBitmap {
         return rogne;
     }
 
-    //TODO javadoc et comms
+    /**
+     * fonction qui rogne l'image selon la zone donnée
+     * La fonction ne fait que "recalculer" les paramètres donnés en entrée, le rognage est fait
+     * grâce à la fonction createBitmap
+     * @param zone tableau des 4 valeurs haut, bas, gauche, droite de ce qu'on va rogner
+     * @return l'image rognée
+     */
     public MaBitmap rogner(int[] zone){
         int RogneHaut = zone[0] * hauteur / 100;
         int RogneBas = hauteur - zone[1] * hauteur / 100;
@@ -795,8 +822,14 @@ public class MaBitmap {
         return rogne;
     }
 
-    // Code de Pratik sur stackoverflow.com
-    //TODO javadoc et comms
+    /**
+     * Code de Pratik sur stackoverflow.com
+     * Nous avons voulu essayer l'effet dessin généralement conseillé sur internet, ne comprenant
+     * pas le calcul effectué dans densiteCouleur, nous ne pouvons expliqué cette fonction
+     * Elle mélange deux images d'une certaine façon
+     * @param calque la deuxième image à mélanger
+     * @return les deux images "mélangées"
+     */
     private MaBitmap melangeDensiteCouleur(MaBitmap calque) {
         Bitmap base = bmp.copy(Bitmap.Config.ARGB_8888, true);
         Bitmap mélange = calque.bmp.copy(Bitmap.Config.ARGB_8888, false);
@@ -844,7 +877,13 @@ public class MaBitmap {
         return new MaBitmap(base, 17);
     }
 
-    //TODO javadoc et comms
+    /**
+     * Code de Pratik sur stackoverflow.com
+     * Mélange de deux valeurs, nous ne pouvons expliquer plus
+     * @param in1 première valeur
+     * @param in2 deuxième valeur
+     * @return mélange des deux valeurs
+     */
     private int densiteCouleur(int in1, int in2) {
         float image = (float)in2;
         float masque = (float)in1;
@@ -854,7 +893,7 @@ public class MaBitmap {
     /**
      * fonction qui applique un effet crayon sur l'image. On applique successivement les fonctions
      * de niveaux de gris, la fonction pour inverser les couleurs et le filtre gaussien.
-     * On applique finalement la fonction TODO
+     * On applique finalement la fonction melangeDensiteCouleur
      * @return l'image en effet crayon
      */
     public MaBitmap dessinCrayon(){

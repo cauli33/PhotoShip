@@ -211,6 +211,9 @@ public class MenuGeneral extends AppCompatActivity {
         }});
         boutonDoigt.setChecked(false);
 
+        //Le bouton est désactivé car le filtre au doigt ne marche pas
+        boutonDoigt.setActivated(false);
+
         //Préparation à l'affichage des interfaces de rognage, des seekbars et de la barre de
         //boutons-images
         barImages = (HorizontalScrollView) findViewById(R.id.filterscrollview);
