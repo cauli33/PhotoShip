@@ -566,7 +566,7 @@ public class MaBitmap {
      */
     public MaBitmap laplacien(){
         int R,G,B;
-        //applicates convolution with hx et hy matrix
+        //application des matrices hx et hy
         int[][] masque = {{1,1,1},{1,-8,1},{1,1,1}};
         int[][] Gl = borduresConvol(masque);
 
