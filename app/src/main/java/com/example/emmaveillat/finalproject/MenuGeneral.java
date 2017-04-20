@@ -69,7 +69,7 @@ public class MenuGeneral extends AppCompatActivity {
      * aux transformations correspondantes
      */
     ImageButton original, gris, sepia, invers, moy, sobel, laplacien, filtre, ED, teinte, HE,
-            crayon1, crayon2, crayon3, cartoon, couleur;
+            crayon1, crayon2, crayon3, cartoon, hsv;
 
     /**
      * Boutons d'images pour aider l'utilisateur à rogner celle-ci
@@ -122,8 +122,7 @@ public class MenuGeneral extends AppCompatActivity {
     /**
      * valeurs à transmettre lors de la manipulation de filtres ou de seekbars
      */
-    int filtreAUtiliser, nbSeekbarAffichees, teinteBar, satBar, valBar, intervalleBar, val1, val2,
-            val3;
+    int filtreAUtiliser, nbSeekbarAffichees, teinteBar, intervalleBar, val1, val2, val3;
 
     /**
      * positions initiales et courantes du/doigt(s) sur l'écran
@@ -248,8 +247,8 @@ public class MenuGeneral extends AppCompatActivity {
         invers.setOnClickListener(blistener);
         teinte = (ImageButton) findViewById(R.id.teinte);
         teinte.setOnClickListener(blistener);
-        couleur = (ImageButton) findViewById(R.id.couleur);
-        couleur.setOnClickListener(blistener);
+        hsv = (ImageButton) findViewById(R.id.hsv);
+        hsv.setOnClickListener(blistener);
         filtre = (ImageButton) findViewById(R.id.filtre);
         filtre.setOnClickListener(blistener);
         ED = (ImageButton) findViewById(R.id.ED);
@@ -528,8 +527,8 @@ public class MenuGeneral extends AppCompatActivity {
                     filtreAUtiliser = 2;
                     break;
 
-                //quand l'utilisateur appuie sur le bouton "Choix couleur"
-                case R.id.couleur:
+                //quand l'utilisateur appuie sur le bouton "Espace HSV"
+                case R.id.hsv:
                     //Affichage et initialisation des 3 seekbars nécessaires
                     //Implémentation des changements dans le listener
                     affSeekbars(3);
@@ -538,18 +537,13 @@ public class MenuGeneral extends AppCompatActivity {
                     seekbar1.setOnSeekBarChangeListener(teintebarlistener);
                     txt1.setText("Teinte");
                     seekbar2.setProgress(0);
-                    seekbar2.setMax(360);
+                    seekbar2.setMax(100);
                     seekbar2.setOnSeekBarChangeListener(seekBarChangeListener);
                     txt2.setText("Saturation");
                     seekbar3.setProgress(0);
-                    seekbar3.setMax(360);
+                    seekbar3.setMax(100);
                     seekbar3.setOnSeekBarChangeListener(seekBarChangeListener);
                     txt3.setText("Valeur");
-                    teinteBar = 1;
-                    valBar = 2;
-                    satBar = 3;
-                    echantillonPrincipal.setVisibility(View.VISIBLE);
-                    changeTeinte();
                     filtreAUtiliser = 4;
                     break;
 
@@ -732,7 +726,7 @@ public class MenuGeneral extends AppCompatActivity {
                 //quand l'utilisateur appuie sur le bouton "Rogner", la transformation s'applique,
                 // l'image est stockée dans l'historique puis est affichée dans l'application
                 case R.id.rogne:
-                    courant = courant.rognage(aRogner);
+                    courant = courant.rogner(aRogner);
                     memoire.setSuivant(courant);
                     img.setImageBitmap(courant.bmp);
                     //l'interface de rognage est désactivé et les boutons-images sont de nouveau
@@ -1066,15 +1060,13 @@ public class MenuGeneral extends AppCompatActivity {
                 rogneDirection = 0;
                 break;
 
-            //TODO
+            //quand l'utilisateur appuie sur le bouton "Rogner"
             case R.id.ppv:
                 AlertDialog.Builder deformDialog = new AlertDialog.Builder(MenuGeneral.this);
                 deformDialog.setTitle("Changer les dimensions");
 
-                // A SUPPRIMER
-                final EditText input = new EditText(MenuGeneral.this);
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-
+                //On crée un layout pour la fenêtre de dialogue avec les deux zones de texte pour
+                //les dimensions, un bouton pour garder le rapport largeur-hauteur
                 LinearLayout layout = new LinearLayout(MenuGeneral.this);
                 layout.setOrientation(LinearLayout.VERTICAL);
 
@@ -1105,7 +1097,6 @@ public class MenuGeneral extends AppCompatActivity {
                     public void onClick(View v) {
                         switch (v.getId()) {
                             case (R.id.dimButton):
-                                float factor;
                                 int newWidth = (Integer.valueOf(widthBox.getText().toString()));
                                 int newHeight = (Integer.valueOf(heightBox.getText().toString()));
                                 if (newWidth != courant.largeur) {
@@ -1120,7 +1111,8 @@ public class MenuGeneral extends AppCompatActivity {
                 });
                 layout.addView(dimensions);
 
-                //TODO
+                //On fait apparaître la fenêtre de dialogue pour choisir les dimensions de la future
+                //image, si l'utilisateur choisit "Appliquer" l'image est déformée
                 deformDialog.setView(layout)
                         .setNeutralButton("Annuler", new DialogInterface.OnClickListener() {
                             @Override

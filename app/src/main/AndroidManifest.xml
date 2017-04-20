@@ -14,12 +14,20 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:hardwareAccelerated="false">
-        <activity android:name=".PageAccueil">
+        <activity
+            android:name=".LogoUniversite"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".PageAccueil"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
         </activity>
         <activity android:name=".ChargementPhoto" />
         <activity android:name=".MenuGeneral"/>

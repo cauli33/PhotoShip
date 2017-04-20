@@ -191,6 +191,8 @@ public class MaBitmap {
      */
     public MaBitmap sepia(){
         //initialisation d'entiers et du tableau contenant les pixels après application du filtre.
+        if (histogramme == null){
+            calculHistogramme();}
         int r, g, lvl;
         int[] pixelsSepia = new int[hauteur * largeur];
         int temoin = 20;
@@ -360,40 +362,6 @@ public class MaBitmap {
         Bitmap bmpMV = Bitmap.createBitmap(pixelsMV, largeur, hauteur, Bitmap.Config.ARGB_8888);
         MaBitmap miroirV = new MaBitmap(bmpMV, filtre);
         return miroirV;
-    }
-
-    //TODO finir javadoc et comms
-    /**
-     * fonction qui permet de baisser la résolution d'une image.
-     * @return l'image de qualité moindre
-     */
-    public MaBitmap sousRes() {
-        if (largeur * hauteur > 1000000) {
-            int nl, nh;
-            float fact;
-            if (largeur > hauteur) {
-                nl = 800;
-                nh = nl * hauteur / largeur;
-                fact = largeur / 800F;
-            } else {
-                nh = 800;
-                nl = nh * largeur / hauteur;
-                fact = hauteur / 800F;
-            }
-            int[] pixelsSous = new int[nl * nh];
-            int vX, vY;
-            for (int y = 0; y < nh; y++) {
-                for (int x = 0; x < nl; x++) {
-                    vX = (int) (x * fact);
-                    vY = (int) (y * fact);
-                    pixelsSous[y * nl + x] = pixels[vY * largeur + vX];
-                }
-            }
-            Bitmap bmpSous = Bitmap.createBitmap(nl, nh, Bitmap.Config.ARGB_8888);
-            bmpSous.setPixels(pixelsSous, 0, nl, 0, 0, nl, nh);
-            MaBitmap sous = new MaBitmap(bmpSous, filtre);
-        }
-        return this;
     }
 
     /**
@@ -625,27 +593,34 @@ public class MaBitmap {
         if (filtUtil == 2){
             return changeTeinte(v1);
         }
-        //TODO comm
+        //
         if (filtUtil == 3){
             return borduresCartoon(1F - (float)v1/100F);
         }
         //si l'utilisateur souhaite appliquer le filtre pour changer l'espace HSV, il a alors les
         //trois valeurs de teinte, saturation et valeur.
         if (filtUtil == 4){
-            return changeHSV(v1, v2, v3);
+            return changeHSV((float)v1, (float)v2/100F, (float)v3/100);
         }
         return null;
     }
 
-    //TODO comms et javadoc
+    /**
+     * fonction qui garde les pixels de la teinte demandée et transforme le reste en noir et blanc
+     * @param pas tolérance par rapport à la teinte donnée
+     * @param teinte teinte demandée et donnée par la seekbar
+     * @return l'image transformée
+     */
     private MaBitmap selectionTeinte(int pas, int teinte){
         int[] pixelsSelect = pixels.clone();
-        //Array to stock pixel hsv values
         float[] pixelHSV = new float[3];
-
+        int r, g, b, gris;
         int index = 0;
-        //3 cases: each one changes the way we choose the pixels we change to gray and the one we keep colored
-        //Chosen teinte value is not too close to 0 or 360
+        //Il y a répétition de code pour éviter un calcul compliqué à chaque pixel, trois situations
+        //Dans tous les cas, on ne fait rien si la teinte du pixel nous convient, sinon on passe en
+        //niveaux de gris
+
+        //Si la teinte choisie est suffisamment éloignée de 0 ou 360 ( plus loin que la tolérance )
         if ((teinte >= pas)&&(teinte<=360F - pas)){
             for (int y = 0; y < hauteur; ++y) {
                 for (int x = 0; x < largeur; ++x) {
@@ -654,17 +629,18 @@ public class MaBitmap {
                     float teintePixel = pixelHSV[0];
                     //Get pixels out of the gap defined around teinte value in gray
                     if ((teintePixel >= teinte + pas) || (teintePixel <= teinte - pas)) {
-                        int rouge = Color.red(pixel);
-                        int bleu = Color.blue(pixel);
-                        int vert = Color.green(pixel);
-                        int gris = (rouge + bleu + vert) / 3;
+                        r = Color.red(pixel);
+                        g = Color.blue(pixel);
+                        b = Color.green(pixel);
+                        gris = (int) (0.6F*r + 0.2F*g + 0.1*b);
                         pixelsSelect[index] = Color.rgb(gris, gris, gris);
                     }
                     index++;
                 }
             }
         }
-        //Chosen teinte value is close to 0
+        //Si la teinte choisie est plus proche de 0 que la tolérance on doit accepter certaines
+        //valeurs proches de 360
         else if (teinte < pas){
             for (int y = 0; y < hauteur; ++y) {
                 for (int x = 0; x < largeur; ++x) {
@@ -672,17 +648,18 @@ public class MaBitmap {
                     Color.colorToHSV(pixel, pixelHSV);
                     float pixelHue = pixelHSV[0];
                     if ((pixelHue >= teinte + pas) && (pixelHue <= teinte + 360F - pas)) {
-                        int red = Color.red(pixel);
-                        int blue = Color.blue(pixel);
-                        int green = Color.green(pixel);
-                        int gray = (red + blue + green) / 3;
-                        pixelsSelect[index] = Color.rgb(gray, gray, gray);
+                        r = Color.red(pixel);
+                        g = Color.blue(pixel);
+                        b = Color.green(pixel);
+                        gris = (int) (0.6F*r + 0.2F*g + 0.1*b);
+                        pixelsSelect[index] = Color.rgb(gris, gris, gris);
                     }
                     index++;
                 }
             }
         }
-        //Chosen value is close to 360
+        //Si la teinte choisie est plus proche de 360 que la tolérance on doit accepter certaines
+        //valeurs proches de 0
         else{
             for (int y = 0; y < hauteur; ++y) {
                 for (int x = 0; x < largeur; ++x) {
@@ -690,11 +667,11 @@ public class MaBitmap {
                     Color.colorToHSV(pixel, pixelHSV);
                     float pixelHue = pixelHSV[0];
                     if ((pixelHue >= teinte -360F + pas) && (pixelHue <= teinte - pas)) {
-                        int red = Color.red(pixel);
-                        int blue = Color.blue(pixel);
-                        int green = Color.green(pixel);
-                        int gray = (red + blue + green) / 3;
-                        pixelsSelect[index] = Color.rgb(gray, gray, gray);
+                        r = Color.red(pixel);
+                        g = Color.blue(pixel);
+                        b = Color.green(pixel);
+                        gris = (int) (0.6F*r + 0.2F*g + 0.1*b);
+                        pixelsSelect[index] = Color.rgb(gris, gris, gris);
                     }
                     index++;
                 }
@@ -729,13 +706,13 @@ public class MaBitmap {
 
     /**
      * fonction qui permet de changer indépendament les valeurs de l'espace HSV d'une image. Elle
-     * supporte même les dépassements d'intervalles.
+     * supporte les dépassements d'intervalles.
      * @param teinte la valeur à ajouter pour modifier la teinte
      * @param sat la valeur à ajouter pour modifier la saturation
      * @param val la valeur à ajouter pour modifier la luminosité
      * @return l'image transformée
      */
-    public MaBitmap changeHSV(int teinte, int sat, int val){
+    public MaBitmap changeHSV(float teinte, float sat, float val){
         //création d'un tableau de pixels pour y placer les pixels modifiés
         int[] pixelsFilt = new int[largeur * hauteur];
         float[] pixelHSV = new float[3];
@@ -744,21 +721,21 @@ public class MaBitmap {
             int pixel = pixels[i];
             Color.colorToHSV(pixel, pixelHSV);
             //concernant la teinte
-            pixelHSV[0] = pixelHSV[0] + teinte;
+            pixelHSV[0] += teinte;
             if (pixelHSV[0] < 0.0f) {
                 pixelHSV[0] += 360.0f;
             } else if (pixelHSV[0] > 360.0f) {
                 pixelHSV[0] -= 360.0f;
             }
             //concernant la saturation
-            pixelHSV[1] = pixelHSV[1] + sat;
+            pixelHSV[1] += sat;
             if (pixelHSV[1] < 0.0f) {
                 pixelHSV[1] += 1.0f;
             } else if (pixelHSV[1] > 1.0f) {
                 pixelHSV[1] -= 1.0f;
             }
             //concernant la luminosité
-             pixelHSV[2] = pixelHSV[2] + val;
+             pixelHSV[2] += val;
             if (pixelHSV[2] < 0.0f) {
                 pixelHSV[2] += 1.0f;
             } else if (pixelHSV[2] > 1.0f) {
@@ -806,7 +783,7 @@ public class MaBitmap {
     }
 
     //TODO javadoc et comms
-    public MaBitmap rognage(int[] zone){
+    public MaBitmap rogner(int[] zone){
         int RogneHaut = zone[0] * hauteur / 100;
         int RogneBas = hauteur - zone[1] * hauteur / 100;
         int RogneGauche = zone[2] * largeur / 100;
@@ -910,7 +887,20 @@ public class MaBitmap {
         return cn;
     }
 
-    //TODO javadoc et comms
+    /**
+     * fonction récursive qui renvoie sur le pixel à gauche, à droite, au dessus, en dessous
+     * si ils existent et qu'ils n'ont pas déja été visités/qu'il ne s'agit pas d'une bordure.
+     * Il donne alors aux pixels visités la même valeur pour pouvoir séparer l'image en plusieurs
+     * zones de couleurs séparées par les bordures.
+     * Elle stocke en même temps dans sommeRGB la somme des valeurs RGB des pixels de la zone ainsi
+     * que le nombre de pixels pour déterminer la couleur "moyenne" de la zone.
+     * @param x coordonnée horizontale
+     * @param y coordonnée verticale
+     * @param l largeur de l'image
+     * @param h hauteur de l'image
+     * @param sommeRGB tableau de la somme des valeurs RGB et nombre de pixels de la zone
+     * @param cmpCouleur numéro donné à la zone
+     */
     private void trouverAireCouleur(int x, int y, int l, int h, int[] sommeRGB, int cmpCouleur){
         int index = y*l+x;
         bordures[index]=cmpCouleur;
@@ -929,12 +919,17 @@ public class MaBitmap {
             trouverAireCouleur(x, y+1, l, h, sommeRGB, cmpCouleur);}
     }
 
-    //TODO javadoc et comms
+    /**
+     * @return image en "cartoon" couleurs unifiées par zone sans contours
+     */
     public MaBitmap cartoon() {
+        //bordures est un tableau de la même taille de notre image avec -1 lorsqu'il s'agit
+        //d'une bordure et un entier positif pour indiquer la zone dans laquelle on est
         bordures = new int[largeur * hauteur];
+        //mapSobel est le tableau des pixels de sobel appliqué sur notre image
         mapSobel = this.sobel().pixels.clone();
         int pixel, r, g, b;
-        //Fills mapBorders with -1 at borders
+        //On définit les 3 pixels au bord de l'image comme des bordures
         for (int i=0; i<3*largeur; i ++){
             bordures[i] = -1;
             bordures[largeur*hauteur - 1 - i] = -1;
@@ -945,6 +940,8 @@ public class MaBitmap {
                 bordures[(y+1) * largeur - x - 1] = -1;
             }
         }
+        //Pour les autres pixels, on considère qu'il s'agit d'une bordure si la somme des valeurs
+        //rgb du pixel en sobel est supérieure à 30, donc si ce n'est pas trop noir
         for (int i = 0; i < largeur * hauteur; i++) {
             pixel = mapSobel[i];
             r = Color.red(pixel);
@@ -954,15 +951,26 @@ public class MaBitmap {
                 bordures[i] = -1;
             }
         }
+        //couleurs est le tableau des zones de l'image, chaque entier noté dans ce tableau
+        //correspond à l'indice de la couleur dans couleurBase
         int[] couleurs = new int[largeur*hauteur];
+        //couleurBase stocke la palette de couleurs "basiques" qu'on utilisera
         int[] couleurBase = new int[1000];
         int cmpBaseC = 0;
+        //On commence le compteur de couleurs, donc de zones dans l'image à 1, car 0 signifie
+        //qu'on a pas encore visité le pixel pour les bordures
         int cmpCouleur = 1;
         int[] sommeRGB = new int[4];
         int couleur;
         int i;
         int dr, dg, db;
         boolean resume;
+        //Dès qu'on croise un pixel non visité dans bordures (à 0)
+        //On parcourt toute la zone à laquelle il appartient et trouve la couleur moyenne
+        //Si cette couleur est suffisamment proche (2,4,3 sont les coefficients les moints
+        //coûteux et considérés comme bons pour comparer deux couleurs selon l'oeil humain)
+        //d'une des couleurs de bases déja trouvées, on considère que la couleur de la zone
+        //est de la couleur de base en question
         for (int y = 0; y < hauteur; y++) {
             for (int x = 0; x < largeur; x++) {
                 if (bordures[y * largeur + x] == 0) {
@@ -1001,6 +1009,10 @@ public class MaBitmap {
             }
         }
 
+        //On parcourt bordures, si on est pas sur une bordure, on prend la couleur de la zone
+        //qu'on a trouvée à l'étape précédente
+        //Si on est sur une bordure, on cherche à voir si la couleur originelle du pixel n'est
+        //pas proche d'une de nos couleurs de base, sinon on lui laisse sa couleur originelle
         int[] pixelsCartoon = new int[largeur* hauteur];
         for (int j = 0; j < largeur * hauteur; j++) {
             if (bordures[j] != -1) {
@@ -1029,21 +1041,6 @@ public class MaBitmap {
                 }
             }
         }
-        /*int couleur;
-        int[] sommeRGB = new int[4];
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                if (borders[y * width + x] == 0) {
-                    Arrays.fill(sommeRGB, 0);
-                    trouverAireCouleur(x, y, width, height, sommeRGB);
-                    r = sommeRGB[0] / sommeRGB[3];
-                    g = sommeRGB[1] / sommeRGB[3];
-                    b = sommeRGB[2] / sommeRGB[3];
-                    couleur = Color.rgb(r, g, b);
-                    paintArea(x, y, width, height, couleur);
-                }
-            }
-        }*/
         Bitmap bmpCartoon = Bitmap.createBitmap(pixelsCartoon, largeur, hauteur, Bitmap.Config.ARGB_8888);
         MaBitmap cartoon = new MaBitmap(bmpCartoon, 14);
         cartoon.bordures = this.bordures.clone();
@@ -1051,13 +1048,21 @@ public class MaBitmap {
         return cartoon;
     }
 
-    //TODO javadoc et comms
+    /**
+     * fonction qui trace les contours pour le filtre cartoon
+     * à utiliser uniquement après cartoon
+     * @param lvl seuil accepté donné par la seekbar
+     * @return l'image avec des bordures
+     */
     public MaBitmap borduresCartoon(float lvl){
         float[] hsv = new float[3];
         int[] pixelsCartoon = pixels.clone();
+        //On ne s'intéresse qu'aux pixels appartenant aux bordures détectées dans cartoon
         for (int i = 0; i < largeur * hauteur; i++) {
             if (bordures[i] == -1) {
                 Color.colorToHSV(mapSobel[i], hsv);
+                //Si la valeur du pixel est au dessus de notre seuil, on donne au pixel
+                //noir/grise selon si on considère que c'est une bordure "importante"
                 if (hsv[2] > lvl) {
                     int v = (int) (100 * (1 - hsv[2]));
                     pixelsCartoon[i] = Color.rgb(v, v, v);

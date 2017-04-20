@@ -146,6 +146,20 @@ public class ChargementPhoto extends Activity {
      */
     protected static Bitmap scaleImage() {
         Bitmap nad = BitmapFactory.decodeFile(cheminImg);
+        int largeur = nad.getWidth();
+        int hauteur = nad.getHeight();
+        if (nad.getWidth() * nad.getHeight() > 3000000) {
+            int nl, nh;
+            float fact;
+            if (largeur > hauteur) {
+                nl = 1920;
+                nh = nl * hauteur / largeur;
+            } else {
+                nh = 1920;
+                nl = nh * largeur / hauteur;
+            }
+            return Bitmap.createScaledBitmap(nad, nl, nh, false);
+        }
         return nad;
     }
 
